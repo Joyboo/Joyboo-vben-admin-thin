@@ -15,6 +15,8 @@ import { setObjToUrlParams, deepMerge } from '/@/utils';
 import { useErrorLogStoreWithOut } from '/@/store/modules/errorLog';
 import { useI18n } from '/@/hooks/web/useI18n';
 import { joinTimestamp, formatRequestDate } from './helper';
+import { useLocaleStoreWithOut } from '/@/store/modules/locale';
+import { localeSetting } from '/@/settings/localeSetting';
 
 const globSetting = useGlobSetting();
 const urlPrefix = globSetting.urlPrefix;
@@ -139,6 +141,11 @@ const transform: AxiosTransform = {
       config.headers.Authorization = options.authenticationScheme
         ? `${options.authenticationScheme} ${token}`
         : token;
+    }
+    // i18n
+    const localeStore = useLocaleStoreWithOut();
+    if (localeSetting.availableLocales.indexOf(localeStore.getLocale) !== -1) {
+      config.headers['Accept-Language'] = localeStore.getLocale;
     }
     return config;
   },
