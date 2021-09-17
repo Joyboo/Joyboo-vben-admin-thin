@@ -31,9 +31,9 @@ export interface ErrorLogInfo {
 }
 
 export interface UserInfo {
-  userId: string | number;
+  id: string | number;
   username: string;
-  realName: string;
+  realname: string;
   avatar: string;
   desc?: string;
   homePath?: string;

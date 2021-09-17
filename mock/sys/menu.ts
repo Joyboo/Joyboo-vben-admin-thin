@@ -249,7 +249,7 @@ export default [
       if (!checkUser) {
         return resultError('Invalid user token!');
       }
-      const id = checkUser.userId;
+      const id = checkUser.id;
       let menu: Object[];
       switch (id) {
         case '1':
