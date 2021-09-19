@@ -21,6 +21,8 @@ enum Api {
 
   MenuList = '/admin/menu/index',
   MenuAdd = '/admin/menu/add',
+  MenuEdit = '/admin/menu/edit',
+  MenuDel = '/admin/menu/del',
   MenuChange = '/admin/menu/change',
 
   RolePageList = '/system/getRoleListByPage',
@@ -36,12 +38,11 @@ export const getDeptList = (params?: DeptListItem) =>
 export const getMenuList = (params?: MenuParams) =>
   defHttp.get<MenuListGetResultModel>({ url: Api.MenuList, params });
 
-export const addMenu = (params: MenuFormParams) => {
-  if (typeof params.pid === 'undefined') {
-    params.pid = 0;
-  }
-  defHttp.post({ url: Api.MenuAdd, params });
-};
+export const menuAdd = (params: MenuFormParams) => defHttp.post({ url: Api.MenuAdd, params });
+
+export const menuEdit = (params: MenuFormParams) => defHttp.post({ url: Api.MenuEdit, params });
+
+export const menuDel = (id: number) => defHttp.get({ url: Api.MenuDel, params: { id } });
 
 export const changeMenu = (id: number, column: string, status: number) =>
   defHttp.post({ url: Api.MenuChange, params: { id, column, status } });

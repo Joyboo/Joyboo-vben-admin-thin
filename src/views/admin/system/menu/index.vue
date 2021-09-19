@@ -31,7 +31,8 @@
   import { defineComponent, nextTick } from 'vue';
 
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getMenuList } from '/@/api/admin/system';
+  import { getMenuList, menuDel } from '/@/api/admin/system';
+  import { useMessage } from '/@/hooks/web/useMessage';
 
   import { useDrawer } from '/@/components/Drawer';
   import MenuDrawer from './MenuDrawer.vue';
@@ -82,7 +83,15 @@
       }
 
       function handleDelete(record: Recordable) {
-        console.log(record);
+        const { createMessage } = useMessage();
+        menuDel(record.id)
+          .then(() => {
+            createMessage.success('删除成功');
+          })
+          .catch(() => {
+            createMessage.error('删除失败');
+          })
+          .finally(handleSuccess);
       }
 
       function handleSuccess() {

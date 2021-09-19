@@ -16,7 +16,7 @@
   import { formSchema } from './menu.data';
   import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
 
-  import { getMenuList, addMenu } from '/@/api/admin/system';
+  import { getMenuList, menuAdd, menuEdit } from '/@/api/admin/system';
 
   export default defineComponent({
     name: 'MenuDrawer',
@@ -24,6 +24,7 @@
     emits: ['success', 'register'],
     setup(_, { emit }) {
       const isUpdate = ref(true);
+      let id = 0;
 
       const [registerForm, { resetFields, setFieldsValue, updateSchema, validate }] = useForm({
         labelWidth: 100,
@@ -41,6 +42,7 @@
           setFieldsValue({
             ...data.record,
           });
+          id = data.record.id;
         }
         const treeData = await getMenuList();
         updateSchema({
@@ -54,12 +56,24 @@
       async function handleSubmit() {
         try {
           const values = await validate();
+
+          if (typeof values.pid === 'undefined') {
+            values.pid = 0;
+          }
+
           setDrawerProps({ confirmLoading: true });
-          await addMenu(values);
+
+          if (unref(isUpdate)) {
+            values.id = id;
+            await menuEdit(values);
+          } else {
+            await menuAdd(values);
+          }
+
           closeDrawer();
           emit('success');
         } catch (e) {
-          console.log('this is catch', e);
+          console.log('menuDrawer catch', e);
         } finally {
           setDrawerProps({ confirmLoading: false });
         }
