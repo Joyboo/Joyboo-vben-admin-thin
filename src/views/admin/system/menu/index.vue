@@ -15,6 +15,7 @@
               icon: 'ant-design:delete-outlined',
               color: 'error',
               popConfirm: {
+                placement: 'leftBottom',
                 title: '是否确认删除',
                 confirm: handleDelete.bind(null, record),
               },

@@ -18,7 +18,7 @@ export type DeptParams = {
 };
 
 export type MenuParams = {
-  menuName?: string;
+  title?: string;
   status?: string;
 };
 
@@ -49,6 +49,39 @@ export interface MenuListItem {
   icon: string;
   component: string;
   permission: string;
+}
+
+export interface MenuFormParams {
+  id?: number;
+  // 父级id
+  pid: number;
+  // 菜单类型,0-目录,1-菜单,2-按钮
+  type: number;
+  // 路由name
+  name: string;
+  // 显示名称
+  title: string;
+  // 排序
+  sort: number;
+  // 图标
+  icon?: string;
+  path?: string;
+  component?: string;
+  redirect?: string;
+  // 状态,0-禁用，1-启用
+  status: number;
+  // 权限标识
+  permission?: string;
+  // 是否外链,0-否，1-是
+  isext?: number;
+  // 是否显示,0-否，1-是
+  isshow?: number;
+  // 是否缓存0-否，1-是
+  keepalive?: number;
+  // 是否固钉，0-否，1-是
+  affix?: number;
+  // 是否显示在面包屑,0-否，1-是
+  breadcrumb?: number;
 }
 
 export interface RoleListItem {

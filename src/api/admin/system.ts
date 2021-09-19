@@ -2,6 +2,7 @@ import {
   AccountParams,
   DeptListItem,
   MenuParams,
+  MenuFormParams,
   RoleParams,
   RolePageParams,
   MenuListGetResultModel,
@@ -17,7 +18,11 @@ enum Api {
   IsAccountExist = '/system/accountExist',
   DeptList = '/system/getDeptList',
   setRoleStatus = '/system/setRoleStatus',
-  MenuList = '/system/getMenuList',
+
+  MenuList = '/admin/menu/index',
+  MenuAdd = '/admin/menu/add',
+  MenuChange = '/admin/menu/change',
+
   RolePageList = '/system/getRoleListByPage',
   GetAllRoleList = '/system/getAllRoleList',
 }
@@ -30,6 +35,16 @@ export const getDeptList = (params?: DeptListItem) =>
 
 export const getMenuList = (params?: MenuParams) =>
   defHttp.get<MenuListGetResultModel>({ url: Api.MenuList, params });
+
+export const addMenu = (params: MenuFormParams) => {
+  if (typeof params.pid === 'undefined') {
+    params.pid = 0;
+  }
+  defHttp.post({ url: Api.MenuAdd, params });
+};
+
+export const changeMenu = (id: number, column: string, status: number) =>
+  defHttp.post({ url: Api.MenuChange, params: { id, column, status } });
 
 export const getRoleListByPage = (params?: RolePageParams) =>
   defHttp.get<RolePageListGetResultModel>({ url: Api.RolePageList, params });
