@@ -17,7 +17,6 @@ enum Api {
   AccountList = '/system/getAccountList',
   IsAccountExist = '/system/accountExist',
   DeptList = '/system/getDeptList',
-  setRoleStatus = '/system/setRoleStatus',
 
   MenuList = '/admin/menu/index',
   MenuAdd = '/admin/menu/add',
@@ -25,8 +24,12 @@ enum Api {
   MenuDel = '/admin/menu/del',
   MenuChange = '/admin/menu/change',
 
-  RolePageList = '/system/getRoleListByPage',
-  GetAllRoleList = '/system/getAllRoleList',
+  RolePageList = '/admin/role/index',
+  RoleChange = '/admin/role/change',
+  RoleAdd = '/admin/role/add',
+  RoleEdit = '/admin/role/edit',
+  RoleDel = '/admin/role/del',
+  GetAllRoleList = '/admin/role/getAllRoleList',
 }
 
 export const getAccountList = (params: AccountParams) =>
@@ -53,8 +56,14 @@ export const getRoleListByPage = (params?: RolePageParams) =>
 export const getAllRoleList = (params?: RoleParams) =>
   defHttp.get<RoleListGetResultModel>({ url: Api.GetAllRoleList, params });
 
-export const setRoleStatus = (id: number, status: string) =>
-  defHttp.post({ url: Api.setRoleStatus, params: { id, status } });
+export const roleChange = (id: number, column: string, status: number) =>
+  defHttp.post({ url: Api.RoleChange, params: { id, column, status } });
+
+export const roleAdd = (params: MenuFormParams) => defHttp.post({ url: Api.RoleAdd, params });
+
+export const roleEdit = (params: MenuFormParams) => defHttp.post({ url: Api.RoleEdit, params });
+
+export const roleDel = (id: number) => defHttp.get({ url: Api.RoleDel, params: { id } });
 
 export const isAccountExist = (account: string) =>
   defHttp.post({ url: Api.IsAccountExist, params: { account } }, { errorMessageMode: 'none' });

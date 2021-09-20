@@ -12,7 +12,7 @@
         <BasicTree
           v-model:value="model[field]"
           :treeData="treeData"
-          :replaceFields="{ title: 'menuName', key: 'id' }"
+          :replaceFields="{ title: 'title', key: 'id' }"
           checkable
           toolbar
           title="菜单分配"
@@ -28,7 +28,7 @@
   import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
   import { BasicTree, TreeItem } from '/@/components/Tree';
 
-  import { getMenuList } from '/@/api/admin/system';
+  import { getMenuList, roleAdd, roleEdit } from '/@/api/admin/system';
 
   export default defineComponent({
     name: 'RoleDrawer',
@@ -37,6 +37,7 @@
     setup(_, { emit }) {
       const isUpdate = ref(true);
       const treeData = ref<TreeItem[]>([]);
+      let id = 0;
 
       const [registerForm, { resetFields, setFieldsValue, validate }] = useForm({
         labelWidth: 90,
@@ -57,6 +58,7 @@
           setFieldsValue({
             ...data.record,
           });
+          id = data.record.id;
         }
       });
 
@@ -66,8 +68,12 @@
         try {
           const values = await validate();
           setDrawerProps({ confirmLoading: true });
-          // TODO custom api
-          console.log(values);
+          if (unref(isUpdate)) {
+            values.id = id;
+            await roleEdit(values);
+          } else {
+            await roleAdd(values);
+          }
           closeDrawer();
           emit('success');
         } finally {
