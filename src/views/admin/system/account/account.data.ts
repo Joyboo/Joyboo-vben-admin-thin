@@ -1,49 +1,40 @@
-import { getAllRoleList, isAccountExist } from '/@/api/admin/system';
+import { getAllRoleList } from '/@/api/admin/system';
 import { BasicColumn } from '/@/components/Table';
 import { FormSchema } from '/@/components/Table';
 
 export const columns: BasicColumn[] = [
   {
+    title: '账号',
+    dataIndex: 'username',
+    width: 120,
+  },
+  {
     title: '用户名',
-    dataIndex: 'account',
-    width: 120,
-  },
-  {
-    title: '昵称',
-    dataIndex: 'nickname',
-    width: 120,
-  },
-  {
-    title: '邮箱',
-    dataIndex: 'email',
+    dataIndex: 'realname',
     width: 120,
   },
   {
     title: '创建时间',
-    dataIndex: 'createTime',
+    dataIndex: 'itime',
     width: 180,
   },
   {
     title: '角色',
-    dataIndex: 'role',
+    dataIndex: 'rid',
     width: 200,
-  },
-  {
-    title: '备注',
-    dataIndex: 'remark',
   },
 ];
 
 export const searchFormSchema: FormSchema[] = [
   {
-    field: 'account',
-    label: '用户名',
+    field: 'username',
+    label: '账号',
     component: 'Input',
     colProps: { span: 8 },
   },
   {
-    field: 'nickname',
-    label: '昵称',
+    field: 'realname',
+    label: '用户名',
     component: 'Input',
     colProps: { span: 8 },
   },
@@ -51,77 +42,71 @@ export const searchFormSchema: FormSchema[] = [
 
 export const accountFormSchema: FormSchema[] = [
   {
-    field: 'account',
-    label: '用户名',
+    field: 'username',
+    label: '账号',
     component: 'Input',
-    helpMessage: ['本字段演示异步验证', '不能输入带有admin的用户名'],
+    componentProps: {
+      placeholder: '请输入账号',
+      maxLength: 11,
+    },
     rules: [
       {
         required: true,
-        message: '请输入用户名',
+        message: '需要11位长度',
       },
       {
         validator(_, value) {
           return new Promise((resolve, reject) => {
-            isAccountExist(value)
-              .then(() => resolve())
-              .catch((err) => {
-                reject(err.message || '验证失败');
-              });
+            const match = /^\d{11}$/.test(value);
+            if (match) {
+              resolve();
+            } else {
+              reject('请输入11位数字的账号');
+            }
           });
         },
       },
     ],
   },
   {
-    field: 'pwd',
+    field: 'password',
     label: '密码',
     component: 'InputPassword',
     required: true,
-    ifShow: false,
+    show: false,
+    rules: [
+      {
+        required: true,
+        message: '请输入密码',
+      },
+    ],
   },
   {
     label: '角色',
-    field: 'role',
+    field: 'rid',
     component: 'ApiSelect',
     componentProps: {
       api: getAllRoleList,
-      labelField: 'roleName',
-      valueField: 'roleValue',
+      labelField: 'name',
+      valueField: 'id',
     },
     required: true,
   },
   {
-    field: 'dept',
-    label: '所属部门',
-    component: 'TreeSelect',
+    field: 'realname',
+    label: '用户名',
+    component: 'Input',
     componentProps: {
-      replaceFields: {
-        title: 'deptName',
-        key: 'id',
-        value: 'id',
-      },
-      getPopupContainer: () => document.body,
+      placeholder: '请输入用户真实姓名',
     },
     required: true,
   },
   {
-    field: 'nickname',
-    label: '昵称',
-    component: 'Input',
+    field: 'sort',
+    label: '排序',
+    helpMessage: '越小越靠前',
+    defaultValue: 9,
+    component: 'InputNumber',
     required: true,
-  },
-
-  {
-    label: '邮箱',
-    field: 'email',
-    component: 'Input',
-    required: true,
-  },
-
-  {
-    label: '备注',
-    field: 'remark',
-    component: 'InputTextArea',
   },
 ];

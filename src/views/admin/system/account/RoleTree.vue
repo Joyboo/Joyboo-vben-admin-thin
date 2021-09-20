@@ -1,12 +1,12 @@
 <template>
   <div class="bg-white m-4 mr-0 overflow-hidden">
     <BasicTree
-      title="部门列表"
+      title="角色列表"
       toolbar
       search
       :clickRowToExpand="false"
       :treeData="treeData"
-      :replaceFields="{ key: 'id', title: 'deptName' }"
+      :replaceFields="{ key: 'id', title: 'name' }"
       @select="handleSelect"
     />
   </div>
@@ -15,10 +15,10 @@
   import { defineComponent, onMounted, ref } from 'vue';
 
   import { BasicTree, TreeItem } from '/@/components/Tree';
-  import { getDeptList } from '/@/api/admin/system';
+  import { getAllRoleList } from '/@/api/admin/system';
 
   export default defineComponent({
-    name: 'DeptTree',
+    name: 'RoleTree',
     components: { BasicTree },
 
     emits: ['select'],
@@ -26,7 +26,7 @@
       const treeData = ref<TreeItem[]>([]);
 
       async function fetch() {
-        treeData.value = (await getDeptList()) as unknown as TreeItem[];
+        treeData.value = (await getAllRoleList()) as unknown as TreeItem[];
       }
 
       function handleSelect(keys) {

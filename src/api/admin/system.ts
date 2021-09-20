@@ -1,12 +1,10 @@
 import {
   AccountParams,
-  DeptListItem,
   MenuParams,
   MenuFormParams,
   RoleParams,
   RolePageParams,
   MenuListGetResultModel,
-  DeptListGetResultModel,
   AccountListGetResultModel,
   RolePageListGetResultModel,
   RoleListGetResultModel,
@@ -14,8 +12,8 @@ import {
 import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
-  AccountList = '/system/getAccountList',
-  IsAccountExist = '/system/accountExist',
+  AccountList = '/admin/admin/index',
+  IsAccountExist = '/admin/admin/accountExist',
   DeptList = '/system/getDeptList',
 
   MenuList = '/admin/menu/index',
@@ -34,9 +32,6 @@ enum Api {
 
 export const getAccountList = (params: AccountParams) =>
   defHttp.get<AccountListGetResultModel>({ url: Api.AccountList, params });
-
-export const getDeptList = (params?: DeptListItem) =>
-  defHttp.get<DeptListGetResultModel>({ url: Api.DeptList, params });
 
 export const getMenuList = (params?: MenuParams) =>
   defHttp.get<MenuListGetResultModel>({ url: Api.MenuList, params });
@@ -65,5 +60,5 @@ export const roleEdit = (params: MenuFormParams) => defHttp.post({ url: Api.Role
 
 export const roleDel = (id: number) => defHttp.get({ url: Api.RoleDel, params: { id } });
 
-export const isAccountExist = (account: string) =>
-  defHttp.post({ url: Api.IsAccountExist, params: { account } }, { errorMessageMode: 'none' });
+export const isAccountExist = (username: string) =>
+  defHttp.get({ url: Api.IsAccountExist, params: { username } }, { errorMessageMode: 'none' });

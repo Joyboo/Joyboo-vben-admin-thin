@@ -1,6 +1,6 @@
 <template>
   <PageWrapper dense contentFullHeight fixedHeight contentClass="flex">
-    <DeptTree class="w-1/4 xl:w-1/5" @select="handleSelect" />
+    <RoleTree class="w-1/4 xl:w-1/5" @select="handleSelect" />
     <BasicTable @register="registerTable" class="w-3/4 xl:w-4/5" :searchInfo="searchInfo">
       <template #toolbar>
         <a-button type="primary" @click="handleCreate">新增账号</a-button>
@@ -23,6 +23,7 @@
               color: 'error',
               tooltip: '删除此账号',
               popConfirm: {
+                placement: 'leftBottom',
                 title: '是否确认删除',
                 confirm: handleDelete.bind(null, record),
               },
@@ -40,17 +41,17 @@
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { getAccountList } from '/@/api/admin/system';
   import { PageWrapper } from '/@/components/Page';
-  import DeptTree from './DeptTree.vue';
 
   import { useModal } from '/@/components/Modal';
   import AccountModal from './AccountModal.vue';
 
   import { columns, searchFormSchema } from './account.data';
   import { useGo } from '/@/hooks/web/usePage';
+  import RoleTree from '/@/views/admin/system/account/RoleTree.vue';
 
   export default defineComponent({
     name: 'AccountManagement',
-    components: { BasicTable, PageWrapper, DeptTree, AccountModal, TableAction },
+    components: { BasicTable, PageWrapper, RoleTree, AccountModal, TableAction },
     setup() {
       const go = useGo();
       const [registerModal, { openModal }] = useModal();

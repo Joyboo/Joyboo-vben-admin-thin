@@ -1,12 +1,12 @@
 import { BasicPageParams, BasicFetchResult } from '/@/api/model/baseModel';
 
 export type AccountParams = BasicPageParams & {
-  account?: string;
-  nickname?: string;
+  username?: string;
+  realname?: string;
 };
 
 export type RoleParams = {
-  roleName?: string;
+  name?: string;
   status?: string;
 };
 
@@ -86,11 +86,11 @@ export interface MenuFormParams {
 
 export interface RoleListItem {
   id: string;
-  roleName: string;
-  roleValue: string;
+  name: string;
+  value: string;
   status: number;
-  orderNo: string;
-  createTime: string;
+  sort: string;
+  itime: string;
 }
 
 /**
