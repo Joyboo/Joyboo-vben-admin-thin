@@ -1,8 +1,16 @@
-import { getAllRoleList } from '/@/api/admin/system';
+import { adminChange, getAllRoleList } from '/@/api/admin/system';
 import { BasicColumn } from '/@/components/Table';
 import { FormSchema } from '/@/components/Table';
+import { h } from 'vue';
+import { Switch } from 'ant-design-vue';
+import { useMessage } from '/@/hooks/web/useMessage';
 
 export const columns: BasicColumn[] = [
+  {
+    title: 'ID',
+    dataIndex: 'id',
+    width: 60,
+  },
   {
     title: '账号',
     dataIndex: 'username',
@@ -22,6 +30,37 @@ export const columns: BasicColumn[] = [
     title: '角色',
     dataIndex: 'rid',
     width: 200,
+  },
+  {
+    title: '状态',
+    dataIndex: 'status',
+    width: 100,
+    customRender: ({ record }) => {
+      const status = record.status;
+      const enable = ~~status === 1;
+      return h(Switch, {
+        checked: enable,
+        checkedChildren: '正常',
+        unCheckedChildren: '锁定',
+        loading: record.pendingStatus,
+        onChange(checked: boolean) {
+          record.pendingStatus = true;
+          const newStatus = checked ? 1 : 0;
+          const { createMessage } = useMessage();
+          adminChange(record.id, 'status', newStatus)
+            .then(() => {
+              record.status = newStatus;
+              createMessage.success(`已成功修改状态`);
+            })
+            .catch(() => {
+              createMessage.error('修改状态失败');
+            })
+            .finally(() => {
+              record.pendingStatus = false;
+            });
+        },
+      });
+    },
   },
 ];
 

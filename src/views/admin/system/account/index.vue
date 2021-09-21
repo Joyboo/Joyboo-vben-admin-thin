@@ -66,6 +66,7 @@
           schemas: searchFormSchema,
           autoSubmitOnEnter: true,
         },
+        showIndexColumn: false,
         useSearchForm: true,
         showTableSetting: true,
         bordered: true,

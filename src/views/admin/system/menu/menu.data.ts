@@ -31,7 +31,7 @@ export const columns: BasicColumn[] = [
     width: 80,
     customRender: ({ record }) => {
       const type = record.type;
-      const color = { 0: 'blue', 1: 'green', 2: 'cyan' };
+      const color = { 0: 'blue', 1: 'green', 2: 'orange' };
       const text = { 0: '目录', 1: '菜单', 2: '按钮' };
       return h(Tag, { color: color[type] }, () => text[type]);
     },

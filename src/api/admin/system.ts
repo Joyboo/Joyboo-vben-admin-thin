@@ -13,6 +13,7 @@ import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
   AccountList = '/admin/admin/index',
+  AdminChange = '/admin/admin/change',
   IsAccountExist = '/admin/admin/accountExist',
   DeptList = '/system/getDeptList',
 
@@ -35,6 +36,9 @@ export const getAccountList = (params: AccountParams) =>
 
 export const getMenuList = (params?: MenuParams) =>
   defHttp.get<MenuListGetResultModel>({ url: Api.MenuList, params });
+
+export const adminChange = (id: number, column: string, status: number) =>
+  defHttp.post({ url: Api.AdminChange, params: { id, column, status } });
 
 export const menuAdd = (params: MenuFormParams) => defHttp.post({ url: Api.MenuAdd, params });
 
