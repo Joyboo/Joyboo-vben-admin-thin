@@ -185,6 +185,8 @@ export const formSchema: FormSchema[] = [
     helpMessage: '组件文件路径',
     component: 'Input',
     ifShow: ({ values }) => !isButton(values.type),
+    colProps: { lg: 24, md: 24 },
+    slot: 'myMenuDrawer',
   },
   {
     field: 'redirect',

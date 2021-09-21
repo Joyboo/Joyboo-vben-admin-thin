@@ -7,7 +7,17 @@
     width="50%"
     @ok="handleSubmit"
   >
-    <BasicForm @register="registerForm" />
+    <BasicForm @register="registerForm">
+      <template #myMenuDrawer="{ model, field }">
+        <a-input v-model:value="model[field]" placeholder="组件">
+          <template #suffix>
+            <Tooltip title="使用LAYOUT组件" class="useLayout">
+              <Icon icon="ant-design:layout-outlined" @click="model[field] = 'LAYOUT'" />
+            </Tooltip>
+          </template>
+        </a-input>
+      </template>
+    </BasicForm>
   </BasicDrawer>
 </template>
 <script lang="ts">
@@ -15,12 +25,13 @@
   import { BasicForm, useForm } from '/@/components/Form/index';
   import { formSchema } from './menu.data';
   import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
-
+  import { Tooltip } from 'ant-design-vue';
+  import { Icon } from '/@/components/Icon';
   import { getMenuList, menuAdd, menuEdit } from '/@/api/admin/system';
 
   export default defineComponent({
     name: 'MenuDrawer',
-    components: { BasicDrawer, BasicForm },
+    components: { BasicDrawer, BasicForm, Tooltip, Icon },
     emits: ['success', 'register'],
     setup(_, { emit }) {
       const isUpdate = ref(true);
@@ -83,3 +94,13 @@
     },
   });
 </script>
+
+<style lang="less" scoped>
+  .useLayout {
+    cursor: pointer;
+
+    &:hover {
+      color: @primary-color;
+    }
+  }
+</style>
