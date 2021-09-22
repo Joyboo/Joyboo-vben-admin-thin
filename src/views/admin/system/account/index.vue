@@ -3,22 +3,25 @@
     <RoleTree class="w-1/4 xl:w-1/5" @select="handleSelect" />
     <BasicTable @register="registerTable" class="w-3/4 xl:w-4/5" :searchInfo="searchInfo">
       <template #toolbar>
-        <a-button type="primary" @click="handleCreate">新增账号</a-button>
+        <a-button v-auth="['/admin/add']" type="primary" @click="handleCreate">新增账号</a-button>
       </template>
       <template #action="{ record }">
         <TableAction
           :actions="[
             {
+              auth: '/admin/getToken',
               icon: 'clarity:info-standard-line',
-              tooltip: '查看用户详情',
-              onClick: handleView.bind(null, record),
+              tooltip: '获取token',
+              onClick: handleToken.bind(null, record),
             },
             {
+              auth: '/admin/edit',
               icon: 'clarity:note-edit-line',
               tooltip: '编辑用户资料',
               onClick: handleEdit.bind(null, record),
             },
             {
+              auth: '/admin/del',
               icon: 'ant-design:delete-outlined',
               color: 'error',
               tooltip: '删除此账号',
@@ -32,7 +35,7 @@
         />
       </template>
     </BasicTable>
-    <AccountModal @register="registerModal" @success="handleSuccess" />
+    <AccountDrawer @register="registerDrawer" @success="handleSuccess" />
   </PageWrapper>
 </template>
 <script lang="ts">
@@ -42,19 +45,17 @@
   import { getAccountList } from '/@/api/admin/system';
   import { PageWrapper } from '/@/components/Page';
 
-  import { useModal } from '/@/components/Modal';
-  import AccountModal from './AccountModal.vue';
+  import AccountDrawer from './AccountDrawer.vue';
 
   import { columns, searchFormSchema } from './account.data';
-  import { useGo } from '/@/hooks/web/usePage';
   import RoleTree from '/@/views/admin/system/account/RoleTree.vue';
+  import { useDrawer } from '/@/components/Drawer';
 
   export default defineComponent({
     name: 'AccountManagement',
-    components: { BasicTable, PageWrapper, RoleTree, AccountModal, TableAction },
+    components: { BasicTable, PageWrapper, RoleTree, AccountDrawer, TableAction },
     setup() {
-      const go = useGo();
-      const [registerModal, { openModal }] = useModal();
+      const [registerDrawer, { openDrawer }] = useDrawer();
       const searchInfo = reactive<Recordable>({});
       const [registerTable, { reload, updateTableDataRecord }] = useTable({
         title: '账号列表',
@@ -83,14 +84,14 @@
       });
 
       function handleCreate() {
-        openModal(true, {
+        openDrawer(true, {
           isUpdate: false,
         });
       }
 
       function handleEdit(record: Recordable) {
         console.log(record);
-        openModal(true, {
+        openDrawer(true, {
           record,
           isUpdate: true,
         });
@@ -111,24 +112,25 @@
         }
       }
 
-      function handleSelect(deptId = '') {
-        searchInfo.deptId = deptId;
+      function handleSelect(rid = '') {
+        searchInfo.rid = rid;
         reload();
       }
 
-      function handleView(record: Recordable) {
-        go('/system/account_detail/' + record.id);
+      function handleToken(record: Recordable) {
+        // todo 获取token
+        console.log('do get token uid=' + record.id);
       }
 
       return {
         registerTable,
-        registerModal,
+        registerDrawer,
         handleCreate,
         handleEdit,
         handleDelete,
         handleSuccess,
         handleSelect,
-        handleView,
+        handleToken,
         searchInfo,
       };
     },

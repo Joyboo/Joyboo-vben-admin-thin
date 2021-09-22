@@ -4,6 +4,7 @@ import { h } from 'vue';
 import { Switch } from 'ant-design-vue';
 import { roleChange } from '/@/api/admin/system';
 import { useMessage } from '/@/hooks/web/useMessage';
+import { usePermission } from '/@/hooks/web/usePermission';
 
 export const columns: BasicColumn[] = [
   {
@@ -29,10 +30,12 @@ export const columns: BasicColumn[] = [
       if (!Reflect.has(record, 'pendingStatus')) {
         record.pendingStatus = false;
       }
+      const { hasPermission } = usePermission();
       return h(Switch, {
         checked: record.status === 1,
         checkedChildren: '已启用',
         unCheckedChildren: '已禁用',
+        disabled: !hasPermission(['/role/edit']),
         loading: record.pendingStatus,
         onChange(checked: boolean) {
           record.pendingStatus = true;

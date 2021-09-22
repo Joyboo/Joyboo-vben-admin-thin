@@ -2,16 +2,20 @@
   <div>
     <BasicTable @register="registerTable">
       <template #toolbar>
-        <a-button type="primary" @click="handleCreate"> 新增角色 </a-button>
+        <a-button v-auth="['/role/add']" type="primary" @click="handleCreate"> 新增角色 </a-button>
       </template>
       <template #action="{ record }">
         <TableAction
           :actions="[
             {
+              auth: '/role/edit',
               icon: 'clarity:note-edit-line',
+              tooltip: '编辑',
               onClick: handleEdit.bind(null, record),
             },
             {
+              tooltip: '删除',
+              auth: '/role/del',
               icon: 'ant-design:delete-outlined',
               color: 'error',
               popConfirm: {

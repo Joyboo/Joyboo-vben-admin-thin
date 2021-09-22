@@ -10,10 +10,13 @@ import {
   RoleListGetResultModel,
 } from './model/systemModel';
 import { defHttp } from '/@/utils/http/axios';
+import { Method } from 'axios';
 
 enum Api {
   AccountList = '/admin/admin/index',
   AdminChange = '/admin/admin/change',
+  AdminAdd = '/admin/admin/add',
+  AdminEdit = '/admin/admin/edit',
   IsAccountExist = '/admin/admin/accountExist',
   DeptList = '/system/getDeptList',
 
@@ -39,6 +42,9 @@ export const getMenuList = (params?: MenuParams) =>
 
 export const adminChange = (id: number, column: string, status: number) =>
   defHttp.post({ url: Api.AdminChange, params: { id, column, status } });
+
+export const adminAdd = (method: Method) => defHttp.request({ url: Api.AdminAdd, method });
+export const adminEdit = (method: Method) => defHttp.request({ url: Api.AdminEdit, method });
 
 export const menuAdd = (params: MenuFormParams) => defHttp.post({ url: Api.MenuAdd, params });
 

@@ -2,16 +2,20 @@
   <div>
     <BasicTable @register="registerTable" @fetch-success="onFetchSuccess">
       <template #toolbar>
-        <a-button type="primary" @click="handleCreate"> 新增菜单 </a-button>
+        <a-button v-auth="['/menu/add']" type="primary" @click="handleCreate"> 新增菜单 </a-button>
       </template>
       <template #action="{ record }">
         <TableAction
           :actions="[
             {
+              tooltip: '编辑',
+              auth: '/menu/edit',
               icon: 'clarity:note-edit-line',
               onClick: handleEdit.bind(null, record),
             },
             {
+              tooltip: '删除',
+              auth: '/menu/del',
               icon: 'ant-design:delete-outlined',
               color: 'error',
               popConfirm: {

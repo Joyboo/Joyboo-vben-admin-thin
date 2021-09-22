@@ -5,6 +5,7 @@ import { Tag, Switch } from 'ant-design-vue';
 import { Icon } from '/@/components/Icon';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { changeMenu } from '/@/api/admin/system';
+import { usePermission } from '/@/hooks/web/usePermission';
 
 const isDir = (type: number) => type === 0;
 const isMenu = (type: number) => type === 1;
@@ -66,10 +67,12 @@ export const columns: BasicColumn[] = [
     customRender: ({ record }) => {
       const status = record.status;
       const enable = ~~status === 1;
+      const { hasPermission } = usePermission();
       return h(Switch, {
         checked: enable,
         checkedChildren: '已启用',
         unCheckedChildren: '已禁用',
+        disabled: !hasPermission(['/menu/edit']),
         loading: record.pendingStatus,
         onChange(checked: boolean) {
           record.pendingStatus = true;

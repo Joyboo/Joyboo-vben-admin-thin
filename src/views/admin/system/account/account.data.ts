@@ -4,6 +4,7 @@ import { FormSchema } from '/@/components/Table';
 import { h } from 'vue';
 import { Switch } from 'ant-design-vue';
 import { useMessage } from '/@/hooks/web/useMessage';
+import { usePermission } from '/@/hooks/web/usePermission';
 
 export const columns: BasicColumn[] = [
   {
@@ -38,10 +39,12 @@ export const columns: BasicColumn[] = [
     customRender: ({ record }) => {
       const status = record.status;
       const enable = ~~status === 1;
+      const { hasPermission } = usePermission();
       return h(Switch, {
         checked: enable,
         checkedChildren: '正常',
         unCheckedChildren: '锁定',
+        disabled: !hasPermission(['/admin/edit']),
         loading: record.pendingStatus,
         onChange(checked: boolean) {
           record.pendingStatus = true;
