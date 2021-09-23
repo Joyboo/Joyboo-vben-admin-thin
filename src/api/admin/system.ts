@@ -43,8 +43,11 @@ export const getMenuList = (params?: MenuParams) =>
 export const adminChange = (id: number, column: string, status: number) =>
   defHttp.post({ url: Api.AdminChange, params: { id, column, status } });
 
-export const adminAdd = (method: Method) => defHttp.request({ url: Api.AdminAdd, method });
-export const adminEdit = (method: Method) => defHttp.request({ url: Api.AdminEdit, method });
+export const adminAdd = (method: Method, params) =>
+  defHttp.request({ url: Api.AdminAdd, method, params });
+
+export const adminEdit = (method: Method, params) =>
+  defHttp.request({ url: Api.AdminEdit, method, params });
 
 export const menuAdd = (params: MenuFormParams) => defHttp.post({ url: Api.MenuAdd, params });
 

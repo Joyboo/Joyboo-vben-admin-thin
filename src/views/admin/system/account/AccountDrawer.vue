@@ -7,39 +7,27 @@
     width="50%"
     @ok="handleSubmit"
   >
-    <BasicForm @register="registerForm">
-      <template #myMenuDrawer="{ model, field }">
-        <Input v-model:value="model[field]" placeholder="组件">
-          <template #addonAfter>
-            <Tooltip title="使用LAYOUT组件" class="useLayout">
-              <Icon icon="ant-design:layout-outlined" @click="model[field] = 'LAYOUT'" />
-            </Tooltip>
-          </template>
-        </Input>
-      </template>
-    </BasicForm>
+    <BasicForm @register="registerForm" />
   </BasicDrawer>
 </template>
 <script lang="ts">
   import { defineComponent, ref, computed, unref } from 'vue';
   import { BasicForm, useForm } from '/@/components/Form/index';
-  import { formSchema } from './menu.data';
+  import { accountFormSchema } from './account.data';
   import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
-  import { Tooltip, Input } from 'ant-design-vue';
-  import { Icon } from '/@/components/Icon';
-  import { getMenuList, menuAdd, menuEdit } from '/@/api/admin/system';
+  // import { adminAdd, adminEdit } from '/@/api/admin/system';
 
   export default defineComponent({
-    name: 'MenuDrawer',
-    components: { BasicDrawer, BasicForm, Tooltip, Icon, Input },
+    name: 'AccountDrawer',
+    components: { BasicDrawer, BasicForm },
     emits: ['success', 'register'],
     setup(_, { emit }) {
       const isUpdate = ref(true);
       let id = 0;
 
-      const [registerForm, { resetFields, setFieldsValue, updateSchema, validate }] = useForm({
+      const [registerForm, { resetFields, setFieldsValue, validate }] = useForm({
         labelWidth: 100,
-        schemas: formSchema,
+        schemas: accountFormSchema,
         showActionButtonGroup: false,
         baseColProps: { lg: 12, md: 24 },
       });
@@ -49,17 +37,20 @@
         setDrawerProps({ confirmLoading: false });
         isUpdate.value = !!data?.isUpdate;
 
+        // 获取必要信息, todo 前置游戏、包等信息
+        // const result = await adminAdd('GET');
+
         if (unref(isUpdate)) {
           setFieldsValue({
             ...data.record,
           });
           id = data.record.id;
         }
-        const treeData = await getMenuList();
+        /* const treeData = await getMenuList();
         updateSchema({
           field: 'pid',
           componentProps: { treeData },
-        });
+        });*/
       });
 
       const getTitle = computed(() => (!unref(isUpdate) ? '新增菜单' : '编辑菜单'));
@@ -76,9 +67,9 @@
 
           if (unref(isUpdate)) {
             values.id = id;
-            await menuEdit(values);
+            // await adminEdit(values);
           } else {
-            await menuAdd(values);
+            // await adminAdd(values);
           }
 
           closeDrawer();
