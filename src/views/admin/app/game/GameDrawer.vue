@@ -21,46 +21,32 @@
           </template>
         </Input>
       </template>
-      <template #myDividePaypal="{ model }">
-        <InputGroup compact>
-          <Input
-            v-model:value="model['extension.divide.paypal']"
-            :class="['paypal', { fullWidth: getIsMobile }]"
-            suffix="%"
-          />
-          <Input v-if="!getIsMobile" class="paypalInputSymbol" placeholder="+ 额外比例" disabled />
-          <Input
-            v-model:value="model['extension.divide.paypal-fix']"
-            :class="['paypal-fix', { fullWidth: getIsMobile }]"
-            suffix="%"
-          />
-        </InputGroup>
-      </template>
     </BasicForm>
   </BasicDrawer>
 </template>
 <script lang="ts">
   import { defineComponent, ref, computed, unref } from 'vue';
-  import { Input, InputGroup, Tooltip } from 'ant-design-vue';
+  import { Input, Tooltip } from 'ant-design-vue';
   import { Icon } from '/@/components/Icon';
   import { BasicForm, useForm } from '/@/components/Form/index';
   import { formSchema } from './game.data';
   import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
   import { useAppInject } from '/@/hooks/web/useAppInject';
+  import { adminAdd, adminEdit } from '/@/api/admin/system';
 
   export default defineComponent({
     name: 'GameDrawer',
-    components: { BasicDrawer, BasicForm, Input, InputGroup, Tooltip, Icon },
+    components: { BasicDrawer, BasicForm, Input, Tooltip, Icon },
     emits: ['success', 'register'],
     setup(_, { emit }) {
       const isUpdate = ref(true);
-      // let id = 0;
 
-      const [registerForm, { resetFields, setFieldsValue, validate }] = useForm({
-        labelWidth: 120,
-        schemas: formSchema,
-        showActionButtonGroup: false,
-      });
+      const [registerForm, { resetFields, setFieldsValue, removeSchemaByFiled, validate }] =
+        useForm({
+          labelWidth: 120,
+          schemas: formSchema,
+          showActionButtonGroup: false,
+        });
 
       const [registerDrawer, { setDrawerProps, closeDrawer }] = useDrawerInner(async (data) => {
         resetFields();
@@ -73,18 +59,24 @@
           setFieldsValue({
             ...data.record,
           });
-          // id = data.record.id;
+        } else {
+          // todo ok的话，menu和role都这么干
+          removeSchemaByFiled('id');
         }
       });
 
-      const getTitle = computed(() => (!unref(isUpdate) ? '新增角色' : '编辑角色'));
+      const getTitle = computed(() => (!unref(isUpdate) ? '新增游戏' : '编辑游戏'));
 
       async function handleSubmit() {
         try {
           const values = await validate();
           setDrawerProps({ confirmLoading: true });
 
-          console.log(values);
+          if (unref(isUpdate)) {
+            await adminEdit('POST', values);
+          } else {
+            await adminAdd('POST', values);
+          }
           closeDrawer();
           emit('success');
         } finally {
@@ -109,28 +101,3 @@
     },
   });
 </script>
-
-<style lang="less" scoped>
-  .paypal {
-    width: 35%;
-    text-align: center;
-  }
-
-  .paypal-fix {
-    width: 35%;
-    text-align: center;
-    border-left: 0;
-  }
-
-  .paypalInputSymbol {
-    width: 30%;
-    border-left: 0;
-    pointer-events: none;
-    background-color: #fff;
-  }
-
-  /* 需要定义在最下面以覆盖上面的CSS */
-  .fullWidth {
-    width: 100%;
-  }
-</style>

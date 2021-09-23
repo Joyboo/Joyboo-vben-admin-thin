@@ -5,6 +5,7 @@ import { Switch } from 'ant-design-vue';
 import { gameChange } from '/@/api/admin/app';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { usePermission } from '/@/hooks/web/usePermission';
+// import { Moment } from 'moment';
 
 export const columns: BasicColumn[] = [
   {
@@ -148,18 +149,21 @@ export const formSchema: FormSchema[] = [
   {
     field: 'extension.logurl',
     label: '登录api网址',
+    defaultValue: '',
     helpMessage: ['平台会将用户token传到此网址', '手游此项可随便填'],
     component: 'Input',
   },
   {
     field: 'extension.payurl',
     label: '支付api网址',
+    defaultValue: '',
     helpMessage: '平台会将支付信息传到此网址',
     component: 'Input',
   },
   {
     field: 'extension.h5entry',
     label: '平台入口网址',
+    defaultValue: '',
     helpMessage: 'H5游戏的入口地址',
     component: 'Input',
     ifShow: ({ values }) => values['extension.type'] === 0,
@@ -172,6 +176,7 @@ export const formSchema: FormSchema[] = [
   {
     label: '充值产品ID',
     field: 'extension.goodsids',
+    defaultValue: '',
     helpMessage: '逗号,或换行符隔开',
     component: 'InputTextArea',
     componentProps: {
@@ -201,10 +206,13 @@ export const formSchema: FormSchema[] = [
     field: 'extension.mtn.begintime',
     label: '维护时间',
     component: 'DatePicker',
+    defaultValue: '',
     componentProps: {
       showTime: true,
+      showToday: true,
       format: 'YYYY-MM-DD HH:mm:ss',
-      placeholder: '请选择开始时间1',
+      valueFormat: 'YYYY-MM-DD HH:mm:ss',
+      placeholder: '请选择开始时间',
     },
     ifShow: ({ values }) => values['extension.mtn.switch'] === 1,
     colProps: { lg: 12, md: 24 },
@@ -212,11 +220,18 @@ export const formSchema: FormSchema[] = [
   {
     field: 'extension.mtn.endtime',
     label: '-',
+    labelWidth: '20px',
     component: 'DatePicker',
+    defaultValue: '',
     componentProps: {
       showTime: true,
+      showToday: true,
       format: 'YYYY-MM-DD HH:mm:ss',
+      valueFormat: 'YYYY-MM-DD HH:mm:ss',
       placeholder: '请选择结束时间',
+      onChange: (_, dateString: string) => {
+        return dateString;
+      },
     },
     ifShow: ({ values }) => values['extension.mtn.switch'] === 1,
     colProps: { lg: 12, md: 24 },
@@ -225,6 +240,7 @@ export const formSchema: FormSchema[] = [
     label: '维护公告',
     field: 'extension.mtn.notice',
     component: 'InputTextArea',
+    defaultValue: '',
     componentProps: {
       rows: 3,
     },
@@ -233,11 +249,13 @@ export const formSchema: FormSchema[] = [
   {
     field: 'extension.facebook.fansurl',
     label: 'Facebook粉丝页',
+    defaultValue: '',
     component: 'Input',
   },
   {
     field: 'extension.google.privacy',
     label: 'Google隐私政策页',
+    defaultValue: '',
     component: 'Input',
   },
   {
@@ -248,64 +266,93 @@ export const formSchema: FormSchema[] = [
   {
     field: 'extension.divide.cp',
     label: 'CP分成比例',
+    defaultValue: '20',
     helpMessage: '研发的分成百分比',
     component: 'Input',
     componentProps: {
       suffix: '%',
+      allowClear: false,
     },
     colProps: { lg: 8, md: 24 },
   },
   {
     field: 'extension.divide.ios',
     label: 'IOS分成比例',
+    defaultValue: '30',
     component: 'Input',
     componentProps: {
       suffix: '%',
+      allowClear: false,
     },
     colProps: { lg: 8, md: 24 },
   },
   {
     field: 'extension.divide.google',
     label: 'Google分成比例',
+    defaultValue: '30',
     component: 'Input',
     componentProps: {
       suffix: '%',
+      allowClear: false,
     },
     colProps: { lg: 8, md: 24 },
   },
   {
     field: 'extension.divide.uwp',
     label: 'MG分成比例',
+    defaultValue: '55',
     helpMessage: 'UWP分成比例',
     component: 'Input',
     componentProps: {
       suffix: '%',
+      allowClear: false,
     },
     colProps: { lg: 8, md: 24 },
   },
   {
     field: 'extension.divide.payssion',
     label: 'payssion分成比例',
+    defaultValue: '30',
     component: 'Input',
     componentProps: {
       suffix: '%',
+      allowClear: false,
     },
     colProps: { lg: 8, md: 24 },
   },
   {
     field: 'extension.divide.huawei',
     label: '华为分成比例',
+    defaultValue: '0',
     component: 'Input',
     componentProps: {
       suffix: '%',
+      allowClear: false,
     },
     colProps: { lg: 8, md: 24 },
   },
   {
-    field: '_slot.paypal',
+    field: 'extension.divide.paypal',
     label: 'paypal分成比例',
-    component: 'InputGroup',
-    colProps: { lg: 16, md: 24 },
-    slot: 'myDividePaypal',
+    defaultValue: '6',
+    component: 'Input',
+    componentProps: {
+      suffix: '%',
+      allowClear: false,
+    },
+    colProps: { lg: 8, md: 24 },
   },
+  {
+    field: 'extension.divide.paypal-fix',
+    label: '+',
+    labelWidth: '20px',
+    defaultValue: '0.05',
+    component: 'Input',
+    componentProps: {
+      suffix: '%',
+      allowClear: false,
+    },
+    colProps: { lg: 3, md: 24 },
+  },
+  // todo
 ];
