@@ -2,20 +2,20 @@
   <div>
     <BasicTable @register="registerTable">
       <template #toolbar>
-        <a-button v-auth="['/game/add']" type="primary" @click="handleCreate"> 新增游戏 </a-button>
+        <a-button v-auth="[curdAuth.add]" type="primary" @click="handleCreate"> 新增游戏 </a-button>
       </template>
       <template #action="{ record }">
         <TableAction
           :actions="[
             {
-              auth: '/game/edit',
+              auth: curdAuth.edit,
               icon: 'clarity:note-edit-line',
               tooltip: '编辑',
               onClick: handleEdit.bind(null, record),
             },
             {
               tooltip: '删除',
-              auth: '/game/del',
+              auth: curdAuth.del,
               icon: 'ant-design:delete-outlined',
               color: 'error',
               popConfirm: {
@@ -33,14 +33,13 @@
 </template>
 <script lang="ts">
   import { defineComponent } from 'vue';
-
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { gameIndex, gameDel } from '/@/api/admin/app';
 
   import { useDrawer } from '/@/components/Drawer';
   import GameDrawer from './GameDrawer.vue';
 
-  import { columns, searchFormSchema } from './game.data';
+  import { columns, searchFormSchema, curdAuth } from './game.data';
 
   export default defineComponent({
     name: 'GameManagement',
@@ -48,7 +47,7 @@
     setup() {
       const [registerDrawer, { openDrawer }] = useDrawer();
       const [registerTable, { reload }] = useTable({
-        title: '角色列表',
+        title: '游戏列表',
         api: gameIndex,
         columns,
         formConfig: {
@@ -96,6 +95,7 @@
         handleEdit,
         handleDelete,
         handleSuccess,
+        curdAuth,
       };
     },
   });

@@ -7,96 +7,130 @@
     width="50%"
     @ok="handleSubmit"
   >
-    <BasicForm @register="registerForm">
-      <template #myGameKey="{ model, field }">
-        <Input v-model:value="model[field]">
-          <template #addonAfter>
-            <Tooltip title="点击随机生成">
-              <Icon
-                icon="ant-design:barcode-outlined"
-                style="cursor: pointer"
-                @click="getGameKey(model, field)"
-              />
-            </Tooltip>
+    <Tabs v-model:activeKey="currActiveKey">
+      <TabPane
+        :key="index.toString()"
+        :tab="item.name"
+        force-render
+        v-for="(item, index) in refForm"
+      >
+        <BasicForm @register="item.registerForm">
+          <template #myGameKey="{ model, field }">
+            <Input v-model:value="model[field]">
+              <template #addonAfter>
+                <Tooltip title="点击随机生成">
+                  <Icon
+                    icon="ant-design:barcode-outlined"
+                    style="cursor: pointer"
+                    @click="getGameKey(model, field)"
+                  />
+                </Tooltip>
+              </template>
+            </Input>
           </template>
-        </Input>
-      </template>
-    </BasicForm>
+        </BasicForm>
+      </TabPane>
+    </Tabs>
   </BasicDrawer>
 </template>
 <script lang="ts">
   import { defineComponent, ref, computed, unref } from 'vue';
-  import { Input, Tooltip } from 'ant-design-vue';
+  import { Input, Tooltip, Tabs, TabPane } from 'ant-design-vue';
   import { Icon } from '/@/components/Icon';
-  import { BasicForm, useForm } from '/@/components/Form/index';
-  import { formSchema } from './game.data';
+  import { BasicForm, FormProps, useForm } from '/@/components/Form/index';
+  import { MyFormItemType, FormList } from './game.data';
   import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
   import { useAppInject } from '/@/hooks/web/useAppInject';
-  import { adminAdd, adminEdit } from '/@/api/admin/system';
+  import { gameAdd, gameEdit, gameGetKey } from '/@/api/admin/app';
+  import { useMessage } from '/@/hooks/web/useMessage';
 
   export default defineComponent({
     name: 'GameDrawer',
-    components: { BasicDrawer, BasicForm, Input, Tooltip, Icon },
+    components: { BasicDrawer, BasicForm, Input, Tooltip, Icon, Tabs, TabPane },
     emits: ['success', 'register'],
     setup(_, { emit }) {
       const isUpdate = ref(true);
+      const currActiveKey = ref('0');
+      const { createMessage } = useMessage();
 
-      const [registerForm, { resetFields, setFieldsValue, removeSchemaByFiled, validate }] =
-        useForm({
-          labelWidth: 120,
-          schemas: formSchema,
-          showActionButtonGroup: false,
-        });
+      const fromPropsLayout: FormProps = {
+        labelWidth: 120,
+        showActionButtonGroup: false,
+      };
+
+      const refForm: MyFormItemType[] = [];
+      for (const item of FormList) {
+        const [registerForm, methods] = useForm(
+          Object.assign({}, fromPropsLayout, { schemas: item.schemas }),
+        );
+        refForm.push({ registerForm, methods, name: item.name, key: item.key } as MyFormItemType);
+      }
 
       const [registerDrawer, { setDrawerProps, closeDrawer }] = useDrawerInner(async (data) => {
-        resetFields();
         setDrawerProps({ confirmLoading: false });
-        // 需要在setFieldsValue之前先填充treeData，否则Tree组件可能会报key not exist警告
-
         isUpdate.value = !!data?.isUpdate;
+        // 打开时指定选中第一项
+        currActiveKey.value = '0';
 
-        if (unref(isUpdate)) {
-          setFieldsValue({
-            ...data.record,
-          });
-        } else {
-          // todo ok的话，menu和role都这么干
-          removeSchemaByFiled('id');
-        }
+        refForm.forEach(async (_item) => {
+          await _item.methods.resetFields();
+          if (unref(isUpdate)) {
+            await _item.methods.setFieldsValue({ ...data.record });
+          } else {
+            await _item.methods.removeSchemaByFiled('id');
+          }
+        });
       });
 
       const getTitle = computed(() => (!unref(isUpdate) ? '新增游戏' : '编辑游戏'));
 
       async function handleSubmit() {
         try {
-          const values = await validate();
+          let post = {};
+
+          for (const item of refForm) {
+            const val = await item.methods.validate();
+            post = Object.assign({}, post, val);
+          }
+
           setDrawerProps({ confirmLoading: true });
 
           if (unref(isUpdate)) {
-            await adminEdit('POST', values);
+            await gameEdit('POST', post);
           } else {
-            await adminAdd('POST', values);
+            await gameAdd('POST', post);
           }
+
+          createMessage.success(getTitle.value + '成功');
           closeDrawer();
           emit('success');
+        } catch (e) {
+          createMessage.error(getTitle.value + '失败');
         } finally {
           setDrawerProps({ confirmLoading: false });
         }
       }
 
-      async function getGameKey(model, field) {
-        console.log('click getGameKey ', model, field);
+      function getGameKey(model, field) {
+        // 转换extension.logkey
+        const column = field.slice(field.indexOf('.') + 1);
+        gameGetKey(column)
+          .then((result) => {
+            model[field] = result;
+          })
+          .catch((_) => {});
       }
 
       const { getIsMobile } = useAppInject();
 
       return {
         registerDrawer,
-        registerForm,
+        refForm,
         getTitle,
         handleSubmit,
         getGameKey,
         getIsMobile,
+        currActiveKey,
       };
     },
   });

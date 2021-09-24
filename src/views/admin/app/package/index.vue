@@ -1,16 +1,16 @@
 <template>
   <div>
-    <BasicTable @register="registerTable" @fetch-success="onFetchSuccess">
+    <BasicTable @register="registerTable">
       <template #toolbar>
-        <a-button v-auth="[curdAuth.add]" type="primary" @click="handleCreate"> 新增菜单 </a-button>
+        <a-button v-auth="[curdAuth.add]" type="primary" @click="handleCreate"> 新增包 </a-button>
       </template>
       <template #action="{ record }">
         <TableAction
           :actions="[
             {
-              tooltip: '编辑',
               auth: curdAuth.edit,
               icon: 'clarity:note-edit-line',
+              tooltip: '编辑',
               onClick: handleEdit.bind(null, record),
             },
             {
@@ -28,43 +28,39 @@
         />
       </template>
     </BasicTable>
-    <MenuDrawer @register="registerDrawer" @success="handleSuccess" />
+    <PackageDrawer @register="registerDrawer" @success="handleSuccess" />
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent, nextTick } from 'vue';
+  import { defineComponent } from 'vue';
 
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getMenuList, menuDel } from '/@/api/admin/system';
+  import { packageIndex, packageDel } from '/@/api/admin/app';
 
   import { useDrawer } from '/@/components/Drawer';
-  import MenuDrawer from './MenuDrawer.vue';
+  import PackageDrawer from './PackageDrawer.vue';
 
-  import { columns, searchFormSchema, curdAuth } from './menu.data';
+  import { curdAuth, columns, searchFormSchema } from './package.data';
 
   export default defineComponent({
-    name: 'MenuManagement',
-    components: { BasicTable, MenuDrawer, TableAction },
+    name: 'PackageManagement',
+    components: { BasicTable, PackageDrawer, TableAction },
     setup() {
       const [registerDrawer, { openDrawer }] = useDrawer();
-      const [registerTable, { reload, expandAll }] = useTable({
-        title: '菜单列表',
-        api: getMenuList,
+      const [registerTable, { reload }] = useTable({
+        title: '包管理列表',
+        api: packageIndex,
         columns,
         formConfig: {
           labelWidth: 120,
           schemas: searchFormSchema,
         },
-        isTreeTable: true,
-        pagination: false,
-        striped: false,
         useSearchForm: true,
         showTableSetting: true,
         bordered: true,
         showIndexColumn: false,
-        canResize: false,
         actionColumn: {
-          width: 80,
+          width: 120,
           title: '操作',
           dataIndex: 'action',
           slots: { customRender: 'action' },
@@ -86,16 +82,11 @@
       }
 
       function handleDelete(record: Recordable) {
-        menuDel(record.id).finally(handleSuccess);
+        packageDel(record.id).finally(handleSuccess);
       }
 
       function handleSuccess() {
         reload();
-      }
-
-      function onFetchSuccess() {
-        // 演示默认展开所有表项
-        nextTick(expandAll);
       }
 
       return {
@@ -105,7 +96,6 @@
         handleEdit,
         handleDelete,
         handleSuccess,
-        onFetchSuccess,
         curdAuth,
       };
     },

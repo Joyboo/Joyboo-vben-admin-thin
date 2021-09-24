@@ -6,10 +6,17 @@ import { Icon } from '/@/components/Icon';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { changeMenu } from '/@/api/admin/system';
 import { usePermission } from '/@/hooks/web/usePermission';
+import { CurdAuth } from '/#/utils';
 
 const isDir = (type: number) => type === 0;
 const isMenu = (type: number) => type === 1;
 const isButton = (type: number) => type === 2;
+
+export const curdAuth: CurdAuth = {
+  add: '/menu/add',
+  edit: '/menu/edit',
+  del: '/menu/del',
+};
 
 export const columns: BasicColumn[] = [
   {
@@ -72,7 +79,7 @@ export const columns: BasicColumn[] = [
         checked: enable,
         checkedChildren: '已启用',
         unCheckedChildren: '已禁用',
-        disabled: !hasPermission(['/menu/edit']),
+        disabled: !hasPermission([curdAuth.edit]),
         loading: record.pendingStatus,
         onChange(checked: boolean) {
           record.pendingStatus = true;

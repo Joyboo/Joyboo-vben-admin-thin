@@ -2,20 +2,20 @@
   <div>
     <BasicTable @register="registerTable">
       <template #toolbar>
-        <a-button v-auth="['/role/add']" type="primary" @click="handleCreate"> 新增角色 </a-button>
+        <a-button v-auth="[curdAuth.add]" type="primary" @click="handleCreate"> 新增角色 </a-button>
       </template>
       <template #action="{ record }">
         <TableAction
           :actions="[
             {
-              auth: '/role/edit',
+              auth: curdAuth.edit,
               icon: 'clarity:note-edit-line',
               tooltip: '编辑',
               onClick: handleEdit.bind(null, record),
             },
             {
               tooltip: '删除',
-              auth: '/role/del',
+              auth: curdAuth.del,
               icon: 'ant-design:delete-outlined',
               color: 'error',
               popConfirm: {
@@ -40,7 +40,7 @@
   import { useDrawer } from '/@/components/Drawer';
   import RoleDrawer from './RoleDrawer.vue';
 
-  import { columns, searchFormSchema } from './role.data';
+  import { columns, searchFormSchema, curdAuth } from './role.data';
 
   export default defineComponent({
     name: 'RoleManagement',
@@ -96,6 +96,7 @@
         handleEdit,
         handleDelete,
         handleSuccess,
+        curdAuth,
       };
     },
   });

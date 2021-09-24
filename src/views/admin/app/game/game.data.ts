@@ -5,7 +5,15 @@ import { Switch } from 'ant-design-vue';
 import { gameChange } from '/@/api/admin/app';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { usePermission } from '/@/hooks/web/usePermission';
+import { FormActionType } from '/@/components/Form';
+import { CurdAuth } from '/#/utils';
 // import { Moment } from 'moment';
+
+export const curdAuth: CurdAuth = {
+  add: '/package/add',
+  edit: '/package/edit',
+  del: '/package/del',
+};
 
 export const columns: BasicColumn[] = [
   {
@@ -20,12 +28,12 @@ export const columns: BasicColumn[] = [
   },
   {
     title: '登录密钥',
-    dataIndex: 'logkey',
+    dataIndex: 'extension.logkey',
     width: 180,
   },
   {
     title: '支付密钥',
-    dataIndex: 'paykey',
+    dataIndex: 'extension.paykey',
     width: 180,
   },
   {
@@ -46,7 +54,7 @@ export const columns: BasicColumn[] = [
         checked: record.status === 1,
         checkedChildren: '已启用',
         unCheckedChildren: '已禁用',
-        disabled: !hasPermission(['/game/edit']),
+        disabled: !hasPermission([curdAuth.edit]),
         loading: record.pendingStatus,
         onChange(checked: boolean) {
           record.pendingStatus = true;
@@ -95,18 +103,14 @@ export const searchFormSchema: FormSchema[] = [
   },
 ];
 
-export const formSchema: FormSchema[] = [
-  {
-    field: '',
-    component: 'Divider',
-    label: '基本信息',
-  },
+// 基本信息
+const formSchemaBase: FormSchema[] = [
   {
     field: 'name',
     label: '游戏名',
     required: true,
     component: 'Input',
-    colProps: { lg: 12, md: 24 },
+    colProps: { lg: 24, md: 24 },
   },
   {
     field: 'id',
@@ -115,7 +119,20 @@ export const formSchema: FormSchema[] = [
     componentProps: {
       disabled: true,
     },
-    colProps: { lg: 12, md: 24 },
+    colProps: { lg: 24, md: 24 },
+  },
+  {
+    field: 'status',
+    label: '本游戏是否显示',
+    component: 'RadioButtonGroup',
+    defaultValue: 1,
+    componentProps: {
+      options: [
+        { label: '隐藏', value: 0 },
+        { label: '显示', value: 1 },
+      ],
+    },
+    colProps: { lg: 24, md: 24 },
   },
   {
     field: 'extension.type',
@@ -127,6 +144,18 @@ export const formSchema: FormSchema[] = [
         { label: 'H5', value: 0 },
         { label: '手游', value: 1 },
       ],
+    },
+    colProps: { lg: 24, md: 24 },
+  },
+  {
+    field: 'sort',
+    label: '排序',
+    helpMessage: '越小越靠前',
+    defaultValue: 9,
+    component: 'InputNumber',
+    componentProps: {
+      min: 1,
+      max: 255,
     },
     colProps: { lg: 24, md: 24 },
   },
@@ -168,11 +197,10 @@ export const formSchema: FormSchema[] = [
     component: 'Input',
     ifShow: ({ values }) => values['extension.type'] === 0,
   },
-  {
-    field: '',
-    component: 'Divider',
-    label: '充值信息',
-  },
+];
+
+// 充值信息
+const formSchemaPay: FormSchema[] = [
   {
     label: '充值产品ID',
     field: 'extension.goodsids',
@@ -184,11 +212,10 @@ export const formSchema: FormSchema[] = [
       placeholder: '逗号或换行符隔开',
     },
   },
-  {
-    field: '',
-    component: 'Divider',
-    label: '维护弹窗',
-  },
+];
+
+// 维护弹窗
+const formSchemaMtn: FormSchema[] = [
   {
     field: 'extension.mtn.switch',
     label: '维护开关',
@@ -209,7 +236,6 @@ export const formSchema: FormSchema[] = [
     defaultValue: '',
     componentProps: {
       showTime: true,
-      showToday: true,
       format: 'YYYY-MM-DD HH:mm:ss',
       valueFormat: 'YYYY-MM-DD HH:mm:ss',
       placeholder: '请选择开始时间',
@@ -225,13 +251,9 @@ export const formSchema: FormSchema[] = [
     defaultValue: '',
     componentProps: {
       showTime: true,
-      showToday: true,
       format: 'YYYY-MM-DD HH:mm:ss',
       valueFormat: 'YYYY-MM-DD HH:mm:ss',
       placeholder: '请选择结束时间',
-      onChange: (_, dateString: string) => {
-        return dateString;
-      },
     },
     ifShow: ({ values }) => values['extension.mtn.switch'] === 1,
     colProps: { lg: 12, md: 24 },
@@ -258,11 +280,10 @@ export const formSchema: FormSchema[] = [
     defaultValue: '',
     component: 'Input',
   },
-  {
-    field: '',
-    component: 'Divider',
-    label: '分成信息',
-  },
+];
+
+// 分成信息
+const formSchemaDivide: FormSchema[] = [
   {
     field: 'extension.divide.cp',
     label: 'CP分成比例',
@@ -273,7 +294,6 @@ export const formSchema: FormSchema[] = [
       suffix: '%',
       allowClear: false,
     },
-    colProps: { lg: 8, md: 24 },
   },
   {
     field: 'extension.divide.ios',
@@ -284,7 +304,6 @@ export const formSchema: FormSchema[] = [
       suffix: '%',
       allowClear: false,
     },
-    colProps: { lg: 8, md: 24 },
   },
   {
     field: 'extension.divide.google',
@@ -295,7 +314,6 @@ export const formSchema: FormSchema[] = [
       suffix: '%',
       allowClear: false,
     },
-    colProps: { lg: 8, md: 24 },
   },
   {
     field: 'extension.divide.uwp',
@@ -307,7 +325,6 @@ export const formSchema: FormSchema[] = [
       suffix: '%',
       allowClear: false,
     },
-    colProps: { lg: 8, md: 24 },
   },
   {
     field: 'extension.divide.payssion',
@@ -318,7 +335,6 @@ export const formSchema: FormSchema[] = [
       suffix: '%',
       allowClear: false,
     },
-    colProps: { lg: 8, md: 24 },
   },
   {
     field: 'extension.divide.huawei',
@@ -329,7 +345,6 @@ export const formSchema: FormSchema[] = [
       suffix: '%',
       allowClear: false,
     },
-    colProps: { lg: 8, md: 24 },
   },
   {
     field: 'extension.divide.paypal',
@@ -352,7 +367,81 @@ export const formSchema: FormSchema[] = [
       suffix: '%',
       allowClear: false,
     },
-    colProps: { lg: 3, md: 24 },
+    colProps: { lg: 5, md: 24 },
   },
-  // todo
+];
+
+// 网页充值
+const formSchemaH5sdk: FormSchema[] = [
+  {
+    field: 'extension.h5sdk.isshow',
+    label: '是否显示',
+    helpMessage: '是否显示在网页充值',
+    component: 'RadioButtonGroup',
+    defaultValue: 0,
+    componentProps: {
+      options: [
+        { label: '关闭', value: 0 },
+        { label: '开启', value: 1 },
+      ],
+    },
+  },
+  {
+    field: 'extension.h5sdk.name',
+    label: '显示游戏名',
+    helpMessage: '网页充值显示的游戏名',
+    component: 'Input',
+    defaultValue: '',
+  },
+  {
+    field: 'extension.h5sdk.pkgbnd',
+    label: '包',
+    helpMessage: '登录appid用哪个包的',
+    component: 'Select', // todo 获取数据
+    defaultValue: '',
+  },
+  {
+    field: 'extension.h5sdk.isshowmnlogo',
+    label: '显示游戏名',
+    helpMessage: '网页充值显示的游戏名',
+    component: 'RadioButtonGroup',
+    defaultValue: 0,
+    componentProps: {
+      options: [
+        { label: '关闭', value: 0 },
+        { label: '开启', value: 1 },
+      ],
+    },
+  },
+];
+
+export interface MyFormItemType {
+  key?: string;
+  name: string;
+  registerForm: (instance: FormActionType) => void;
+  methods: FormActionType;
+}
+
+export const FormList = [
+  {
+    name: '基础信息',
+    schemas: formSchemaBase,
+  },
+  {
+    key: '1',
+    name: '充值信息',
+    schemas: formSchemaPay,
+  },
+  {
+    name: '维护弹窗',
+    schemas: formSchemaMtn,
+  },
+  {
+    name: '分成信息',
+    schemas: formSchemaDivide,
+  },
+  {
+    name: '网页充值',
+    schemas: formSchemaH5sdk,
+  },
 ];

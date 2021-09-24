@@ -5,10 +5,7 @@ export type GameIndexSearchParams = BasicPageParams & {
   name?: string;
 };
 
-export interface GameParams {
-  id?: number;
-  name: string;
-  sort: number;
-  status: number;
-  extension: Recordable;
-}
+export type PackgeIndexSearch = BasicPageParams & {
+  gameid?: number;
+  name?: string;
+};
