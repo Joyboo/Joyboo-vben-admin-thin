@@ -2,6 +2,7 @@ import { BasicColumn, FormSchema } from '/@/components/Table';
 import { h } from 'vue';
 import { Tag } from 'ant-design-vue';
 import { CurdAuth } from '/#/utils';
+import { FormActionType } from '/@/components/Form';
 
 export const curdAuth: CurdAuth = {
   add: '/package/add',
@@ -76,7 +77,7 @@ export const searchFormSchema: FormSchema[] = [
 ];
 
 // 基本信息
-export const formSchemaBase: FormSchema[] = [
+const formSchemaBase: FormSchema[] = [
   {
     field: 'gameid',
     label: '所属游戏',
@@ -129,14 +130,14 @@ export const formSchemaBase: FormSchema[] = [
     field: 'extension.logkey',
     label: '登录密钥',
     component: 'Input',
-    slot: 'myPackageKey',
+    slot: 'makeKey',
     colProps: { lg: 12, md: 24 },
   },
   {
     field: 'extension.paykey',
     label: '支付密钥',
     component: 'Input',
-    slot: 'myPackageKey',
+    slot: 'makeKey',
     colProps: { lg: 12, md: 24 },
   },
   {
@@ -180,27 +181,317 @@ export const formSchemaBase: FormSchema[] = [
 ];
 
 // 第三方配置
-export const formSchemaThird: FormSchema[] = [
+const formSchemaThird: FormSchema[] = [
+  {
+    field: '',
+    label: 'google参数',
+    component: 'Divider',
+  },
   {
     field: 'extension.google_paykey',
-    label: 'google参数',
+    label: 'paykey公钥',
     component: 'InputTextArea',
     defaultValue: '',
     componentProps: {
       rows: 3,
-      placeholder: 'paykey公钥',
     },
-    colProps: { lg: 12, md: 24 },
   },
   {
     field: 'extension.google.web_clientid',
-    label: '',
+    label: 'web_client客户端id',
     component: 'InputTextArea',
     defaultValue: '',
     componentProps: {
       rows: 3,
-      placeholder: 'web_client客户端id',
+    },
+  },
+  {
+    field: '',
+    label: '华为参数',
+    component: 'Divider',
+  },
+  {
+    field: 'extension.huawei.production.clientid',
+    label: '正式client_id',
+    component: 'InputTextArea',
+    defaultValue: '',
+    componentProps: {
+      rows: 3,
+    },
+  },
+  {
+    field: 'extension.huawei.production.clientsecret',
+    label: '正式client_secret',
+    component: 'InputTextArea',
+    defaultValue: '',
+    componentProps: {
+      rows: 3,
+    },
+  },
+  {
+    field: '',
+    label: 'facebook参数',
+    component: 'Divider',
+  },
+  {
+    field: 'extension.facebook.bindnotice',
+    label: '绑定通知',
+    component: 'InputTextArea',
+    defaultValue: '',
+    componentProps: {
+      rows: 3,
+    },
+  },
+  {
+    field: 'extension.facebook.appid',
+    label: 'appid',
+    component: 'InputTextArea',
+    defaultValue: '',
+    componentProps: {
+      rows: 3,
+    },
+  },
+  {
+    field: '',
+    label: 'MG参数',
+    component: 'Divider',
+  },
+  {
+    field: 'extension.mg.appkey',
+    label: 'appkey',
+    component: 'InputTextArea',
+    defaultValue: '',
+    componentProps: {
+      rows: 3,
+    },
+  },
+  {
+    field: 'extension.mg.publickey',
+    label: 'publickey',
+    component: 'InputTextArea',
+    defaultValue: '',
+    componentProps: {
+      rows: 3,
+    },
+  },
+];
+
+// 切支付
+const formSchemaQzf: FormSchema[] = [
+  {
+    field: 'extension.qzf.enable',
+    label: '是否开启',
+    helpMessage: '开启H5支付',
+    component: 'RadioButtonGroup',
+    defaultValue: 0,
+    componentProps: {
+      options: [
+        { label: '关闭', value: 0 },
+        { label: '开启', value: 1 },
+      ],
+    },
+  },
+  {
+    field: 'extension.qzf.pf',
+    label: 'H5支付方式',
+    helpMessage: '切支付开启时有效',
+    component: 'CheckboxGroup',
+    defaultValue: '',
+    componentProps: {
+      options: [
+        { label: 'paypal', value: 'paypal' },
+        { label: 'payssion', value: 'payssion' },
+        { label: 'uwp', value: 'uwp' },
+      ],
+    },
+    ifShow: ({ values }) => values['extension.qzf.enable'] === 1,
+  },
+  {
+    field: 'extension.qzf.condition',
+    label: '开启条件',
+    defaultValue: '',
+    component: 'Input',
+    ifShow: ({ values }) => values['extension.qzf.enable'] === 1,
+  },
+  {
+    field: '',
+    label: 'paypal参数',
+    component: 'Divider',
+  },
+  {
+    field: 'extension.paypal.env',
+    label: '支付环境',
+    component: 'RadioButtonGroup',
+    defaultValue: 0,
+    componentProps: {
+      options: [
+        { label: '沙盒', value: 0 },
+        { label: '正式', value: 1 },
+      ],
+    },
+  },
+  {
+    field: 'extension.paypal.production.clientid',
+    label: ' ',
+    labelWidth: '20px',
+    component: 'InputTextArea',
+    defaultValue: '',
+    componentProps: {
+      rows: 2,
+      placeholder: '正式clientId',
     },
     colProps: { lg: 12, md: 24 },
+    ifShow: ({ values }) => values['extension.paypal.env'] === 1,
+  },
+  {
+    field: 'extension.paypal.production.clientsecret',
+    label: ' ',
+    labelWidth: '20px',
+    component: 'InputTextArea',
+    defaultValue: '',
+    componentProps: {
+      rows: 2,
+      placeholder: '正式clientSecret',
+    },
+    colProps: { lg: 12, md: 24 },
+    ifShow: ({ values }) => values['extension.paypal.env'] === 1,
+  },
+  {
+    field: 'extension.paypal.sandbox.clientid',
+    label: ' ',
+    labelWidth: '20px',
+    component: 'InputTextArea',
+    defaultValue: '',
+    componentProps: {
+      rows: 2,
+      placeholder: '沙盒clientId',
+    },
+    colProps: { lg: 12, md: 24 },
+    ifShow: ({ values }) => values['extension.paypal.env'] === 0,
+  },
+  {
+    field: 'extension.paypal.sandbox.clientsecret',
+    label: ' ',
+    labelWidth: '20px',
+    component: 'InputTextArea',
+    defaultValue: '',
+    componentProps: {
+      rows: 2,
+      placeholder: '沙盒clientSecret',
+    },
+    colProps: { lg: 12, md: 24 },
+    ifShow: ({ values }) => values['extension.paypal.env'] === 0,
+  },
+  {
+    field: '',
+    label: 'payssion参数',
+    component: 'Divider',
+  },
+  {
+    field: 'extension.payssion.env',
+    label: '支付环境',
+    component: 'RadioButtonGroup',
+    defaultValue: 0,
+    componentProps: {
+      options: [
+        { label: '沙盒', value: 0 },
+        { label: '正式', value: 1 },
+      ],
+    },
+  },
+  {
+    field: 'extension.payssion.production.clientid',
+    label: ' ',
+    labelWidth: '20px',
+    component: 'InputTextArea',
+    defaultValue: '',
+    componentProps: {
+      rows: 2,
+      placeholder: '正式clientId',
+    },
+    colProps: { lg: 12, md: 24 },
+    ifShow: ({ values }) => values['extension.payssion.env'] === 1,
+  },
+  {
+    field: 'extension.payssion.production.clientsecret',
+    label: ' ',
+    labelWidth: '20px',
+    component: 'InputTextArea',
+    defaultValue: '',
+    componentProps: {
+      rows: 2,
+      placeholder: '正式clientSecret',
+    },
+    colProps: { lg: 12, md: 24 },
+    ifShow: ({ values }) => values['extension.payssion.env'] === 1,
+  },
+  {
+    field: 'extension.payssion.sandbox.clientid',
+    label: ' ',
+    labelWidth: '20px',
+    component: 'InputTextArea',
+    defaultValue: '',
+    componentProps: {
+      rows: 2,
+      placeholder: '沙盒clientId',
+    },
+    colProps: { lg: 12, md: 24 },
+    ifShow: ({ values }) => values['extension.payssion.env'] === 0,
+  },
+  {
+    field: 'extension.payssion.sandbox.clientsecret',
+    label: ' ',
+    labelWidth: '20px',
+    component: 'InputTextArea',
+    defaultValue: '',
+    componentProps: {
+      rows: 2,
+      placeholder: '沙盒clientSecret',
+    },
+    colProps: { lg: 12, md: 24 },
+    ifShow: ({ values }) => values['extension.payssion.env'] === 0,
+  },
+];
+
+// adjust
+const formSchemaAdjust: FormSchema[] = [
+  {
+    field: 'extension.adjust.currency',
+    label: '货币类型',
+    defaultValue: '',
+    component: 'Input',
+  },
+  {
+    field: 'extension.adjust.event',
+    label: '事件',
+    defaultValue: '',
+    component: 'Input',
+    slot: 'adjust',
+  },
+];
+
+export interface MyFormItemType {
+  key?: string;
+  name: string;
+  registerForm: (instance: FormActionType) => void;
+  methods: FormActionType;
+}
+
+export const FormList = [
+  {
+    name: '基础信息',
+    schemas: formSchemaBase,
+  },
+  {
+    name: '第三方配置',
+    schemas: formSchemaThird,
+  },
+  {
+    name: '切支付配置',
+    schemas: formSchemaQzf,
+  },
+  {
+    name: 'adjust配置',
+    schemas: formSchemaAdjust,
   },
 ];

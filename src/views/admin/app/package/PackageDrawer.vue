@@ -4,7 +4,7 @@
     @register="registerDrawer"
     showFooter
     :title="getTitle"
-    width="50%"
+    width="70%"
     @ok="handleSubmit"
   >
     <Tabs v-model:activeKey="currActiveKey">
@@ -15,18 +15,22 @@
         v-for="(item, index) in refForm"
       >
         <BasicForm @register="item.registerForm">
-          <template #myGameKey="{ model, field }">
+          <template #makeKey="{ model, field }">
             <Input v-model:value="model[field]">
               <template #addonAfter>
                 <Tooltip title="点击随机生成">
                   <Icon
                     icon="ant-design:barcode-outlined"
                     style="cursor: pointer"
-                    @click="getGameKey(model, field)"
+                    @click="getPackageKey(model, field)"
                   />
                 </Tooltip>
               </template>
             </Input>
+          </template>
+          <template #adjust="{ model, field }">
+            <!--插槽内嵌表单-->
+            <AdjustEventSlot :adjustEvent="model[field]" />
           </template>
         </BasicForm>
       </TabPane>
@@ -38,15 +42,16 @@
   import { Input, Tooltip, Tabs, TabPane } from 'ant-design-vue';
   import { Icon } from '/@/components/Icon';
   import { BasicForm, FormProps, useForm } from '/@/components/Form/index';
-  import { MyFormItemType, FormList } from './game.data';
+  import { MyFormItemType, FormList } from './package.data';
   import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
   import { useAppInject } from '/@/hooks/web/useAppInject';
-  import { gameAdd, gameEdit, gameGetKey } from '/@/api/admin/app';
+  import { packageAdd, packageeEdit, packageGetKey } from '/@/api/admin/app';
   import { useMessage } from '/@/hooks/web/useMessage';
+  import AdjustEventSlot from './AdjustEventSlot.vue';
 
   export default defineComponent({
-    name: 'GameDrawer',
-    components: { BasicDrawer, BasicForm, Input, Tooltip, Icon, Tabs, TabPane },
+    name: 'PackageDrawer',
+    components: { BasicDrawer, BasicForm, AdjustEventSlot, Input, Tooltip, Icon, Tabs, TabPane },
     emits: ['success', 'register'],
     setup(_, { emit }) {
       const isUpdate = ref(true);
@@ -54,7 +59,7 @@
       const { createMessage } = useMessage();
 
       const fromPropsLayout: FormProps = {
-        labelWidth: 120,
+        labelWidth: 130,
         showActionButtonGroup: false,
       };
 
@@ -96,9 +101,9 @@
           setDrawerProps({ confirmLoading: true });
 
           if (unref(isUpdate)) {
-            await gameEdit('POST', post);
+            await packageeEdit('POST', post);
           } else {
-            await gameAdd('POST', post);
+            await packageAdd('POST', post);
           }
 
           createMessage.success(getTitle.value + '成功');
@@ -111,15 +116,14 @@
         }
       }
 
-      function getGameKey(model, field) {
+      function getPackageKey(model, field) {
         let column: string = field;
         const index = field.indexOf('.');
         if (index !== -1) {
           // 转换extension.logkey
           column = column.slice(index + 1);
         }
-
-        gameGetKey(column)
+        packageGetKey(column)
           .then((result) => {
             model[field] = result;
           })
@@ -133,7 +137,7 @@
         refForm,
         getTitle,
         handleSubmit,
-        getGameKey,
+        getPackageKey,
         getIsMobile,
         currActiveKey,
       };

@@ -428,7 +428,6 @@ export const FormList = [
     schemas: formSchemaBase,
   },
   {
-    key: '1',
     name: '充值信息',
     schemas: formSchemaPay,
   },
