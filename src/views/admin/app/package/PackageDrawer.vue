@@ -30,7 +30,11 @@
           </template>
           <template #adjust="{ model, field }">
             <!--插槽内嵌表单-->
-            <AdjustEventSlot :adjustEvent="model[field]" />
+            <AdjustEventSlot
+              v-model:adjustEvent="model[field]"
+              v-model:updId="model['id']"
+              @update:adjustEvent="model[field] = $event"
+            />
           </template>
         </BasicForm>
       </TabPane>
@@ -77,6 +81,7 @@
         // 打开时指定选中第一项
         currActiveKey.value = '0';
 
+        // todo 由后端获取数据
         refForm.forEach(async (_item) => {
           await _item.methods.resetFields();
           if (unref(isUpdate)) {

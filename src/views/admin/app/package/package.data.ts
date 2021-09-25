@@ -464,6 +464,7 @@ const formSchemaAdjust: FormSchema[] = [
   {
     field: 'extension.adjust.event',
     label: '事件',
+    helpMessage: 'Key和Value若为空，忽略当前行',
     defaultValue: '',
     component: 'Input',
     slot: 'adjust',

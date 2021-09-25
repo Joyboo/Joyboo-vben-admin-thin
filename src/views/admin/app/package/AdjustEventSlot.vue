@@ -12,6 +12,7 @@
       </Tooltip>
       <Tooltip title="提交 （仅提交adjust事件的数据）">
         <Button
+          v-if="isUpdate"
           ghost
           color="success"
           class="ml-2"
@@ -29,36 +30,64 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref } from 'vue';
+  import { computed, defineComponent, ref, toRefs, unref } from 'vue';
   import { BasicForm, useForm } from '/@/components/Form';
   import { Input, Tooltip } from 'ant-design-vue';
   import { Button } from '/@/components/Button';
+  import { packageSaveAdjustEvent } from '/@/api/admin/app';
 
   export default defineComponent({
     name: 'AdjustEventSlot',
     components: { BasicForm, [Input.name]: Input, Tooltip, Button },
-    emits: ['success', 'register'],
-    setup(props) {
+    props: {
+      adjustEvent: {
+        type: [Object, String],
+        default: () => {},
+      },
+      updId: {
+        type: Number,
+        default: 0,
+      },
+    },
+    emits: ['update:adjustEvent'],
+    setup(props, { emit }) {
       console.log('adjusr props ', props);
+      const n = ref(1);
+      const { updId } = toRefs(props);
+
+      const inputChange = () => {
+        toKeyValue()
+          .then((adjust) => {
+            emit('update:adjustEvent', adjust);
+          })
+          .catch((_) => {});
+      };
+
       const [register, { appendSchemaByField, removeSchemaByFiled, validate }] = useForm({
         schemas: [
           {
             field: 'key0',
             component: 'Input',
+            componentProps: {
+              allowClear: false,
+              onChange: inputChange,
+            },
             label: 'Key',
             colProps: {
               span: 8,
             },
-            required: true,
           },
           {
             field: 'value0',
             component: 'Input',
+            componentProps: {
+              allowClear: false,
+              onChange: inputChange,
+            },
             label: 'Value',
             colProps: {
               span: 8,
             },
-            required: true,
           },
           {
             field: '0',
@@ -82,16 +111,30 @@
         showSubmitButton: false,
       });
 
-      async function handleSubmit() {
+      async function toKeyValue() {
         try {
           const data = await validate();
-          console.log(data);
+          const max = unref(n);
+          const adjust = {};
+          for (let i = 0; i < max; i++) {
+            const key = `key${i}`;
+            const value = `value${i}`;
+            adjust[data[key]] = data[value];
+          }
+          console.log('toKeyValue adjust, ', adjust);
+          return adjust;
         } catch (e) {
-          console.log(e);
+          // throw new Error(e.toString());
         }
       }
 
-      const n = ref(1);
+      function handleSubmit() {
+        toKeyValue()
+          .then((adjust) => {
+            packageSaveAdjustEvent(adjust);
+          })
+          .catch((_) => {});
+      }
 
       async function add() {
         const curr = n.value;
@@ -102,11 +145,14 @@
           {
             field: `key${curr}`,
             component: 'Input',
+            componentProps: {
+              allowClear: false,
+              onChange: inputChange,
+            },
             label: 'Key',
             colProps: {
               span: 8,
             },
-            required: true,
           },
           `${appto}`,
         );
@@ -115,11 +161,14 @@
           {
             field: `value${curr}`,
             component: 'Input',
+            componentProps: {
+              allowClear: false,
+              onChange: inputChange,
+            },
             label: 'Value',
             colProps: {
               span: 8,
             },
-            required: true,
           },
           `key${curr}`,
         );
@@ -140,14 +189,15 @@
       }
 
       function del(field) {
-        console.log('del field ' + field);
         if (n.value > 1) {
           removeSchemaByFiled([`key${field}`, `value${field}`, `${field}`]);
           n.value--;
         }
       }
 
-      return { register, handleSubmit, add, del };
+      const isUpdate = computed(() => unref(updId) > 0);
+
+      return { register, handleSubmit, add, del, isUpdate };
     },
   });
 </script>

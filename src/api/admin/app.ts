@@ -16,6 +16,7 @@ enum Api {
   PackageDel = '/admin/package/del',
   PackageChange = '/admin/package/change',
   PackGetKey = '/admin/package/gkey',
+  PackageSaveAdjustEvent = '/admin/package/saveAdjustEvent',
 }
 
 export const gameIndex = (params: GameIndexSearchParams) =>
@@ -51,3 +52,6 @@ export const packageChange = (id: number, column: string, status: number) =>
 
 export const packageGetKey = (column: string) =>
   defHttp.get({ url: Api.PackGetKey, params: { column } });
+
+export const packageSaveAdjustEvent = (adjust?: object) =>
+  defHttp.post({ url: Api.PackageSaveAdjustEvent, params: { adjust } });
