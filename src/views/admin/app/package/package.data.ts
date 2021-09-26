@@ -2,7 +2,6 @@ import { BasicColumn, FormSchema } from '/@/components/Table';
 import { h } from 'vue';
 import { Tag } from 'ant-design-vue';
 import { CurdAuth } from '/#/utils';
-import { FormActionType } from '/@/components/Form';
 
 export const curdAuth: CurdAuth = {
   add: '/package/add',
@@ -24,12 +23,12 @@ export const columns: BasicColumn[] = [
   {
     title: '包名',
     dataIndex: 'name',
-    width: 100,
+    width: 150,
   },
   {
     title: '包id',
     dataIndex: 'pkgbnd',
-    width: 180,
+    width: 200,
   },
   {
     title: '操作系统',
@@ -54,6 +53,7 @@ export const columns: BasicColumn[] = [
     title: '排序',
     helpMessage: '越小越靠前',
     dataIndex: 'sort',
+    width: 80,
   },
 ];
 
@@ -296,7 +296,7 @@ const formSchemaQzf: FormSchema[] = [
     label: 'H5支付方式',
     helpMessage: '切支付开启时有效',
     component: 'CheckboxGroup',
-    defaultValue: '',
+    defaultValue: [],
     componentProps: {
       options: [
         { label: 'paypal', value: 'paypal' },
@@ -471,27 +471,67 @@ const formSchemaAdjust: FormSchema[] = [
   },
 ];
 
-export interface MyFormItemType {
-  key?: string;
-  name: string;
-  registerForm: (instance: FormActionType) => void;
-  methods: FormActionType;
-}
+// adjust event
+export const formSchemaAdjustEvent: FormSchema[] = [
+  {
+    field: 'key0',
+    component: 'Input',
+    componentProps: {
+      allowClear: false,
+    },
+    required: true,
+    label: 'Key',
+    colProps: {
+      span: 8,
+    },
+  },
+  {
+    field: 'value0',
+    component: 'Input',
+    componentProps: {
+      allowClear: false,
+    },
+    required: true,
+    label: 'Value',
+    colProps: {
+      span: 8,
+    },
+  },
+  {
+    field: '0',
+    component: 'Input',
+    label: ' ',
+    colProps: {
+      span: 8,
+    },
+    slot: 'del',
+  },
+  {
+    field: 'action',
+    label: ' ',
+    component: 'Input',
+    slot: 'footer',
+  },
+];
 
 export const FormList = [
   {
+    key: 'base',
     name: '基础信息',
     schemas: formSchemaBase,
   },
   {
+    key: 'third',
     name: '第三方配置',
     schemas: formSchemaThird,
   },
   {
+    key: 'qzf',
     name: '切支付配置',
     schemas: formSchemaQzf,
   },
   {
+    key: 'adjust',
     name: 'adjust配置',
     schemas: formSchemaAdjust,
   },

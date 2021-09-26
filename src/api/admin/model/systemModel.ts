@@ -12,11 +12,6 @@ export type RoleParams = {
 
 export type RolePageParams = BasicPageParams & RoleParams;
 
-export type DeptParams = {
-  deptName?: string;
-  status?: string;
-};
-
 export type MenuParams = {
   title?: string;
   status?: string;
@@ -93,6 +88,12 @@ export interface RoleListItem {
   itime: string;
 }
 
+export interface UploadApiResult {
+  message: string;
+  code: number;
+  url: string;
+}
+
 /**
  * @description: Request list return value
  */
@@ -103,5 +104,3 @@ export type DeptListGetResultModel = BasicFetchResult<DeptListItem>;
 export type MenuListGetResultModel = BasicFetchResult<MenuListItem>;
 
 export type RolePageListGetResultModel = BasicFetchResult<RoleListItem>;
-
-export type RoleListGetResultModel = RoleListItem[];

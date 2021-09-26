@@ -110,4 +110,6 @@ export type ComponentType =
   | 'Render'
   | 'Slider'
   | 'Rate'
-  | 'Divider';
+  | 'Divider'
+  | 'CropperAvatar'
+  | 'CropperImage';

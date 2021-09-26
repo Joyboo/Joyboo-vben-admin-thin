@@ -25,6 +25,7 @@
       @uploadSuccess="handleUploadSuccess"
       :uploadApi="uploadApi"
       :src="sourceValue"
+      :circled="false"
     />
   </div>
 </template>
@@ -91,9 +92,9 @@
         },
       );
 
-      function handleUploadSuccess({ source }) {
+      function handleUploadSuccess({ source, data }) {
         sourceValue.value = source;
-        emit('change', source);
+        emit('change', source, data);
         createMessage.success(t('component.cropper.uploadSuccess'));
       }
 

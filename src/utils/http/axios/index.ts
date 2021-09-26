@@ -169,7 +169,7 @@ const transform: AxiosTransform = {
         return Promise.reject(error);
       }
     } catch (error) {
-      throw new Error(error);
+      throw new Error(error as string);
     }
 
     checkStatus(error?.response?.status, msg, errorMessageMode);

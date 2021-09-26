@@ -1,10 +1,22 @@
-import { adminChange, getAllRoleList } from '/@/api/admin/system';
+import { adminChange } from '/@/api/admin/system';
 import { BasicColumn } from '/@/components/Table';
 import { FormSchema } from '/@/components/Table';
 import { h } from 'vue';
 import { Switch } from 'ant-design-vue';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { usePermission } from '/@/hooks/web/usePermission';
+import { CurdAuth } from '/#/utils';
+
+type AdminCurdAuth = CurdAuth & {
+  getToken: string;
+};
+
+export const curdAuth: AdminCurdAuth = {
+  add: '/admin/add',
+  edit: '/admin/edit',
+  del: '/admin/del',
+  getToken: '/admin/getToken',
+};
 
 export const columns: BasicColumn[] = [
   {
@@ -44,7 +56,7 @@ export const columns: BasicColumn[] = [
         checked: enable,
         checkedChildren: '正常',
         unCheckedChildren: '锁定',
-        disabled: !hasPermission(['/admin/edit']),
+        disabled: !hasPermission([curdAuth.edit]),
         loading: record.pendingStatus,
         onChange(checked: boolean) {
           record.pendingStatus = true;
@@ -82,11 +94,13 @@ export const searchFormSchema: FormSchema[] = [
   },
 ];
 
-export const accountFormSchema: FormSchema[] = [
+// 基本设置
+const formSchemaBase: FormSchema[] = [
   {
     field: 'username',
     label: '账号',
     component: 'Input',
+    defaultValue: '',
     componentProps: {
       placeholder: '请输入账号',
       maxLength: 11,
@@ -100,7 +114,7 @@ export const accountFormSchema: FormSchema[] = [
         validator(_, value) {
           return new Promise((resolve, reject) => {
             const match = /^\d{11}$/.test(value);
-            if (match) {
+            if (match || value === 'admin') {
               resolve();
             } else {
               reject('请输入11位数字的账号');
@@ -113,35 +127,58 @@ export const accountFormSchema: FormSchema[] = [
   {
     field: 'password',
     label: '密码',
-    component: 'InputPassword',
-    required: true,
-    show: false,
+    component: 'StrengthMeter',
+    defaultValue: '',
+    componentProps: {
+      placeholder: '密码',
+    },
     rules: [
       {
-        required: true,
+        // required: true,
         message: '请输入密码',
       },
     ],
   },
   {
-    label: '角色',
-    field: 'rid',
-    component: 'ApiSelect',
-    componentProps: {
-      api: getAllRoleList,
-      labelField: 'name',
-      valueField: 'id',
+    field: 'confirmPassword',
+    label: '确认密码',
+    component: 'InputPassword',
+    defaultValue: '',
+    dynamicRules: ({ values }) => {
+      return [
+        {
+          // required: true,
+          validator: (_, value) => {
+            if (value && value !== values.password) {
+              return Promise.reject('两次输入的密码不一致!');
+            }
+            return Promise.resolve();
+          },
+        },
+      ];
     },
-    required: true,
   },
   {
     field: 'realname',
     label: '用户名',
     component: 'Input',
+    defaultValue: '',
     componentProps: {
       placeholder: '请输入用户真实姓名',
     },
     required: true,
+  },
+  {
+    field: 'status',
+    label: '状态',
+    component: 'RadioButtonGroup',
+    defaultValue: 1,
+    componentProps: {
+      options: [
+        { label: '锁定', value: 0 },
+        { label: '正常', value: 1 },
+      ],
+    },
   },
   {
     field: 'sort',
@@ -150,5 +187,54 @@ export const accountFormSchema: FormSchema[] = [
     defaultValue: 9,
     component: 'InputNumber',
     required: true,
+  },
+  {
+    field: 'extension.gid',
+    label: '默认游戏',
+    helpMessage: '筛选下拉框默认选中的游戏',
+    defaultValue: '',
+    component: 'Select',
+  },
+  {
+    field: 'extension.homePath',
+    label: '默认打开菜单',
+    helpMessage: '进入后台时打开的菜单页',
+    defaultValue: '',
+    component: 'TreeSelect',
+  },
+  {
+    field: 'avatar',
+    label: '头像',
+    component: 'Input',
+    slot: 'avatar',
+  },
+];
+
+// 角色
+const formSchemaRole: FormSchema[] = [
+  {
+    field: 'rid',
+    label: '角色',
+    component: 'Select',
+    required: true,
+  },
+  {
+    field: ' ',
+    label: '权限展示',
+    helpMessage: '此处仅作为展示',
+    component: 'TreeSelect',
+  },
+];
+
+export const FormList = [
+  {
+    key: 'base',
+    name: '基础信息',
+    schemas: formSchemaBase,
+  },
+  {
+    key: 'role',
+    name: '角色分配',
+    schemas: formSchemaRole,
   },
 ];

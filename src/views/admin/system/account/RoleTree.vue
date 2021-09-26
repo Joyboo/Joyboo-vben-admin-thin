@@ -12,31 +12,28 @@
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent, onMounted, ref } from 'vue';
+  import { defineComponent } from 'vue';
 
-  import { BasicTree, TreeItem } from '/@/components/Tree';
-  import { getAllRoleList } from '/@/api/admin/system';
+  import { BasicTree } from '/@/components/Tree';
 
   export default defineComponent({
     name: 'RoleTree',
     components: { BasicTree },
-
+    props: {
+      treeData: {
+        type: Array,
+        default() {
+          return [];
+        },
+      },
+    },
     emits: ['select'],
     setup(_, { emit }) {
-      const treeData = ref<TreeItem[]>([]);
-
-      async function fetch() {
-        treeData.value = (await getAllRoleList()) as unknown as TreeItem[];
-      }
-
       function handleSelect(keys) {
         emit('select', keys[0]);
       }
 
-      onMounted(() => {
-        fetch();
-      });
-      return { treeData, handleSelect };
+      return { handleSelect };
     },
   });
 </script>

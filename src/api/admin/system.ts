@@ -2,15 +2,17 @@ import {
   AccountParams,
   MenuParams,
   MenuFormParams,
-  RoleParams,
   RolePageParams,
   MenuListGetResultModel,
   AccountListGetResultModel,
   RolePageListGetResultModel,
-  RoleListGetResultModel,
+  UploadApiResult,
 } from './model/systemModel';
 import { defHttp } from '/@/utils/http/axios';
 import { Method } from 'axios';
+
+import { UploadFileParams } from '/#/axios';
+import { useGlobSetting } from '/@/hooks/setting';
 
 enum Api {
   AccountList = '/admin/admin/index',
@@ -18,7 +20,7 @@ enum Api {
   AdminAdd = '/admin/admin/add',
   AdminEdit = '/admin/admin/edit',
   IsAccountExist = '/admin/admin/accountExist',
-  DeptList = '/system/getDeptList',
+  AvatarUpload = '/admin/admin/upload',
 
   MenuList = '/admin/menu/index',
   MenuAdd = '/admin/menu/add',
@@ -31,7 +33,6 @@ enum Api {
   RoleAdd = '/admin/role/add',
   RoleEdit = '/admin/role/edit',
   RoleDel = '/admin/role/del',
-  GetAllRoleList = '/admin/role/getAllRoleList',
 }
 
 export const getAccountList = (params: AccountParams) =>
@@ -43,11 +44,27 @@ export const getMenuList = (params?: MenuParams) =>
 export const adminChange = (id: number, column: string, status: number) =>
   defHttp.post({ url: Api.AdminChange, params: { id, column, status } });
 
-export const adminAdd = (method: Method, params) =>
+export const adminAdd = (method: Method, params?: any) =>
   defHttp.request({ url: Api.AdminAdd, method, params });
 
-export const adminEdit = (method: Method, params) =>
+export const adminEdit = (method: Method, params?: any) =>
   defHttp.request({ url: Api.AdminEdit, method, params });
+
+// 头像上传
+export const avatarUpload = (
+  params: UploadFileParams,
+  onUploadProgress: (progressEvent: ProgressEvent) => void,
+) => {
+  const { uploadUrl } = useGlobSetting();
+  return defHttp.uploadFile<UploadApiResult>(
+    {
+      baseURL: uploadUrl,
+      url: Api.AvatarUpload,
+      onUploadProgress,
+    },
+    params,
+  );
+};
 
 export const menuAdd = (params: MenuFormParams) => defHttp.post({ url: Api.MenuAdd, params });
 
@@ -60,9 +77,6 @@ export const changeMenu = (id: number, column: string, status: number) =>
 
 export const getRoleListByPage = (params?: RolePageParams) =>
   defHttp.get<RolePageListGetResultModel>({ url: Api.RolePageList, params });
-
-export const getAllRoleList = (params?: RoleParams) =>
-  defHttp.get<RoleListGetResultModel>({ url: Api.GetAllRoleList, params });
 
 export const roleChange = (id: number, column: string, status: number) =>
   defHttp.post({ url: Api.RoleChange, params: { id, column, status } });

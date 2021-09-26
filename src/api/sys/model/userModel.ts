@@ -20,6 +20,22 @@ export interface LoginResultModel {
   role: RoleInfo;
 }
 
+export interface GameListModel {
+  id: number;
+  name: string;
+}
+
+export interface PkgListModel {
+  id: number;
+  name: string;
+  pkgbnd: string;
+  gameid: number;
+}
+
+export interface UserConfig {
+  imageDomain: string;
+}
+
 /**
  * @description: Get user information return value
  */
@@ -35,4 +51,10 @@ export interface GetUserInfoModel {
   avatar: string;
   // 介绍
   desc?: string;
+  // 可用游戏列表
+  gameList: GameListModel[];
+  // 可用包列表
+  pkgList: PkgListModel[];
+  // 配置项
+  config: UserConfig;
 }

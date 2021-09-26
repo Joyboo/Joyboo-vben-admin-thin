@@ -1,6 +1,6 @@
 import { ErrorTypeEnum } from '/@/enums/exceptionEnum';
 import { MenuModeEnum, MenuTypeEnum } from '/@/enums/menuEnum';
-import { RoleInfo } from '/@/api/sys/model/userModel';
+import { GameListModel, PkgListModel, RoleInfo, UserConfig } from '/@/api/sys/model/userModel';
 
 // Lock screen information
 export interface LockInfo {
@@ -38,6 +38,12 @@ export interface UserInfo {
   desc?: string;
   homePath?: string;
   roles: RoleInfo[];
+  // 可用游戏列表
+  gameList: GameListModel[];
+  // 可用包列表
+  pkgList: PkgListModel[];
+  // 配置项
+  config: UserConfig;
 }
 
 export interface BeforeMiniState {

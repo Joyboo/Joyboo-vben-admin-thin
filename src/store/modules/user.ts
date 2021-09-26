@@ -55,6 +55,18 @@ export const useUserStore = defineStore({
     getLastUpdateTime(): number {
       return this.lastUpdateTime;
     },
+    getGameListOptions() {
+      const list = [];
+      if (this.userInfo !== null) {
+        for (const item of this.userInfo.gameList) {
+          list.push({
+            label: item.name + '(id: ' + item.id + ')',
+            value: item.id as never,
+          } as never);
+        }
+      }
+      return list;
+    },
   },
   actions: {
     setToken(info: string | undefined) {

@@ -1,27 +1,27 @@
 <template>
-  <PageWrapper dense contentFullHeight fixedHeight contentClass="flex">
-    <RoleTree class="w-1/4 xl:w-1/5" @select="handleSelect" />
+  <PageWrapper dense contentFullHeight contentClass="flex">
+    <RoleTree class="w-1/4 xl:w-1/5" v-model:treeData="treeData" @select="handleSelect" />
     <BasicTable @register="registerTable" class="w-3/4 xl:w-4/5" :searchInfo="searchInfo">
       <template #toolbar>
-        <a-button v-auth="['/admin/add']" type="primary" @click="handleCreate">新增账号</a-button>
+        <a-button v-auth="[curdAuth.add]" type="primary" @click="handleCreate">新增账号</a-button>
       </template>
       <template #action="{ record }">
         <TableAction
           :actions="[
             {
-              auth: '/admin/getToken',
+              auth: curdAuth.getToken,
               icon: 'clarity:info-standard-line',
               tooltip: '获取token',
               onClick: handleToken.bind(null, record),
             },
             {
-              auth: '/admin/edit',
+              auth: curdAuth.edit,
               icon: 'clarity:note-edit-line',
               tooltip: '编辑用户资料',
               onClick: handleEdit.bind(null, record),
             },
             {
-              auth: '/admin/del',
+              auth: curdAuth.del,
               icon: 'ant-design:delete-outlined',
               color: 'error',
               tooltip: '删除此账号',
@@ -39,7 +39,7 @@
   </PageWrapper>
 </template>
 <script lang="ts">
-  import { defineComponent, reactive } from 'vue';
+  import { defineComponent, reactive, ref } from 'vue';
 
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { getAccountList } from '/@/api/admin/system';
@@ -47,17 +47,21 @@
 
   import AccountDrawer from './AccountDrawer.vue';
 
-  import { columns, searchFormSchema } from './account.data';
+  import { columns, searchFormSchema, curdAuth } from './account.data';
   import RoleTree from '/@/views/admin/system/account/RoleTree.vue';
   import { useDrawer } from '/@/components/Drawer';
+  import { TreeItem } from '/@/components/Tree';
+  import { isArray } from '/@/utils/is';
 
   export default defineComponent({
     name: 'AccountManagement',
     components: { BasicTable, PageWrapper, RoleTree, AccountDrawer, TableAction },
     setup() {
+      const treeData = ref<TreeItem[]>([]);
+
       const [registerDrawer, { openDrawer }] = useDrawer();
       const searchInfo = reactive<Recordable>({});
-      const [registerTable, { reload, updateTableDataRecord }] = useTable({
+      const [registerTable, { reload }] = useTable({
         title: '账号列表',
         api: getAccountList,
         rowKey: 'id',
@@ -72,8 +76,13 @@
         showTableSetting: true,
         bordered: true,
         handleSearchInfoFn(info) {
-          console.log('handleSearchInfoFn', info);
           return info;
+        },
+        afterFetch(info) {
+          if (isArray(info.roleList)) {
+            treeData.value = info.roleList;
+          }
+          return info.items;
         },
         actionColumn: {
           width: 120,
@@ -90,7 +99,6 @@
       }
 
       function handleEdit(record: Recordable) {
-        console.log(record);
         openDrawer(true, {
           record,
           isUpdate: true,
@@ -101,15 +109,8 @@
         console.log(record);
       }
 
-      function handleSuccess({ isUpdate, values }) {
-        if (isUpdate) {
-          // 演示不刷新表格直接更新内部数据。
-          // 注意：updateTableDataRecord要求表格的rowKey属性为string并且存在于每一行的record的keys中
-          const result = updateTableDataRecord(values.id, values);
-          console.log(result);
-        } else {
-          reload();
-        }
+      function handleSuccess() {
+        reload();
       }
 
       function handleSelect(rid = '') {
@@ -132,6 +133,8 @@
         handleSelect,
         handleToken,
         searchInfo,
+        curdAuth,
+        treeData,
       };
     },
   });
