@@ -149,6 +149,9 @@ const formSchemaBase: FormSchema[] = [
         {
           // required: true,
           validator: (_, value) => {
+            if (value && value.length < 6) {
+              return Promise.reject('密码过于简单!');
+            }
             if (value && value !== values.password) {
               return Promise.reject('两次输入的密码不一致!');
             }

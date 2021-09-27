@@ -78,7 +78,6 @@
 
         refForm.forEach(async (f) => {
           await f.methods.resetFields();
-          console.log('resset ok');
           await f.methods.updateSchema([
             {
               field: 'rid',
@@ -109,7 +108,7 @@
         });
       });
 
-      const getTitle = computed(() => (!unref(isUpdate) ? '新增菜单' : '编辑菜单'));
+      const getTitle = computed(() => (!unref(isUpdate) ? '新增账号' : '编辑账号'));
 
       function handleSelectMenu(keys) {
         console.log('handleSelectMenu ', keys);
@@ -117,18 +116,24 @@
 
       async function handleSubmit() {
         try {
+          setDrawerProps({ confirmLoading: true });
           let post = {};
           for (const item of refForm) {
-            // todo 处理Select清除按钮会删除字段的问题
-            // console.log('item.methods.getFieldsValue()', item.methods.getFieldsValue());
             const val = await item.methods.validate();
             post = Object.assign({}, post, val);
           }
 
-          setDrawerProps({ confirmLoading: true });
+          for (const { schemas } of FormList) {
+            // 在一些场景中，清除按钮会将值设为undefined，比如Select,对于设置过defaultValue的字段,还原为defaultValue
+            for (const sh of schemas) {
+              if (typeof sh.defaultValue !== 'undefined' && typeof post[sh.field] === 'undefined') {
+                post[sh.field] = sh.defaultValue;
+              }
+            }
+          }
 
           const doAxios = unref(isUpdate) ? adminEdit : adminAdd;
-          await doAxios('POST', Object.assign(post, { id: rowId }));
+          await doAxios('POST', unref(isUpdate) ? Object.assign(post, { id: rowId }) : {});
 
           closeDrawer();
           emit('success');
@@ -151,6 +156,7 @@
         currActiveKey,
         avatarUpload,
         avatar,
+        gamelist,
       };
     },
   });

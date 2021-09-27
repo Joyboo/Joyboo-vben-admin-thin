@@ -39,10 +39,10 @@
   </PageWrapper>
 </template>
 <script lang="ts">
-  import { defineComponent, reactive, ref } from 'vue';
+  import { defineComponent, reactive, ref, unref } from 'vue';
 
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getAccountList } from '/@/api/admin/system';
+  import { getAccountList, adminGetToken } from '/@/api/admin/system';
   import { PageWrapper } from '/@/components/Page';
 
   import AccountDrawer from './AccountDrawer.vue';
@@ -52,12 +52,16 @@
   import { useDrawer } from '/@/components/Drawer';
   import { TreeItem } from '/@/components/Tree';
   import { isArray } from '/@/utils/is';
+  import { useMessage } from '/@/hooks/web/useMessage';
+  import { useCopyToClipboard } from '/@/hooks/web/useCopyToClipboard';
 
   export default defineComponent({
     name: 'AccountManagement',
     components: { BasicTable, PageWrapper, RoleTree, AccountDrawer, TableAction },
     setup() {
       const treeData = ref<TreeItem[]>([]);
+      const { createMessage } = useMessage();
+      const { clipboardRef, copiedRef } = useCopyToClipboard();
 
       const [registerDrawer, { openDrawer }] = useDrawer();
       const searchInfo = reactive<Recordable>({});
@@ -119,8 +123,14 @@
       }
 
       function handleToken(record: Recordable) {
-        // todo 获取token
-        console.log('do get token uid=' + record.id);
+        adminGetToken(record.id)
+          .then((result) => {
+            clipboardRef.value = result;
+            if (unref(copiedRef)) {
+              createMessage.success('token已复制到剪切板!');
+            }
+          })
+          .catch((_) => {});
       }
 
       return {
