@@ -25,13 +25,22 @@
               width="150"
             />
           </template>
+          <template v-if="item.key === 'role'" #BasicTree>
+            <BasicTree
+              title="该角色组拥有的权限，仅作为展示，修改无效"
+              :treeData="treeMenu"
+              :checkable="true"
+              ref="asyncExpandTreeRef"
+              :replaceFields="{ key: 'id' }"
+            />
+          </template>
         </BasicForm>
       </TabPane>
     </Tabs>
   </BasicDrawer>
 </template>
 <script lang="ts">
-  import { defineComponent, ref, computed, unref } from 'vue';
+  import { defineComponent, ref, computed, unref, nextTick } from 'vue';
   import { Tabs, TabPane } from 'ant-design-vue';
   import { BasicForm, FormProps, useForm } from '/@/components/Form/index';
   import { FormList } from './account.data';
@@ -41,15 +50,25 @@
   import { adminAdd, adminEdit, avatarUpload } from '/@/api/admin/system';
   import headerImg from '/@/assets/images/header.jpg';
   import { CropperAvatar } from '/@/components/Cropper';
+  import { BasicTree, TreeActionType, TreeItem } from '/@/components/Tree/index';
+  import { isArray } from '/@/utils/is';
 
   export default defineComponent({
     name: 'AccountDrawer',
-    components: { BasicDrawer, BasicForm, Tabs, TabPane, CropperAvatar },
+    components: { BasicDrawer, BasicForm, Tabs, TabPane, CropperAvatar, BasicTree },
     emits: ['success', 'register'],
     setup(_, { emit }) {
       const isUpdate = ref(true);
+      // tabs当前选中标签页的key
       const currActiveKey = ref('0');
+      // 编辑id
       let rowId = 0;
+      // 权限展示树数据
+      const treeMenu = ref<TreeItem[]>([]);
+      // 权限展示树Ref
+      const asyncExpandTreeRef = ref<Nullable<TreeActionType>>(null);
+      // 每个rid对应哪些权限
+      let checkByRid = {};
 
       const userStore = useUserStore();
       const gamelist = computed(() => userStore.getGameListOptions);
@@ -74,14 +93,31 @@
 
         // 角色，菜单
         const doAxios = unref(isUpdate) ? adminEdit : adminAdd;
-        const { roleList, menuList, result } = await doAxios('GET', { id: rowId });
+        const resp = await doAxios('GET', isUpdate.value ? { id: rowId } : {});
+        const { roleList, roleAuth, menuList, result } = resp;
+        checkByRid = resp.checkByRid;
+
+        treeMenu.value = roleAuth;
+        nextTick(() => {
+          // 展开全部
+          unref(asyncExpandTreeRef)?.expandAll(true);
+          // 选全部取消选中
+          unref(asyncExpandTreeRef)?.checkAll(false);
+          // 当前需要选中
+          if (isUpdate.value) {
+            changeRid(result['rid']);
+          }
+        });
 
         refForm.forEach(async (f) => {
           await f.methods.resetFields();
           await f.methods.updateSchema([
             {
               field: 'rid',
-              componentProps: { options: roleList },
+              componentProps: {
+                options: roleList,
+                onChange: changeRid,
+              },
             },
             {
               field: 'extension.gid',
@@ -148,6 +184,21 @@
         return userAvatar ? userStore.getUserInfo.config.imageDomain + userAvatar : headerImg;
       };
 
+      const handleCheck = (checkedKeys, e) => {
+        console.log('onChecked', checkedKeys, e);
+      };
+
+      function changeRid(value) {
+        unref(asyncExpandTreeRef)?.checkAll(false);
+        if (value !== undefined) {
+          if (checkByRid[value] === true) {
+            unref(asyncExpandTreeRef)?.checkAll(true);
+          } else if (isArray(checkByRid[value]) && checkByRid[value].length > 0) {
+            unref(asyncExpandTreeRef)?.setCheckedKeys(checkByRid[value]);
+          }
+        }
+      }
+
       return {
         registerDrawer,
         refForm,
@@ -157,6 +208,9 @@
         avatarUpload,
         avatar,
         gamelist,
+        treeMenu,
+        handleCheck,
+        asyncExpandTreeRef,
       };
     },
   });

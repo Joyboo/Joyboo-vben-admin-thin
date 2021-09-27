@@ -225,7 +225,8 @@ const formSchemaRole: FormSchema[] = [
     field: ' ',
     label: '权限展示',
     helpMessage: '此处仅作为展示',
-    component: 'TreeSelect',
+    component: 'Input',
+    slot: 'BasicTree',
   },
 ];
 

@@ -94,6 +94,22 @@ export interface UploadApiResult {
   url: string;
 }
 
+export interface RoleFormParams {
+  name: string;
+  value: string;
+  status: number;
+  remark?: string;
+  menu?: string;
+}
+
+export interface AccountInfo {
+  roleList: LabelValueOptions;
+  menuList: MenuFormParams[];
+  roleAuth: MenuFormParams[];
+  checkByRid: object;
+  result: object;
+}
+
 /**
  * @description: Request list return value
  */
@@ -104,3 +120,5 @@ export type DeptListGetResultModel = BasicFetchResult<DeptListItem>;
 export type MenuListGetResultModel = BasicFetchResult<MenuListItem>;
 
 export type RolePageListGetResultModel = BasicFetchResult<RoleListItem>;
+
+export type AccountInfoResultModel = BasicFetchResult<AccountInfo>;

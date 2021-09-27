@@ -6,7 +6,9 @@ import {
   MenuListGetResultModel,
   AccountListGetResultModel,
   RolePageListGetResultModel,
+  RoleFormParams,
   UploadApiResult,
+  AccountInfo,
 } from './model/systemModel';
 import { defHttp } from '/@/utils/http/axios';
 import { Method } from 'axios';
@@ -46,10 +48,10 @@ export const adminChange = (id: number, column: string, status: number) =>
   defHttp.post({ url: Api.AdminChange, params: { id, column, status } });
 
 export const adminAdd = (method: Method, params?: any) =>
-  defHttp.request({ url: Api.AdminAdd, method, params });
+  defHttp.request<AccountInfo>({ url: Api.AdminAdd, method, params });
 
 export const adminEdit = (method: Method, params?: any) =>
-  defHttp.request({ url: Api.AdminEdit, method, params });
+  defHttp.request<AccountInfo>({ url: Api.AdminEdit, method, params });
 
 export const adminGetToken = (id: number) =>
   defHttp.get({ url: Api.AdminGetToken, params: { id } });
@@ -85,9 +87,9 @@ export const getRoleListByPage = (params?: RolePageParams) =>
 export const roleChange = (id: number, column: string, status: number) =>
   defHttp.post({ url: Api.RoleChange, params: { id, column, status } });
 
-export const roleAdd = (params: MenuFormParams) => defHttp.post({ url: Api.RoleAdd, params });
+export const roleAdd = (params: RoleFormParams) => defHttp.post({ url: Api.RoleAdd, params });
 
-export const roleEdit = (params: MenuFormParams) => defHttp.post({ url: Api.RoleEdit, params });
+export const roleEdit = (params: RoleFormParams) => defHttp.post({ url: Api.RoleEdit, params });
 
 export const roleDel = (id: number) => defHttp.get({ url: Api.RoleDel, params: { id } });
 
