@@ -38,8 +38,9 @@
           fileListRef.value = value
             .filter((item) => !!item)
             .map((item) => {
+              const url = props.prefix ? props.prefix + item : item;
               return {
-                url: item,
+                url: url,
                 type: item.split('.').pop() || '',
                 name: item.split('/').pop() || '',
               };

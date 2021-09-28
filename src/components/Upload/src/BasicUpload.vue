@@ -30,6 +30,7 @@
 
     <UploadPreviewModal
       :value="fileList"
+      :prefix="prefix"
       @register="registerPreviewModal"
       @list-change="handlePreviewChange"
       @delete="handlePreviewDelete"
@@ -63,6 +64,7 @@
       const [registerPreviewModal, { openModal: openPreviewModal }] = useModal();
 
       const fileList = ref<string[]>([]);
+      const prefix = ref(props.prefix);
 
       const showPreview = computed(() => {
         const { emptyHidePreview } = props;
@@ -114,6 +116,7 @@
         openPreviewModal,
         fileList,
         showPreview,
+        prefix,
         bindValue,
         handleDelete,
         handlePreviewDelete,
