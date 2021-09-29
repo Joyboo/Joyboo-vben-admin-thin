@@ -26,9 +26,9 @@ export default {
       const { field, order } = sortInfo;
       return {
         // The sort field passed to the backend you
-        field,
+        _sortField: field,
         // Sorting method passed to the background asc/desc
-        order,
+        _sortValue: order,
       };
     },
     // Custom general filter function

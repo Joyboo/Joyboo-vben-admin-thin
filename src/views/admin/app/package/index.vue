@@ -31,73 +31,86 @@
     <PackageDrawer @register="registerDrawer" @success="handleSuccess" />
   </div>
 </template>
-<script lang="ts">
-  import { defineComponent } from 'vue';
-
-  import { BasicTable, useTable, TableAction } from '/@/components/Table';
+<script lang="ts" setup name="PackageManagement">
+  import { BasicTable, useTable, TableAction, FormSchema } from '/@/components/Table';
   import { packageIndex, packageDel } from '/@/api/admin/app';
-
   import { useDrawer } from '/@/components/Drawer';
   import PackageDrawer from './PackageDrawer.vue';
+  import { curdAuth, columns } from './package.data';
+  import { useUserStore } from '/@/store/modules/user';
+  import { computed } from 'vue';
 
-  import { curdAuth, columns, searchFormSchema } from './package.data';
+  const gameOptions = computed(() => useUserStore().getGameListOptions);
+  const gameKeyValue = computed(() => useUserStore().gameKeyValue);
+  const searchFormSchema: FormSchema[] = [
+    {
+      field: 'gameid',
+      label: '所属游戏',
+      component: 'Select',
+      componentProps: {
+        options: gameOptions.value,
+      },
+      colProps: { span: 8 },
+    },
+    {
+      field: 'name',
+      label: '包名或包id',
+      helpMessage: '支持模糊搜索',
+      component: 'Input',
+      colProps: { span: 8 },
+    },
+  ];
 
-  export default defineComponent({
-    name: 'PackageManagement',
-    components: { BasicTable, PackageDrawer, TableAction },
-    setup() {
-      const [registerDrawer, { openDrawer }] = useDrawer();
-      const [registerTable, { reload }] = useTable({
-        title: '包管理列表',
-        api: packageIndex,
-        columns,
-        formConfig: {
-          labelWidth: 120,
-          schemas: searchFormSchema,
-        },
-        useSearchForm: true,
-        showTableSetting: true,
-        bordered: true,
-        showIndexColumn: false,
-        actionColumn: {
-          width: 120,
-          title: '操作',
-          dataIndex: 'action',
-          slots: { customRender: 'action' },
-          fixed: undefined,
-        },
+  const [registerDrawer, { openDrawer }] = useDrawer();
+  const [registerTable, { reload }] = useTable({
+    title: '包管理列表',
+    api: packageIndex,
+    columns,
+    formConfig: {
+      labelWidth: 120,
+      schemas: searchFormSchema,
+    },
+    useSearchForm: true,
+    showTableSetting: true,
+    bordered: true,
+    showIndexColumn: false,
+    afterFetch(items) {
+      // id替换为name
+      items = items.map((item: any) => {
+        if (typeof gameKeyValue.value[item.gameid] !== 'undefined') {
+          item.gameid = gameKeyValue.value[item.gameid];
+        }
+        return item;
       });
-
-      function handleCreate() {
-        openDrawer(true, {
-          isUpdate: false,
-        });
-      }
-
-      function handleEdit(record: Recordable) {
-        openDrawer(true, {
-          record,
-          isUpdate: true,
-        });
-      }
-
-      function handleDelete(record: Recordable) {
-        packageDel(record.id).finally(handleSuccess);
-      }
-
-      function handleSuccess() {
-        reload();
-      }
-
-      return {
-        registerTable,
-        registerDrawer,
-        handleCreate,
-        handleEdit,
-        handleDelete,
-        handleSuccess,
-        curdAuth,
-      };
+      return items;
+    },
+    actionColumn: {
+      width: 120,
+      title: '操作',
+      dataIndex: 'action',
+      slots: { customRender: 'action' },
+      fixed: undefined,
     },
   });
+
+  function handleCreate() {
+    openDrawer(true, {
+      isUpdate: false,
+    });
+  }
+
+  function handleEdit(record: Recordable) {
+    openDrawer(true, {
+      record,
+      isUpdate: true,
+    });
+  }
+
+  function handleDelete(record: Recordable) {
+    packageDel(record.id).finally(handleSuccess);
+  }
+
+  function handleSuccess() {
+    reload();
+  }
 </script>

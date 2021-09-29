@@ -1,4 +1,4 @@
-import { BasicColumn, FormSchema } from '/@/components/Table';
+import { BasicColumn } from '/@/components/Table';
 import { h } from 'vue';
 import { Tag } from 'ant-design-vue';
 import { CurdAuth } from '/#/utils';
@@ -14,6 +14,7 @@ export const columns: BasicColumn[] = [
     title: 'ID',
     dataIndex: 'id',
     width: 80,
+    sorter: true,
   },
   {
     title: '所属游戏',
@@ -53,26 +54,8 @@ export const columns: BasicColumn[] = [
     title: '排序',
     helpMessage: '越小越靠前',
     dataIndex: 'sort',
-    width: 80,
-  },
-];
-
-export const searchFormSchema: FormSchema[] = [
-  {
-    field: 'gameid',
-    label: '所属游戏',
-    component: 'Select',
-    componentProps: {
-      options: [],
-    },
-    colProps: { span: 8 },
-  },
-  {
-    field: 'name',
-    label: '包名或包id',
-    helpMessage: '支持模糊搜索',
-    component: 'Input',
-    colProps: { span: 8 },
+    width: 90,
+    sorter: true,
   },
 ];
 

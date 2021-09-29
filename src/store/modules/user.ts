@@ -55,6 +55,7 @@ export const useUserStore = defineStore({
     getLastUpdateTime(): number {
       return this.lastUpdateTime;
     },
+    // [{ label: '', value: ''}]
     getGameListOptions() {
       const list = [];
       if (this.userInfo !== null) {
@@ -62,7 +63,17 @@ export const useUserStore = defineStore({
           list.push({
             label: item.name + '(id: ' + item.id + ')',
             value: item.id as never,
-          } as never);
+          } as OptionsItem as never);
+        }
+      }
+      return list;
+    },
+    // 键值对
+    gameKeyValue() {
+      const list = {};
+      if (this.userInfo !== null) {
+        for (const item of this.userInfo.gameList) {
+          list[item.id] = item.name;
         }
       }
       return list;
