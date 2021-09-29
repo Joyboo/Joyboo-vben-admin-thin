@@ -1,6 +1,9 @@
 import { defHttp } from '/@/utils/http/axios';
 import { Method } from 'axios';
 import { GameIndexSearchParams, PackgeIndexSearch } from './model/appModel';
+import { UploadFileParams } from '/#/axios';
+import { UploadApiResult } from '/@/api/sys/model/uploadModel';
+import { useGlobSetting } from '/@/hooks/setting';
 
 enum Api {
   GameIndex = '/admin/game/index',
@@ -17,6 +20,8 @@ enum Api {
   PackageChange = '/admin/package/change',
   PackGetKey = '/admin/package/gkey',
   PackageSaveAdjustEvent = '/admin/package/saveAdjustEvent',
+  PackageImgUpload = '/admin/package/upload',
+  PackageUnlink = '/admin/package/unlink',
 }
 
 export const gameIndex = (params: GameIndexSearchParams) =>
@@ -42,7 +47,7 @@ export const packageIndex = (params: PackgeIndexSearch) =>
 export const packageAdd = (method: Method, params) =>
   defHttp.request({ url: Api.PackageAdd, method, params });
 
-export const packageeEdit = (method: Method, params) =>
+export const packageEdit = (method: Method, params) =>
   defHttp.request({ url: Api.PackageEdit, method, params });
 
 export const packageDel = (id: number) => defHttp.get({ url: Api.PackageDel, params: { id } });
@@ -53,5 +58,23 @@ export const packageChange = (id: number, column: string, status: number) =>
 export const packageGetKey = (column: string) =>
   defHttp.get({ url: Api.PackGetKey, params: { column } });
 
-export const packageSaveAdjustEvent = (adjust?: object) =>
-  defHttp.post({ url: Api.PackageSaveAdjustEvent, params: { adjust } });
+export const packageSaveAdjustEvent = (id: number, adjust?: object) =>
+  defHttp.post({ url: Api.PackageSaveAdjustEvent, params: { id, adjust } });
+
+export const uploadApi = (
+  params: UploadFileParams,
+  onUploadProgress: (progressEvent: ProgressEvent) => void,
+) => {
+  const { uploadUrl } = useGlobSetting();
+  return defHttp.uploadFile<UploadApiResult>(
+    {
+      baseURL: uploadUrl,
+      url: Api.PackageImgUpload,
+      onUploadProgress,
+    },
+    params,
+  );
+};
+
+export const delPackageImg = (url: string) =>
+  defHttp.post({ url: Api.PackageUnlink, params: { url } });
