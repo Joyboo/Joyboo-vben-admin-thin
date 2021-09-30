@@ -57,13 +57,13 @@ export const useUserStore = defineStore({
     },
     // [{ label: '', value: ''}]
     getGameListOptions() {
-      const list = [];
+      const list: OptionsItem[] = [];
       if (this.userInfo !== null) {
         for (const item of this.userInfo.gameList) {
           list.push({
             label: item.name + '(id: ' + item.id + ')',
-            value: item.id as never,
-          } as OptionsItem as never);
+            value: item.id,
+          });
         }
       }
       return list;
@@ -74,6 +74,18 @@ export const useUserStore = defineStore({
       if (this.userInfo !== null) {
         for (const item of this.userInfo.gameList) {
           list[item.id] = item.name;
+        }
+      }
+      return list;
+    },
+    getPackageOptions() {
+      const list: OptionsItem[] = [];
+      if (this.userInfo !== null) {
+        for (const item of this.userInfo.pkgList) {
+          list.push({
+            label: item.name,
+            value: item.pkgbnd,
+          });
         }
       }
       return list;

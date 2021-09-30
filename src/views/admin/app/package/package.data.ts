@@ -163,10 +163,4 @@ export const packageRule = {
       message: '请选择游戏',
     },
   ],
-  loginkey: [
-    {
-      required: true,
-      message: '密钥为空',
-    },
-  ],
 };

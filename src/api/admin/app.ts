@@ -12,6 +12,8 @@ enum Api {
   GameDel = '/admin/game/del',
   GameChange = '/admin/game/change',
   GameGetkey = '/admin/game/gkey',
+  GameImgUpload = '/admin/game/upload',
+  GameUnlink = '/admin/game/unlink',
 
   PackageIndex = '/admin/package/index',
   PackageAdd = '/admin/package/add',
@@ -23,6 +25,22 @@ enum Api {
   PackageImgUpload = '/admin/package/upload',
   PackageUnlink = '/admin/package/unlink',
 }
+
+export const uploadApi = (
+  url: Api,
+  params: UploadFileParams,
+  onUploadProgress: (progressEvent: ProgressEvent) => void,
+) => {
+  const { uploadUrl } = useGlobSetting();
+  return defHttp.uploadFile<UploadApiResult>(
+    {
+      baseURL: uploadUrl,
+      url: url,
+      onUploadProgress,
+    },
+    params,
+  );
+};
 
 export const gameIndex = (params: GameIndexSearchParams) =>
   defHttp.get({ url: Api.GameIndex, params });
@@ -40,6 +58,13 @@ export const gameChange = (id: number, column: string, status: number) =>
 
 export const gameGetKey = (column: string) =>
   defHttp.get({ url: Api.GameGetkey, params: { column } });
+
+export const gameUploadApi = (
+  params: UploadFileParams,
+  onUploadProgress: (progressEvent: ProgressEvent) => void,
+) => uploadApi(Api.GameImgUpload, params, onUploadProgress);
+
+export const delGameImg = (url: string) => defHttp.post({ url: Api.GameUnlink, params: { url } });
 
 export const packageIndex = (params: PackgeIndexSearch) =>
   defHttp.get({ url: Api.PackageIndex, params });
@@ -61,20 +86,10 @@ export const packageGetKey = (column: string) =>
 export const packageSaveAdjustEvent = (id: number, adjust?: object) =>
   defHttp.post({ url: Api.PackageSaveAdjustEvent, params: { id, adjust } });
 
-export const uploadApi = (
+export const packageUploadApi = (
   params: UploadFileParams,
   onUploadProgress: (progressEvent: ProgressEvent) => void,
-) => {
-  const { uploadUrl } = useGlobSetting();
-  return defHttp.uploadFile<UploadApiResult>(
-    {
-      baseURL: uploadUrl,
-      url: Api.PackageImgUpload,
-      onUploadProgress,
-    },
-    params,
-  );
-};
+) => uploadApi(Api.PackageImgUpload, params, onUploadProgress);
 
 export const delPackageImg = (url: string) =>
   defHttp.post({ url: Api.PackageUnlink, params: { url } });

@@ -34,11 +34,6 @@ export const basicProps = {
     default: null,
     required: true,
   },
-  // 前缀，可能是域名等
-  prefix: {
-    type: [Boolean, String],
-    default: false,
-  },
 };
 
 export const uploadContainerProps = {
@@ -61,10 +56,6 @@ export const previewProps = {
   value: {
     type: Array as PropType<string[]>,
     default: () => [],
-  },
-  prefix: {
-    type: [Boolean, String],
-    default: false,
   },
 };
 

@@ -31,8 +31,7 @@
     <GameDrawer @register="registerDrawer" @success="handleSuccess" />
   </div>
 </template>
-<script lang="ts">
-  import { defineComponent } from 'vue';
+<script lang="ts" setup name="GameManagement">
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { gameIndex, gameDel } from '/@/api/admin/app';
 
@@ -41,62 +40,46 @@
 
   import { columns, searchFormSchema, curdAuth } from './game.data';
 
-  export default defineComponent({
-    name: 'GameManagement',
-    components: { BasicTable, GameDrawer, TableAction },
-    setup() {
-      const [registerDrawer, { openDrawer }] = useDrawer();
-      const [registerTable, { reload }] = useTable({
-        title: '游戏列表',
-        api: gameIndex,
-        columns,
-        formConfig: {
-          labelWidth: 120,
-          schemas: searchFormSchema,
-        },
-        useSearchForm: true,
-        showTableSetting: true,
-        bordered: true,
-        showIndexColumn: false,
-        actionColumn: {
-          width: 80,
-          title: '操作',
-          dataIndex: 'action',
-          slots: { customRender: 'action' },
-          fixed: undefined,
-        },
-      });
-
-      function handleCreate() {
-        openDrawer(true, {
-          isUpdate: false,
-        });
-      }
-
-      function handleEdit(record: Recordable) {
-        openDrawer(true, {
-          record,
-          isUpdate: true,
-        });
-      }
-
-      function handleDelete(record: Recordable) {
-        gameDel(record.id).finally(handleSuccess);
-      }
-
-      function handleSuccess() {
-        reload();
-      }
-
-      return {
-        registerTable,
-        registerDrawer,
-        handleCreate,
-        handleEdit,
-        handleDelete,
-        handleSuccess,
-        curdAuth,
-      };
+  const [registerDrawer, { openDrawer }] = useDrawer();
+  const [registerTable, { reload }] = useTable({
+    title: '游戏列表',
+    api: gameIndex,
+    columns,
+    formConfig: {
+      labelWidth: 120,
+      schemas: searchFormSchema,
+    },
+    useSearchForm: true,
+    showTableSetting: true,
+    bordered: true,
+    showIndexColumn: false,
+    actionColumn: {
+      width: 80,
+      title: '操作',
+      dataIndex: 'action',
+      slots: { customRender: 'action' },
+      fixed: undefined,
     },
   });
+
+  function handleCreate() {
+    openDrawer(true, {
+      isUpdate: false,
+    });
+  }
+
+  function handleEdit(record: Recordable) {
+    openDrawer(true, {
+      record,
+      isUpdate: true,
+    });
+  }
+
+  function handleDelete(record: Recordable) {
+    gameDel(record.id).finally(handleSuccess);
+  }
+
+  function handleSuccess() {
+    reload();
+  }
 </script>

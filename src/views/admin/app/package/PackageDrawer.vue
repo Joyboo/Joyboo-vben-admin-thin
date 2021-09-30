@@ -44,7 +44,7 @@
             <InputNumber :min="1" :max="255" v-model:value="formState.sort" />
           </FormItem>
 
-          <FormItem label="密钥" v-bind="validateInfos.loginkey">
+          <FormItem label="密钥">
             <Row :gutter="colGutter">
               <Col v-bind="colSpan">
                 <Input v-model:value="formState.extension.logkey" placeholder="登录密钥">
@@ -421,10 +421,9 @@
               @delete="handleDelete"
               :emptyHidePreview="true"
               @preview-delete="hendlerPreviewDeleteBgUrl"
-              :api="uploadApi"
+              :api="packageUploadApi"
               :accept="uploadAccept"
-              :prefix="domain"
-              :value="formState.extension.rating.bgurl ? [formState.extension.rating.bgurl] : []"
+              :value="viewPrefixImg(formState.extension.rating.bgurl)"
             />
           </FormItem>
 
@@ -438,10 +437,9 @@
               @delete="handleDelete"
               :emptyHidePreview="true"
               @preview-delete="hendlerPreviewDeleteBtnUrl"
-              :api="uploadApi"
+              :api="packageUploadApi"
               :accept="uploadAccept"
-              :prefix="domain"
-              :value="formState.extension.rating.btnurl ? [formState.extension.rating.btnurl] : []"
+              :value="viewPrefixImg(formState.extension.rating.btnurl)"
             />
           </FormItem>
 
@@ -455,10 +453,9 @@
               @delete="handleDelete"
               :emptyHidePreview="true"
               @preview-delete="hendlerPreviewDeleteTitUrl"
-              :api="uploadApi"
+              :api="packageUploadApi"
               :accept="uploadAccept"
-              :prefix="domain"
-              :value="formState.extension.rating.titurl ? [formState.extension.rating.titurl] : []"
+              :value="viewPrefixImg(formState.extension.rating.titurl)"
             />
           </FormItem>
 
@@ -472,12 +469,9 @@
               @delete="handleDelete"
               :emptyHidePreview="true"
               @preview-delete="hendlerPreviewDeleteLeftUrl"
-              :api="uploadApi"
+              :api="packageUploadApi"
               :accept="uploadAccept"
-              :prefix="domain"
-              :value="
-                formState.extension.rating.lefturl ? [formState.extension.rating.lefturl] : []
-              "
+              :value="viewPrefixImg(formState.extension.rating.lefturl)"
             />
           </FormItem>
 
@@ -489,12 +483,9 @@
               @delete="handleDelete"
               :emptyHidePreview="true"
               @preview-delete="hendlerPreviewDeleteRightUrl"
-              :api="uploadApi"
+              :api="packageUploadApi"
               :accept="uploadAccept"
-              :prefix="domain"
-              :value="
-                formState.extension.rating.righturl ? [formState.extension.rating.righturl] : []
-              "
+              :value="viewPrefixImg(formState.extension.rating.righturl)"
             />
           </FormItem>
 
@@ -503,7 +494,7 @@
           </FormItem>
         </TabPane>
 
-        <TabPane :key="6" tab="分享配置">
+        <TabPane :key="6" tab="分享配置" force-render>
           <FormItem label="分享图">
             <BasicUpload
               :maxNumber="1"
@@ -512,15 +503,14 @@
               @delete="handleDelete"
               :emptyHidePreview="true"
               @preview-delete="hendlerPreviewDeleteShareImg"
-              :api="uploadApi"
+              :api="packageUploadApi"
               :accept="uploadAccept"
-              :prefix="domain"
-              :value="formState.extension.share.img ? [formState.extension.share.img] : []"
+              :value="viewPrefixImg(formState.extension.share.img)"
             />
           </FormItem>
         </TabPane>
 
-        <TabPane :key="7" tab="aihelp配置">
+        <TabPane :key="7" tab="aihelp配置" force-render>
           <FormItem label="sectionid">
             <Input v-model:value="formState.extension.aihelp.sectionid" />
           </FormItem>
@@ -561,7 +551,7 @@
     packageAdd,
     packageEdit,
     packageGetKey,
-    uploadApi,
+    packageUploadApi,
     delPackageImg,
     packageSaveAdjustEvent,
   } from '/@/api/admin/app';
@@ -613,28 +603,29 @@
   });
   // 水平间距/垂直间距
   const colGutter = [20, 20];
-  // 上传Header
 
   const userStore = useUserStore();
   const gameOptions = computed(() => userStore.getGameListOptions);
   const domain = computed(() => userStore.getUserInfo.config.imageDomain);
 
-  let rowId = 0;
+  let rowId = ref(0);
 
   const [registerDrawer, { setDrawerProps, closeDrawer }] = useDrawerInner(async (data) => {
     isUpdate.value = data.isUpdate;
     resetFields();
     if (isUpdate.value) {
       setDrawerProps({ confirmLoading: true });
-      rowId = data.record.id;
-      const result = await packageEdit('GET', { id: rowId });
+      rowId.value = data.record.id;
+      const result = await packageEdit('GET', { id: rowId.value });
       deepMerge(formState, result);
     }
 
     setDrawerProps({ confirmLoading: false });
   });
 
-  const getTitle = computed(() => (!unref(isUpdate) ? '新增游戏' : '编辑游戏'));
+  const getTitle = computed(() =>
+    !unref(isUpdate) ? '新增包' : '编辑包 (id: ' + rowId.value + ')',
+  );
   // 允许上传的文件类型
   const uploadAccept = ref(['jpg', 'jpeg', 'gif', 'png', 'webp']);
 
@@ -645,6 +636,18 @@
         formState.extension[field] = key;
       })
       .catch((_) => {});
+  };
+
+  // 给图片拼上域名前缀
+  const viewPrefixImg = (url: string) => {
+    return url
+      ? url
+          .split(',')
+          .filter((item) => item !== '')
+          .map((item) => {
+            return item.indexOf(domain.value) === -1 ? domain.value + item : item;
+          })
+      : [];
   };
 
   // 添加一行adjust.Event
@@ -664,7 +667,7 @@
   const saveAdjust = () => {
     saveAdjustButtonLoading.value = true;
     const adjust = formState.extension.adjust.event;
-    packageSaveAdjustEvent(rowId, adjust)
+    packageSaveAdjustEvent(rowId.value, adjust)
       .finally(() => {
         saveAdjustButtonLoading.value = false;
       })
@@ -755,7 +758,7 @@
 
       const post = toRaw(formState);
       if (isUpdate.value) {
-        packageEdit('POST', Object.assign({}, post, { id: rowId }));
+        packageEdit('POST', Object.assign({}, post, { id: rowId.value }));
       } else {
         packageAdd('POST', post);
       }
