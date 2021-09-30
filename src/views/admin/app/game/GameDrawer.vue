@@ -55,6 +55,15 @@
             </Row>
           </FormItem>
 
+          <FormItem label="状态">
+            <Switch v-model:checked="formState.status" :checkedValue="1" :unCheckedValue="0" />
+          </FormItem>
+
+          <FormItem>
+            <template #label> 排序 <BasicHelp text="越小越靠前" placement="top" /></template>
+            <InputNumber :min="1" :max="255" v-model:value="formState.sort" />
+          </FormItem>
+
           <FormItem>
             <template #label>
               登录API网址 <BasicHelp :text="['平台会将用户token传到此网址', '手游此项可随便填']" />
@@ -281,6 +290,7 @@
     Tooltip,
     Row,
     Col,
+    Switch,
     Divider,
     RangePicker,
   } from 'ant-design-vue';

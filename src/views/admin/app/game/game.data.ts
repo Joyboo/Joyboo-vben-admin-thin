@@ -106,6 +106,8 @@ export const searchFormSchema: FormSchema[] = [
 
 export const FormData = {
   name: '',
+  sort: 9,
+  status: 1,
   extension: {
     type: 0,
     logkey: '',

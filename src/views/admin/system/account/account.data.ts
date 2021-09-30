@@ -94,151 +94,90 @@ export const searchFormSchema: FormSchema[] = [
   },
 ];
 
-// 基本设置
-const formSchemaBase: FormSchema[] = [
-  {
-    field: 'username',
-    label: '账号',
-    component: 'Input',
-    defaultValue: '',
-    componentProps: {
-      placeholder: '请输入账号',
-      maxLength: 11,
+export const FormData = {
+  id: '',
+  username: '',
+  password: '',
+  realname: '',
+  rid: '',
+  sort: 9,
+  status: 1,
+  avatar: '',
+  desc: '',
+  extension: {
+    gid: '',
+    newnid: 0, // 已废弃，后期删掉
+    homePath: '', // 自定义首页 menuid
+    gameids: [],
+    pkgbnd: [],
+    wechat: {
+      openid: '',
+      nickname: '',
+      sex: '',
     },
-    rules: [
-      {
-        required: true,
-        message: '需要11位长度',
-      },
-      {
-        validator(_, value) {
-          return new Promise((resolve, reject) => {
-            const match = /^\d{11}$/.test(value);
-            if (match || value === 'admin') {
-              resolve();
-            } else {
-              reject('请输入11位数字的账号');
-            }
-          });
-        },
-      },
-    ],
-  },
-  {
-    field: 'password',
-    label: '密码',
-    component: 'StrengthMeter',
-    defaultValue: '',
-    componentProps: {
-      placeholder: '密码',
+    qq: {
+      openid: '',
+      nickname: '',
+      gender: '',
     },
-    rules: [
-      {
-        // required: true,
-        message: '请输入密码',
-      },
-    ],
-  },
-  {
-    field: 'confirmPassword',
-    label: '确认密码',
-    component: 'InputPassword',
-    defaultValue: '',
-    dynamicRules: ({ values }) => {
-      return [
-        {
-          // required: true,
-          validator: (_, value) => {
-            if (value && value.length < 6) {
-              return Promise.reject('密码过于简单!');
-            }
-            if (value && value !== values.password) {
-              return Promise.reject('两次输入的密码不一致!');
-            }
-            return Promise.resolve();
-          },
-        },
-      ];
+    alipay: {
+      user_id: '',
+      nick_name: '',
+      gender: '',
+    },
+    weibo: {
+      id: '',
+      name: '',
+      gender: '',
     },
   },
-  {
-    field: 'realname',
-    label: '用户名',
-    component: 'Input',
-    defaultValue: '',
-    componentProps: {
-      placeholder: '请输入用户真实姓名',
-    },
-    required: true,
-  },
-  {
-    field: 'status',
-    label: '状态',
-    component: 'RadioButtonGroup',
-    defaultValue: 1,
-    componentProps: {
-      options: [
-        { label: '锁定', value: 0 },
-        { label: '正常', value: 1 },
-      ],
-    },
-  },
-  {
-    field: 'sort',
-    label: '排序',
-    helpMessage: '越小越靠前',
-    defaultValue: 9,
-    component: 'InputNumber',
-    required: true,
-  },
-  {
-    field: 'extension.gid',
-    label: '默认游戏',
-    helpMessage: '筛选下拉框默认选中的游戏',
-    defaultValue: '',
-    component: 'Select',
-  },
-  {
-    field: 'extension.homePath',
-    label: '默认打开菜单',
-    helpMessage: '进入后台时打开的菜单页',
-    defaultValue: '',
-    component: 'TreeSelect',
-  },
-  {
-    field: 'avatar',
-    label: '头像',
-    component: 'Input',
-    slot: 'avatar',
-  },
-];
+};
 
-// 角色
-const formSchemaRole: FormSchema[] = [
-  {
-    field: 'rid',
-    label: '角色',
-    component: 'Select',
-    required: true,
-  },
-  {
-    field: ' ',
-    label: '权限展示',
-    helpMessage: '此处仅作为展示',
-    component: 'Input',
-    slot: 'BasicTree',
-  },
-];
+export const RuleData = {
+  username: [
+    {
+      required: true,
+    },
+    {
+      validator(_, value: any) {
+        return new Promise((resolve, reject) => {
+          const match = /^\d{11}$/.test(value);
+          if (match || value === 'admin') {
+            resolve(value);
+          } else {
+            reject('请输入11位数字的账号');
+          }
+        });
+      },
+    },
+  ],
+  realname: [
+    {
+      required: true,
+      message: '请输入真实姓名',
+    },
+  ],
+  rid: [
+    {
+      required: true,
+      message: '请选择角色组',
+    },
+  ],
+};
 
-export const FormList = [
-  {
-    key: 'base',
-    name: '基础信息',
-    schemas: formSchemaBase,
-  },
-  {
-    key: 'role',
-    name: '角色分配',
-    schemas: formSchemaRole,
-  },
-];
+// dynamicRules: ({ values }) => {
+//   return [
+//     {
+//       // required: true,
+//       validator: (_, value) => {
+//         if (value && value.length < 6) {
+//           return Promise.reject('密码过于简单!');
+//         }
+//         if (value && value !== values.password) {
+//           return Promise.reject('两次输入的密码不一致!');
+//         }
+//         return Promise.resolve();
+//       },
+//     },
+//   ];
+// }

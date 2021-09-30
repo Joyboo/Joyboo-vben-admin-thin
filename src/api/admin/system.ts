@@ -57,7 +57,7 @@ export const adminGetToken = (id: number) =>
   defHttp.get({ url: Api.AdminGetToken, params: { id } });
 
 // 头像上传
-export const avatarUpload = (
+export const avatarUploadApi = (
   params: UploadFileParams,
   onUploadProgress: (progressEvent: ProgressEvent) => void,
 ) => {

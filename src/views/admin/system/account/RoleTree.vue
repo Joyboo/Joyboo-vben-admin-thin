@@ -11,29 +11,21 @@
     />
   </div>
 </template>
-<script lang="ts">
-  import { defineComponent } from 'vue';
-
+<script lang="ts" setup name="RoleTree">
   import { BasicTree } from '/@/components/Tree';
 
-  export default defineComponent({
-    name: 'RoleTree',
-    components: { BasicTree },
-    props: {
-      treeData: {
-        type: Array,
-        default() {
-          return [];
-        },
+  defineProps({
+    treeData: {
+      type: Array,
+      default() {
+        return [];
       },
     },
-    emits: ['select'],
-    setup(_, { emit }) {
-      function handleSelect(keys) {
-        emit('select', keys[0]);
-      }
-
-      return { handleSelect };
-    },
   });
+
+  const emit = defineEmits(['select']);
+
+  function handleSelect(keys) {
+    emit('select', keys[0]);
+  }
 </script>

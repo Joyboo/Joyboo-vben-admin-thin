@@ -111,13 +111,11 @@ export const formSchema: FormSchema[] = [
   {
     field: 'status',
     label: '状态',
-    component: 'RadioButtonGroup',
     defaultValue: 1,
+    component: 'Switch',
     componentProps: {
-      options: [
-        { label: '启用', value: 1 },
-        { label: '禁用', value: 0 },
-      ],
+      checkedValue: 1,
+      unCheckedValue: 0,
     },
   },
   {
