@@ -23,26 +23,30 @@ export const columns: BasicColumn[] = [
     title: 'ID',
     dataIndex: 'id',
     width: 60,
+    sorter: true,
   },
   {
     title: '账号',
     dataIndex: 'username',
-    width: 120,
   },
   {
     title: '用户名',
     dataIndex: 'realname',
-    width: 120,
   },
   {
     title: '创建时间',
     dataIndex: 'itime',
-    width: 180,
   },
   {
     title: '角色',
-    dataIndex: 'rid',
-    width: 200,
+    dataIndex: 'relation.name',
+  },
+  {
+    title: '排序',
+    dataIndex: 'sort',
+    width: 100,
+    sorter: true,
+    helpMessage: '越小越靠前',
   },
   {
     title: '状态',
@@ -95,11 +99,10 @@ export const searchFormSchema: FormSchema[] = [
 ];
 
 export const FormData = {
-  id: '',
   username: '',
   password: '',
   realname: '',
-  rid: '',
+  rid: 0,
   sort: 9,
   status: 1,
   avatar: '',
@@ -136,10 +139,10 @@ export const FormData = {
 export const RuleData = {
   username: [
     {
-      required: true,
+      required: false,
     },
     {
-      validator(_, value: any) {
+      validator(values, value: any) {
         return new Promise((resolve, reject) => {
           const match = /^\d{11}$/.test(value);
           if (match || value === 'admin') {
@@ -163,21 +166,5 @@ export const RuleData = {
       message: '请选择角色组',
     },
   ],
+  password: [],
 };
-
-// dynamicRules: ({ values }) => {
-//   return [
-//     {
-//       // required: true,
-//       validator: (_, value) => {
-//         if (value && value.length < 6) {
-//           return Promise.reject('密码过于简单!');
-//         }
-//         if (value && value !== values.password) {
-//           return Promise.reject('两次输入的密码不一致!');
-//         }
-//         return Promise.resolve();
-//       },
-//     },
-//   ];
-// }

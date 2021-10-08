@@ -5,6 +5,7 @@
     showFooter
     :title="getTitle"
     width="70%"
+    @close="handlerClose"
     @ok="handleSubmit"
   >
     <Form
@@ -21,7 +22,7 @@
             <Input v-model:value="formState.username" :maxlength="11" />
           </FormItem>
 
-          <FormItem>
+          <FormItem v-bind="validateInfos.password">
             <template #label>
               密码
               <BasicHelp v-if="isUpdate" text="留空表示不修改密码" />
@@ -41,7 +42,13 @@
           </FormItem>
 
           <FormItem label="状态">
-            <Switch v-model:checked="formState.status" :checkedValue="1" :unCheckedValue="0" />
+            <Switch
+              v-model:checked="formState.status"
+              :checkedValue="1"
+              :unCheckedValue="0"
+              checked-children="正常"
+              un-checked-children="锁定"
+            />
           </FormItem>
 
           <FormItem>
@@ -64,7 +71,7 @@
           <FormItem label="头像">
             <CropperAvatar
               :uploadApi="avatarUploadApi"
-              :value="formState.avatar"
+              :value="formState.avatar || HeaderImg"
               btnText="更换头像"
               :btnProps="{ preIcon: 'ant-design:cloud-upload-outlined' }"
               width="150"
@@ -90,8 +97,9 @@
           </FormItem>
         </TabPane>
 
-        <TabPane :key="3" tab="游戏和包" force-render>
+        <TabPane :key="3" v-if="formState.rid !== 1" tab="游戏和包" force-render>
           <FormItem label="分配游戏">
+            <!-- 游戏 checkbox -->
             <CheckboxGroup v-model:value="formState.extension.gameids">
               <Checkbox
                 v-for="gameItem in gameOptions"
@@ -102,9 +110,14 @@
               </Checkbox>
             </CheckboxGroup>
           </FormItem>
-          <!-- todo 根据游戏筛选穿梭框的内容 -->
+
+          <Divider />
+
           <FormItem label="分配包">
-            <Transfer />
+            <PackageTransfer
+              :target="transferTarget"
+              @change="(val) => (formState.extension.pkgbnd = val)"
+            />
           </FormItem>
         </TabPane>
       </Tabs>
@@ -123,8 +136,8 @@
     TreeSelect,
     InputNumber,
     Switch,
-    Transfer,
     Checkbox,
+    Divider,
     CheckboxGroup,
   } from 'ant-design-vue';
   import { ref, computed, unref, reactive, toRaw, nextTick } from 'vue';
@@ -139,6 +152,8 @@
   import { adminAdd, adminEdit, avatarUploadApi } from '/@/api/admin/system';
   import { deepMerge } from '/@/utils';
   import { isArray } from '/@/utils/is';
+  import PackageTransfer from './packageTransfer.vue';
+  import HeaderImg from '/@/assets/images/header.jpg';
 
   const emit = defineEmits(['success', 'register']);
 
@@ -148,13 +163,37 @@
 
   const { createMessage } = useMessage();
   const formState = reactive(FormData);
+
+  RuleData.password = [
+    {
+      required: !isUpdate.value,
+    },
+    {
+      validator(_, value: any) {
+        return new Promise((resolve, reject) => {
+          if (isUpdate.value) {
+            if (value && value !== confirmPassword.value) {
+              reject('两次输出的密码不一致');
+            }
+          } else {
+            if (value === '') {
+              reject('请输入密码');
+            }
+            if (value !== confirmPassword.value) {
+              reject('两次输入的密码不一致');
+            }
+          }
+          resolve(value);
+        });
+      },
+    },
+  ];
   const rulesRef = reactive(RuleData);
   const useForm = Form.useForm;
   const { resetFields, validate, validateInfos } = useForm(formState, rulesRef);
 
   const userStore = useUserStore();
   const gameOptions = computed(() => userStore.getGameListOptions);
-  const packageOptions = computed(() => userStore.getPackageOptions);
   const roleOptions = ref<OptionsItem[]>([]);
   // 默认菜单树（不包含按钮级别）
   const menuTreeData = ref<TreeItem[]>([]);
@@ -164,43 +203,54 @@
   const asyncExpandTreeRef = ref<Nullable<TreeActionType>>(null);
   // 每个rid对应哪些权限
   let checkByRidList = {};
-  const domain = computed(() => userStore.getUserInfo.config.imageDomain);
+  // 穿梭框右侧默认选中的
+  const transferTarget = ref<string[]>([]);
 
   let rowId = ref(0);
 
-  const [registerDrawer, { setDrawerProps, closeDrawer }] = useDrawerInner(async (data) => {
-    isUpdate.value = data.isUpdate;
-    resetFields();
-    setDrawerProps({ confirmLoading: true });
+  const [registerDrawer, { closeDrawer, changeLoading, changeOkLoading }] = useDrawerInner(
+    async (data) => {
+      isUpdate.value = data.isUpdate;
+      // 重置表单
+      resetFields();
+      // 编辑区loading
+      changeLoading(true);
+      // 提交按钮loading
+      changeOkLoading(true);
 
-    if (isUpdate.value) {
-      rowId.value = data.record.id;
-      const result = await adminEdit('GET', { id: rowId.value });
-      deepMerge(formState, result);
-
-      // 当前需要选中
-      changeRid(result['rid']);
-
-      // todo 赋值操作
-    } else {
-      const { menuList, roleList, roleAuth, checkByRid } = await adminAdd('GET');
+      const doAxios = isUpdate.value ? adminEdit : adminAdd;
+      const {
+        menuList,
+        roleList,
+        roleAuth,
+        checkByRid,
+        result = {},
+      } = await doAxios('GET', isUpdate.value ? { id: data.record.id } : {});
       menuTreeData.value = menuList;
       treeMenu.value = roleAuth;
       roleOptions.value = roleList;
       checkByRidList = checkByRid;
-    }
 
-    nextTick(() => {
-      // 展开全部
-      unref(asyncExpandTreeRef)?.expandAll(true);
-      // 选全部取消选中
-      unref(asyncExpandTreeRef)?.checkAll(false);
-    });
+      nextTick(() => {
+        // 展开全部
+        unref(asyncExpandTreeRef)?.expandAll(true);
+        // 全部取消选中
+        unref(asyncExpandTreeRef)?.checkAll(false);
+      });
 
-    setDrawerProps({ confirmLoading: false });
-  });
-  // todo 为了husky
-  console.log(packageOptions, domain, closeDrawer);
+      if (isUpdate.value) {
+        rowId.value = data.record.id;
+        deepMerge(formState, result);
+        console.log('formState', formState);
+        nextTick(() => changeRid(result['rid']));
+      }
+
+      transferTarget.value = isUpdate.value ? result.extension.pkgbnd : [];
+
+      changeLoading(false);
+      changeOkLoading(false);
+    },
+  );
 
   const getTitle = computed(() =>
     !unref(isUpdate) ? '新增管理员' : '编辑管理员 (id: ' + rowId.value + ')',
@@ -220,26 +270,33 @@
 
   async function handleSubmit() {
     try {
-      setDrawerProps({ confirmLoading: true });
+      changeLoading(true);
+      changeOkLoading(true);
 
       await validate();
 
       const post = toRaw(formState);
       if (isUpdate.value) {
-        // adminEdit('POST', Object.assign({}, post, { id: rowId.value }));
+        await adminEdit('POST', Object.assign({}, post, { id: rowId.value }));
       } else {
-        // adminAdd('POST', post);
+        await adminAdd('POST', post);
       }
-      console.log('submit post', post);
       createMessage.success(getTitle.value + '成功');
-      // closeDrawer();
+      closeDrawer();
       emit('success');
     } catch (e) {
-      console.log('e ', e);
+      console.error('e => ', e);
       // createMessage.error(getTitle.value + '失败');
     } finally {
-      setDrawerProps({ confirmLoading: false });
+      changeLoading(false);
+      changeOkLoading(false);
     }
+  }
+
+  function handlerClose() {
+    resetFields();
+    changeLoading(false);
+    changeOkLoading(false);
   }
 </script>
 

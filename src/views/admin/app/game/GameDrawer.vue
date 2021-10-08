@@ -56,7 +56,13 @@
           </FormItem>
 
           <FormItem label="状态">
-            <Switch v-model:checked="formState.status" :checkedValue="1" :unCheckedValue="0" />
+            <Switch
+              v-model:checked="formState.status"
+              :checkedValue="1"
+              :unCheckedValue="0"
+              checked-children="已启用"
+              un-checked-children="已禁用"
+            />
           </FormItem>
 
           <FormItem>

@@ -38,11 +38,11 @@
     <AccountDrawer @register="registerDrawer" @success="handleSuccess" />
   </PageWrapper>
 </template>
-<script lang="ts">
-  import { defineComponent, reactive, ref, unref } from 'vue';
+<script lang="ts" setup name="AccountManagement">
+  import { reactive, ref, unref } from 'vue';
 
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getAccountList, adminGetToken } from '/@/api/admin/system';
+  import { getAccountList, adminGetToken, adminDel } from '/@/api/admin/system';
   import { PageWrapper } from '/@/components/Page';
 
   import AccountDrawer from './AccountDrawer.vue';
@@ -55,97 +55,77 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useCopyToClipboard } from '/@/hooks/web/useCopyToClipboard';
 
-  export default defineComponent({
-    name: 'AccountManagement',
-    components: { BasicTable, PageWrapper, RoleTree, AccountDrawer, TableAction },
-    setup() {
-      const treeData = ref<TreeItem[]>([]);
-      const { createMessage } = useMessage();
-      const { clipboardRef, copiedRef } = useCopyToClipboard();
+  const treeData = ref<TreeItem[]>([]);
+  const { createMessage } = useMessage();
+  const { clipboardRef, copiedRef } = useCopyToClipboard();
 
-      const [registerDrawer, { openDrawer }] = useDrawer();
-      const searchInfo = reactive<Recordable>({});
-      const [registerTable, { reload }] = useTable({
-        title: '账号列表',
-        api: getAccountList,
-        rowKey: 'id',
-        columns,
-        formConfig: {
-          labelWidth: 120,
-          schemas: searchFormSchema,
-          autoSubmitOnEnter: true,
-        },
-        showIndexColumn: false,
-        useSearchForm: true,
-        showTableSetting: true,
-        bordered: true,
-        handleSearchInfoFn(info) {
-          return info;
-        },
-        afterFetch(info) {
-          if (isArray(info.roleList)) {
-            treeData.value = info.roleList;
-          }
-          return info.items;
-        },
-        actionColumn: {
-          width: 120,
-          title: '操作',
-          dataIndex: 'action',
-          slots: { customRender: 'action' },
-        },
-      });
-
-      function handleCreate() {
-        openDrawer(true, {
-          isUpdate: false,
-        });
+  const [registerDrawer, { openDrawer }] = useDrawer();
+  const searchInfo = reactive<Recordable>({});
+  const [registerTable, { reload }] = useTable({
+    title: '账号列表',
+    api: getAccountList,
+    rowKey: 'id',
+    columns,
+    formConfig: {
+      labelWidth: 120,
+      schemas: searchFormSchema,
+      autoSubmitOnEnter: true,
+    },
+    showIndexColumn: false,
+    useSearchForm: true,
+    showTableSetting: true,
+    bordered: true,
+    handleSearchInfoFn(info) {
+      return info;
+    },
+    afterFetch(info) {
+      if (isArray(info.roleList)) {
+        treeData.value = info.roleList;
       }
-
-      function handleEdit(record: Recordable) {
-        openDrawer(true, {
-          record,
-          isUpdate: true,
-        });
-      }
-
-      function handleDelete(record: Recordable) {
-        console.log(record);
-      }
-
-      function handleSuccess() {
-        reload();
-      }
-
-      function handleSelect(rid = '') {
-        searchInfo.rid = rid;
-        reload();
-      }
-
-      function handleToken(record: Recordable) {
-        adminGetToken(record.id)
-          .then((result) => {
-            clipboardRef.value = result;
-            if (unref(copiedRef)) {
-              createMessage.success('token已复制到剪切板!');
-            }
-          })
-          .catch((_) => {});
-      }
-
-      return {
-        registerTable,
-        registerDrawer,
-        handleCreate,
-        handleEdit,
-        handleDelete,
-        handleSuccess,
-        handleSelect,
-        handleToken,
-        searchInfo,
-        curdAuth,
-        treeData,
-      };
+      return info.items;
+    },
+    actionColumn: {
+      width: 120,
+      title: '操作',
+      dataIndex: 'action',
+      slots: { customRender: 'action' },
     },
   });
+
+  function handleCreate() {
+    openDrawer(true, {
+      isUpdate: false,
+    });
+  }
+
+  function handleEdit(record: Recordable) {
+    openDrawer(true, {
+      record,
+      isUpdate: true,
+    });
+  }
+
+  function handleDelete(record: Recordable) {
+    adminDel(record.id).finally(handleSuccess);
+  }
+
+  function handleSuccess() {
+    reload();
+  }
+
+  function handleSelect(rid = '') {
+    searchInfo.rid = rid;
+    reload();
+  }
+
+  function handleToken(record: Recordable) {
+    adminGetToken(record.id)
+      .then((result) => {
+        clipboardRef.value = result;
+        if (unref(copiedRef)) {
+          createMessage.success('token已复制到剪切板!');
+        }
+      })
+      .catch((_) => {});
+  }
 </script>

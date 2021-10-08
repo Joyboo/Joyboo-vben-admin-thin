@@ -21,6 +21,7 @@ enum Api {
   AdminChange = '/admin/admin/change',
   AdminAdd = '/admin/admin/add',
   AdminEdit = '/admin/admin/edit',
+  AdminDel = '/admin/admin/del',
   IsAccountExist = '/admin/admin/accountExist',
   AvatarUpload = '/admin/admin/upload',
   AdminGetToken = '/admin/admin/getToken',
@@ -52,6 +53,8 @@ export const adminAdd = (method: Method, params?: any) =>
 
 export const adminEdit = (method: Method, params?: any) =>
   defHttp.request<AccountInfo>({ url: Api.AdminEdit, method, params });
+
+export const adminDel = (id: number) => defHttp.get({ url: Api.AdminDel, params: { id } });
 
 export const adminGetToken = (id: number) =>
   defHttp.get({ url: Api.AdminGetToken, params: { id } });

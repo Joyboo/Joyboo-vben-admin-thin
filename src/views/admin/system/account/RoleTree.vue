@@ -12,11 +12,12 @@
   </div>
 </template>
 <script lang="ts" setup name="RoleTree">
+  import { TreeDataItem } from 'ant-design-vue/lib/tree/Tree';
   import { BasicTree } from '/@/components/Tree';
 
   defineProps({
     treeData: {
-      type: Array,
+      type: Array as PropType<TreeDataItem[]>,
       default() {
         return [];
       },

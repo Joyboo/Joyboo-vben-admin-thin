@@ -107,8 +107,7 @@ export interface AccountInfo {
   menuList: MenuFormParams[];
   roleAuth: MenuFormParams[];
   checkByRid: object;
-  result: object;
-  gameItem: OptionsItem[];
+  result?: any;
 }
 /**
  * @description: Request list return value

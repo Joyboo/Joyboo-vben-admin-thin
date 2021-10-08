@@ -219,6 +219,8 @@ export const formSchema: FormSchema[] = [
     componentProps: {
       checkedValue: 1,
       unCheckedValue: 0,
+      checkedChildren: '已启用',
+      unCheckedChildren: '已禁用',
     },
   },
   {
