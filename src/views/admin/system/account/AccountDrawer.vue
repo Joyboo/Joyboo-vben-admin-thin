@@ -97,10 +97,13 @@
           </FormItem>
         </TabPane>
 
-        <TabPane :key="3" v-if="formState.rid !== 1" tab="游戏和包" force-render>
+        <TabPane :key="3" tab="游戏和包" force-render>
           <FormItem label="分配游戏">
             <!-- 游戏 checkbox -->
-            <CheckboxGroup v-model:value="formState.extension.gameids">
+            <CheckboxGroup
+              v-model:value="formState.extension.gameids"
+              :disabled="formState.rid === 1"
+            >
               <Checkbox
                 v-for="gameItem in gameOptions"
                 :key="gameItem.value"
@@ -116,6 +119,7 @@
           <FormItem label="分配包">
             <PackageTransfer
               :target="transferTarget"
+              :disabled="formState.rid === 1"
               @change="(val) => (formState.extension.pkgbnd = val)"
             />
           </FormItem>

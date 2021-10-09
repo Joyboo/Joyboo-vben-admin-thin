@@ -31,7 +31,7 @@ const transform: AxiosTransform = {
    */
   transformRequestHook: (res: AxiosResponse<Result>, options: RequestOptions) => {
     const { t } = useI18n();
-    const { isTransformResponse, isReturnNativeResponse } = options;
+    const { isTransformResponse, isReturnNativeResponse, errorMessageMode } = options;
     // 是否返回原生响应头 比如：需要获取响应头时使用该属性
     if (isReturnNativeResponse) {
       return res;
@@ -57,7 +57,7 @@ const transform: AxiosTransform = {
       return result;
     }
 
-    checkStatus(code, message, options.errorMessageMode);
+    checkStatus(code, message, errorMessageMode);
 
     // console.info('ERROR: ', timeoutMsg || t('sys.api.apiRequestFailed'));
     throw new Error(message || t('sys.api.apiRequestFailed'));

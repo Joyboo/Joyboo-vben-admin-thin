@@ -86,13 +86,17 @@ export function checkStatus(
       errMessage = t('sys.api.errMsg505');
       break;
     default:
+      errMessage = msg;
+      break;
   }
 
+  // console.log('check ', status, errMessage, errorMessageMode);
+
   if (errMessage) {
-    if (errorMessageMode === 'modal') {
-      createErrorModal({ title: () => t('sys.api.errorTip'), content: () => errMessage });
-    } else if (errorMessageMode === 'message') {
+    if (errorMessageMode === 'message') {
       error({ content: errMessage, key: `global_error_message_status_${status}` });
+    } else {
+      createErrorModal({ title: () => t('sys.api.errorTip'), content: () => errMessage });
     }
   }
 }

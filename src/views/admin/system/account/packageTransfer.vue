@@ -65,6 +65,10 @@
         return [];
       },
     },
+    disabled: {
+      type: Boolean as PropType<boolean>,
+      default: false,
+    },
   });
 
   const emit = defineEmits(['change']);
@@ -73,6 +77,7 @@
   const packageOptions = computed(() => userStore.getUserInfo.pkgList);
   const gameKeyValue = computed(() => userStore.gameKeyValue);
 
+  const targetKeys = ref<string[]>(props.target);
   const dataSource = ref<dataSourceItem[]>([]);
   packageOptions.value.forEach((item: any) => {
     dataSource.value.push({
@@ -97,10 +102,7 @@
   ];
   const rightTableColumns = leftTableColumns;
 
-  console.log('props.target', props.target);
-  const targetKeys = ref<string[]>(props.target);
-  const disabled = ref<boolean>(false);
-  const showSearch = ref<boolean>(true);
+  const showSearch = ref<boolean>(false);
   const leftColumns = ref<tableColumn[]>(leftTableColumns);
   const rightColumns = ref<tableColumn[]>(rightTableColumns);
 

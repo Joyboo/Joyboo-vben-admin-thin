@@ -47,7 +47,7 @@ export const columns: BasicColumn[] = [
   {
     title: '权限标识',
     dataIndex: 'permission',
-    width: 100,
+    width: 130,
   },
   {
     title: 'name',
