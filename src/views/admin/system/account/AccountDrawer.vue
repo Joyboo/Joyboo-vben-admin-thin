@@ -63,6 +63,7 @@
           <FormItem label="默认首页">
             <TreeSelect
               :treeData="menuTreeData"
+              v-model:value="formState.extension.homePath"
               :replaceFields="{ value: 'id', label: 'name' }"
               allowClear
             />
@@ -71,10 +72,11 @@
           <FormItem label="头像">
             <CropperAvatar
               :uploadApi="avatarUploadApi"
-              :value="formState.avatar || HeaderImg"
+              :value="formState.avatar ? domain + formState.avatar : HeaderImg"
               btnText="更换头像"
               :btnProps="{ preIcon: 'ant-design:cloud-upload-outlined' }"
               width="150"
+              @change="avatarChange"
             />
           </FormItem>
         </TabPane>
@@ -158,6 +160,7 @@
   import { isArray } from '/@/utils/is';
   import PackageTransfer from './packageTransfer.vue';
   import HeaderImg from '/@/assets/images/header.jpg';
+  import { UploadApiResult } from '/@/api/sys/model/uploadModel';
 
   const emit = defineEmits(['success', 'register']);
 
@@ -198,6 +201,7 @@
 
   const userStore = useUserStore();
   const gameOptions = computed(() => userStore.getGameListOptions);
+  const domain = computed(() => userStore.getUserInfo.config.imageDomain);
   const roleOptions = ref<OptionsItem[]>([]);
   // 默认菜单树（不包含按钮级别）
   const menuTreeData = ref<TreeItem[]>([]);
@@ -271,6 +275,15 @@
       unref(asyncExpandTreeRef)?.setCheckedKeys(checkByRidList[value]);
     }
   }
+
+  // update:value仅传了source，change才有data
+  const avatarChange = (_, data: UploadApiResult) => {
+    if (data.code === 200) {
+      formState.avatar = data.url || '';
+    } else {
+      createMessage.error(data.message);
+    }
+  };
 
   async function handleSubmit() {
     try {

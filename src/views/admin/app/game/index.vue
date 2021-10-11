@@ -7,6 +7,13 @@
       <template #action="{ record }">
         <TableAction
           :actions="[
+            // {
+            //   auth: curdAuth.give,
+            //   icon: 'ant-design:link-outlined',
+            //   tooltip: '分配给Ta',
+            //   color: 'warning',
+            //   onClick: handlerGive.bind(null, record),
+            // },
             {
               auth: curdAuth.edit,
               icon: 'clarity:note-edit-line',
@@ -29,6 +36,8 @@
       </template>
     </BasicTable>
     <GameDrawer @register="registerDrawer" @success="handleSuccess" />
+    <!-- 非必须功能以后再做 -->
+    <!-- <GameGiveDrawerVue @register="giveRegisterDrawer" @success="handleSuccess" /> -->
   </div>
 </template>
 <script lang="ts" setup name="GameManagement">
@@ -37,10 +46,12 @@
 
   import { useDrawer } from '/@/components/Drawer';
   import GameDrawer from './GameDrawer.vue';
+  // import GameGiveDrawerVue from './GameGiveDrawer.vue';
 
   import { columns, searchFormSchema, curdAuth } from './game.data';
 
   const [registerDrawer, { openDrawer }] = useDrawer();
+  // const [giveRegisterDrawer, giveMethods] = useDrawer();
   const [registerTable, { reload }] = useTable({
     title: '游戏列表',
     api: gameIndex,
@@ -74,6 +85,10 @@
       isUpdate: true,
     });
   }
+
+  // function handlerGive(record: Recordable) {
+  //   giveMethods.openDrawer(true, { record });
+  // }
 
   function handleDelete(record: Recordable) {
     gameDel(record.id).finally(handleSuccess);

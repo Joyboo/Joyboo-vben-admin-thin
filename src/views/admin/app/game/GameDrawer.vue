@@ -4,7 +4,7 @@
     @register="registerDrawer"
     showFooter
     :title="getTitle"
-    width="70%"
+    width="60%"
     @ok="handleSubmit"
   >
     <Form
@@ -353,18 +353,22 @@
 
   let rowId = ref(0);
 
-  const [registerDrawer, { setDrawerProps, closeDrawer }] = useDrawerInner(async (data) => {
-    isUpdate.value = data.isUpdate;
-    resetFields();
-    if (isUpdate.value) {
-      setDrawerProps({ confirmLoading: true });
-      rowId.value = data.record.id;
-      const result = await gameEdit('GET', { id: rowId.value });
-      deepMerge(formState, result);
-    }
+  const [registerDrawer, { closeDrawer, changeLoading, changeOkLoading }] = useDrawerInner(
+    async (data) => {
+      isUpdate.value = data.isUpdate;
+      resetFields();
+      if (isUpdate.value) {
+        changeLoading(true);
+        changeOkLoading(true);
+        rowId.value = data.record.id;
+        const result = await gameEdit('GET', { id: rowId.value });
+        deepMerge(formState, result);
+      }
 
-    setDrawerProps({ confirmLoading: false });
-  });
+      changeLoading(false);
+      changeOkLoading(false);
+    },
+  );
 
   const getTitle = computed(() =>
     !unref(isUpdate) ? '新增游戏' : '编辑游戏 (id: ' + rowId.value + ')',
@@ -457,7 +461,8 @@
 
   async function handleSubmit() {
     try {
-      setDrawerProps({ confirmLoading: true });
+      changeLoading(true);
+      changeOkLoading(true);
 
       await validate();
 
@@ -475,7 +480,8 @@
       console.log('e ', e);
       // createMessage.error(getTitle.value + '失败');
     } finally {
-      setDrawerProps({ confirmLoading: false });
+      changeLoading(false);
+      changeOkLoading(false);
     }
   }
 </script>

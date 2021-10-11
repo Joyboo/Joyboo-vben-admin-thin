@@ -14,6 +14,7 @@ enum Api {
   GameGetkey = '/admin/game/gkey',
   GameImgUpload = '/admin/game/upload',
   GameUnlink = '/admin/game/unlink',
+  GameGive = '/admin/game/give',
 
   PackageIndex = '/admin/package/index',
   PackageAdd = '/admin/package/add',
@@ -58,6 +59,9 @@ export const gameChange = (id: number, column: string, status: number) =>
 
 export const gameGetKey = (column: string) =>
   defHttp.get({ url: Api.GameGetkey, params: { column } });
+
+export const gameGive = (method: Method, params?: any) =>
+  defHttp.request({ url: Api.GameGive, method, params });
 
 export const gameUploadApi = (
   params: UploadFileParams,

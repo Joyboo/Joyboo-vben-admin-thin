@@ -8,10 +8,15 @@ import { usePermission } from '/@/hooks/web/usePermission';
 import { CurdAuth } from '/#/utils';
 // import { Moment } from 'moment';
 
-export const curdAuth: CurdAuth = {
-  add: '/package/add',
-  edit: '/package/edit',
-  del: '/package/del',
+type gameCurdAuth = CurdAuth & {
+  give: string;
+};
+
+export const curdAuth: gameCurdAuth = {
+  add: '/game/add',
+  edit: '/game/edit',
+  del: '/game/del',
+  give: '/game/give',
 };
 
 export const columns: BasicColumn[] = [
@@ -64,7 +69,7 @@ export const columns: BasicColumn[] = [
           gameChange(record.id, 'status', newStatus)
             .then(() => {
               record.status = newStatus;
-              createMessage.success(`已成功修改角色状态`);
+              createMessage.success(`操作成功`);
             })
             .catch(() => {
               // createMessage.error('修改角色状态失败');
@@ -101,6 +106,21 @@ export const searchFormSchema: FormSchema[] = [
     label: '游戏名',
     component: 'Input',
     colProps: { span: 8 },
+  },
+];
+
+export const giveFormSchema: FormSchema[] = [
+  {
+    field: 'gameid',
+    label: '',
+    component: 'Input',
+    show: false,
+  },
+  {
+    field: 'give',
+    label: '分配给Ta',
+    slot: 'give',
+    component: 'Input',
   },
 ];
 
