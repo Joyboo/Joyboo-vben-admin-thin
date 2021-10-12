@@ -38,6 +38,12 @@ enum Api {
   RoleAdd = '/admin/role/add',
   RoleEdit = '/admin/role/edit',
   RoleDel = '/admin/role/del',
+
+  SysinfoIndex = '/admin/sysinfo/index',
+  SysinfoAdd = '/admin/sysinfo/add',
+  SysInfoEdit = '/admin/sysinfo/edit',
+  SysinfoDel = '/admin/sysinfo/del',
+  SysinfoChange = '/admin/sysinfo/change',
 }
 
 export const getAccountList = (params: AccountParams) =>
@@ -102,3 +108,16 @@ export const roleDel = (id: number) => defHttp.get({ url: Api.RoleDel, params: {
 
 export const isAccountExist = (username: string) =>
   defHttp.get({ url: Api.IsAccountExist, params: { username } }, { errorMessageMode: 'none' });
+
+export const sysinfoIndex = (params?: any) => defHttp.get({ url: Api.SysinfoIndex, params });
+
+export const sysinfoChange = (id: number, column: string, status: number) =>
+  defHttp.post({ url: Api.SysinfoChange, params: { id, column, status } });
+
+export const sysinfoEdit = (method: Method, params?: any) =>
+  defHttp.request({ url: Api.SysInfoEdit, method, params });
+
+export const sysinfoAdd = (method: Method, params?: any) =>
+  defHttp.request<AccountInfo>({ url: Api.SysinfoAdd, method, params });
+
+export const sysinfoDel = (id: number) => defHttp.get({ url: Api.SysinfoDel, params: { id } });
