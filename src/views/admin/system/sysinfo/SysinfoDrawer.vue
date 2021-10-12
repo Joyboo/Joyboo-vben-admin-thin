@@ -20,7 +20,7 @@
 
   const emit = defineEmits(['success', 'register']);
 
-  const isUpdate = ref(true);
+  const isUpdate = ref(false);
   const rowId = ref(0);
   // const { createConfirm, createMessage } = useMessage();
 

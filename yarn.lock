@@ -12033,10 +12033,10 @@
     "@intlify/vue-devtools" "9.1.7"
     "@vue/devtools-api" "^6.0.0-beta.7"
 
-"vue-json-pretty@^1.8.1":
-  "integrity" "sha512-GHi8q6QLx8fw8XDhAgztlC6emupptpmV5a+yd4UxteEoPqGHXwpgscTbTTxwH2GEdmYXHAt+GLg5tAsenLZKDA=="
-  "resolved" "https://registry.npmjs.org/vue-json-pretty/-/vue-json-pretty-1.8.1.tgz"
-  "version" "1.8.1"
+"vue-json-pretty@^2.0.4":
+  "integrity" "sha512-17opXQveJOkxWu6NzjXqtIelm3DeQfeQUevbfRAw91eZXix2hNzGAwGrkqEDWhLMDVpENm2NhVpYqzB8eQzytg=="
+  "resolved" "https://registry.npmjs.org/vue-json-pretty/-/vue-json-pretty-2.0.4.tgz"
+  "version" "2.0.4"
 
 "vue-router@^4.0.11":
   "integrity" "sha512-sha6I8fx9HWtvTrFZfxZkiQQBpqSeT+UCwauYjkdOQYRvwsGwimlQQE2ayqUwuuXGzquFpCPoXzYKWlzL4OuXg=="
@@ -12066,7 +12066,7 @@
   dependencies:
     "is-plain-object" "5.0.0"
 
-"vue@^2.0.0 || ^3.0.0", "vue@^2.6.0 || ^3.2.0", "vue@^2.6.0 || >=3.0.0-rc.1", "vue@^2.6.14 || ^3.2.0", "vue@^3.0.0", "vue@^3.0.1", "vue@>=3.0.3", "vue@>=3.1.0", "vue@3.2.11":
+"vue@^2.0.0 || ^3.0.0", "vue@^2.6.0 || ^3.2.0", "vue@^2.6.0 || >=3.0.0-rc.1", "vue@^2.6.14 || ^3.2.0", "vue@^3.0.0", "vue@^3.0.1", "vue@>=3.0.0", "vue@>=3.0.3", "vue@>=3.1.0", "vue@3.2.11":
   "integrity" "sha512-JkI3/eIgfk4E0f/p319TD3EZgOwBQfftgnkRsXlT7OrRyyiyoyUXn6embPGZXSBxD3LoZ9SWhJoxLhFh5AleeA=="
   "resolved" "https://registry.npmjs.org/vue/-/vue-3.2.11.tgz"
   "version" "3.2.11"

@@ -27,30 +27,27 @@
           ]"
         />
       </template>
-
-      <!-- todo jsonEditor -->
-      <template #varValue="{ text }">
-        {{ text }}
-      </template>
     </BasicTable>
     <SysinfoDrawer @register="registerDrawer" @success="handleSuccess" />
   </div>
 </template>
-<script lang="ts" setup name="Sysinfo">
+<script lang="ts" setup name="Crontab">
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { sysinfoIndex, sysinfoDel } from '/@/api/admin/system';
+  import { crontabIndex, crontabDel } from '/@/api/admin/system';
   import { useDrawer } from '/@/components/Drawer';
-  import SysinfoDrawer from './SysinfoDrawer.vue';
-  import { columns, searchFormSchema, curdAuth } from './sysinfo.data';
+  import SysinfoDrawer from './CrontabDrawer.vue';
+  import { columns, searchFormSchema, curdAuth } from './crontab.data';
 
   const [registerDrawer, { openDrawer }] = useDrawer();
   const [registerTable, { reload }] = useTable({
-    title: '后台配置',
-    api: sysinfoIndex,
+    title: 'Crontab',
+    api: crontabIndex,
     columns,
     formConfig: {
-      labelWidth: 120,
+      labelWidth: 10,
       schemas: searchFormSchema,
+      autoAdvancedLine: 1,
+      showAdvancedButton: true,
     },
     useSearchForm: true,
     showTableSetting: true,
@@ -79,7 +76,7 @@
   }
 
   function handleDelete(record: Recordable) {
-    sysinfoDel(record.id).finally(handleSuccess);
+    crontabDel(record.id).finally(handleSuccess);
   }
 
   function handleSuccess() {

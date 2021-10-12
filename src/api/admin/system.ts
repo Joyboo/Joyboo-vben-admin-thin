@@ -44,6 +44,12 @@ enum Api {
   SysInfoEdit = '/admin/sysinfo/edit',
   SysinfoDel = '/admin/sysinfo/del',
   SysinfoChange = '/admin/sysinfo/change',
+
+  CrontabIndex = '/admin/crontab/index',
+  CrontabAdd = '/admin/crontab/add',
+  CrontabEdit = '/admin/crontab/edit',
+  CrontabDel = '/admin/crontab/del',
+  CrontabChange = '/admin/crontab/change',
 }
 
 export const getAccountList = (params: AccountParams) =>
@@ -121,3 +127,16 @@ export const sysinfoAdd = (method: Method, params?: any) =>
   defHttp.request<AccountInfo>({ url: Api.SysinfoAdd, method, params });
 
 export const sysinfoDel = (id: number) => defHttp.get({ url: Api.SysinfoDel, params: { id } });
+
+export const crontabIndex = (params?: any) => defHttp.get({ url: Api.CrontabIndex, params });
+
+export const crontabChange = (id: number, column: string, status: number) =>
+  defHttp.post({ url: Api.CrontabChange, params: { id, column, status } });
+
+export const crontabEdit = (method: Method, params?: any) =>
+  defHttp.request({ url: Api.CrontabEdit, method, params });
+
+export const crontabAdd = (method: Method, params?: any) =>
+  defHttp.request<AccountInfo>({ url: Api.CrontabAdd, method, params });
+
+export const crontabDel = (id: number) => defHttp.get({ url: Api.CrontabDel, params: { id } });

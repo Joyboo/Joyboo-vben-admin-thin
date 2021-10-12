@@ -1,5 +1,5 @@
 <template>
-  <vue-json-pretty :path="'res'" :deep="3" :showLength="true" :data="data" />
+  <vue-json-pretty :path="'res'" :deep="deep" :showLength="showLength" :data="data" />
 </template>
 
 <script lang="ts" setup>
@@ -7,6 +7,19 @@
   import 'vue-json-pretty/lib/styles.css';
 
   defineProps({
-    data: Object,
+    data: {
+      type: Object,
+      default() {
+        return {};
+      },
+    },
+    deep: {
+      type: Number,
+      default: 3,
+    },
+    showLength: {
+      type: Boolean,
+      default: true,
+    },
   });
 </script>
