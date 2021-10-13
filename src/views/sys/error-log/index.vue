@@ -6,15 +6,7 @@
     <DetailModal :info="rowInfo" @register="registerModal" />
     <BasicTable @register="register" class="error-handle-table">
       <template #toolbar>
-        <a-button @click="fireVueError" type="primary">
-          {{ t('sys.errorLog.fireVueError') }}
-        </a-button>
-        <a-button @click="fireResourceError" type="primary">
-          {{ t('sys.errorLog.fireResourceError') }}
-        </a-button>
-        <a-button @click="fireAjaxError" type="primary">
-          {{ t('sys.errorLog.fireAjaxError') }}
-        </a-button>
+        <a-button @click="clearError" type="primary">清空</a-button>
       </template>
       <template #action="{ record }">
         <TableAction
@@ -36,7 +28,6 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useErrorLogStore } from '/@/store/modules/errorLog';
-  import { fireErrorApi } from '/@/api/demo/error';
   import { getColumns } from './data';
   import { cloneDeep } from 'lodash-es';
 
@@ -78,15 +69,7 @@
     openModal(true);
   }
 
-  function fireVueError() {
-    throw new Error('fire vue error!');
-  }
-
-  function fireResourceError() {
-    imgList.value.push(`${new Date().getTime()}.png`);
-  }
-
-  async function fireAjaxError() {
-    await fireErrorApi();
-  }
+  const clearError = () => {
+    errorLogStore.clearErrorLog();
+  };
 </script>

@@ -14,6 +14,7 @@ import { changeTheme } from '/@/logics/theme';
 
 import { useAppStore } from '/@/store/modules/app';
 import { useLocaleStore } from '/@/store/modules/locale';
+import { useErrorLogStore } from '/@/store/modules/errorLog';
 
 import { getCommonStoragePrefix, getStorageShortName } from '/@/utils/env';
 
@@ -26,6 +27,7 @@ import { ThemeEnum } from '/@/enums/appEnum';
 export function initAppConfigStore() {
   const localeStore = useLocaleStore();
   const appStore = useAppStore();
+  const errorLogStore = useErrorLogStore();
   let projCfg: ProjectConfig = Persistent.getLocal(PROJ_CFG_KEY) as ProjectConfig;
   projCfg = deepMerge(projectSetting, projCfg || {});
   const darkMode = appStore.getDarkMode;
@@ -64,6 +66,9 @@ export function initAppConfigStore() {
   setTimeout(() => {
     clearObsoleteStorage();
   }, 16);
+
+  // 启动定时器监听并上报错误日志
+  errorLogStore.startListenErrorLog();
 }
 
 /**
