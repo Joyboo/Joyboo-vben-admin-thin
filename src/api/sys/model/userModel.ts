@@ -34,6 +34,7 @@ export interface PkgListModel {
 
 export interface UserConfig {
   imageDomain: string;
+  sysinfo: any;
 }
 
 /**
