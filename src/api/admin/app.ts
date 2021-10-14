@@ -25,6 +25,12 @@ enum Api {
   PackageSaveAdjustEvent = '/admin/package/saveAdjustEvent',
   PackageImgUpload = '/admin/package/upload',
   PackageUnlink = '/admin/package/unlink',
+
+  WhitelistIndex = '/admin/whitelist/index',
+  WhitelistAdd = '/admin/whitelist/add',
+  WhitelistEdit = '/admin/whitelist/edit',
+  WhitelistDel = '/admin/whitelist/del',
+  WhitelistChange = '/admin/whitelist/change',
 }
 
 export const uploadApi = (
@@ -97,3 +103,16 @@ export const packageUploadApi = (
 
 export const delPackageImg = (url: string) =>
   defHttp.post({ url: Api.PackageUnlink, params: { url } });
+
+export const whitelistIndex = (params?: any) => defHttp.get({ url: Api.WhitelistIndex, params });
+
+export const whitelistAdd = (method: Method, params) =>
+  defHttp.request({ url: Api.WhitelistAdd, method, params });
+
+export const whitelistEdit = (method: Method, params) =>
+  defHttp.request({ url: Api.WhitelistEdit, method, params });
+
+export const whitelistDel = (id: number) => defHttp.get({ url: Api.WhitelistDel, params: { id } });
+
+export const whitelistChange = (id: number, column: string, status: number) =>
+  defHttp.post({ url: Api.WhitelistChange, params: { id, column, status } });
