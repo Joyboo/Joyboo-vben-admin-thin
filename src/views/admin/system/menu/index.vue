@@ -32,7 +32,6 @@
   </div>
 </template>
 <script lang="ts" setup name="MenuManagement">
-  import { nextTick } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { getMenuList, menuDel } from '/@/api/admin/system';
   import { useDrawer } from '/@/components/Drawer';
@@ -40,7 +39,7 @@
   import { columns, searchFormSchema, curdAuth } from './menu.data';
 
   const [registerDrawer, { openDrawer }] = useDrawer();
-  const [registerTable, { reload, expandAll }] = useTable({
+  const [registerTable, { reload }] = useTable({
     title: '菜单列表',
     api: getMenuList,
     columns,
@@ -88,6 +87,6 @@
 
   function onFetchSuccess() {
     // 演示默认展开所有表项
-    nextTick(expandAll);
+    // nextTick(expandAll);
   }
 </script>

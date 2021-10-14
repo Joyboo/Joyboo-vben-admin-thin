@@ -1,5 +1,6 @@
 <template>
   <Tooltip
+    v-if="getCount > 0"
     :title="t('layout.header.tooltipErrorLog')"
     placement="bottom"
     :mouseEnterDelay="0.5"

@@ -55,7 +55,7 @@ export const REDIRECT_ROUTE: AppRouteRecordRaw = {
 
 export const ERROR_LOG_ROUTE: AppRouteRecordRaw = {
   path: '/error-log',
-  name: 'ErrorLog',
+  name: 'ErrorLogs',
   component: LAYOUT,
   redirect: '/error-log/list',
   meta: {
