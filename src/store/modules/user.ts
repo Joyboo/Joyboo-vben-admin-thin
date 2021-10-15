@@ -14,7 +14,7 @@ import { router } from '/@/router';
 import { usePermissionStore } from '/@/store/modules/permission';
 import { RouteRecordRaw } from 'vue-router';
 import { PAGE_NOT_FOUND_ROUTE } from '/@/router/routes/basic';
-import { isArray } from '/@/utils/is';
+import { isArray, isNumber } from '/@/utils/is';
 import { h } from 'vue';
 
 interface UserState {
@@ -202,6 +202,24 @@ export const useUserStore = defineStore({
           await this.logout(true);
         },
       });
+    },
+    // gameids: number | PkgListModel
+    filterPackageByGameids(gameids: number | Array<number>): OptionsItem[] {
+      const list: OptionsItem[] = [];
+      if (this.userInfo !== null) {
+        for (const item of this.userInfo.pkgList) {
+          if (
+            (isNumber(gameids) && gameids === item.gameid) ||
+            (isArray(gameids) && gameids.indexOf(item.gameid) !== -1)
+          ) {
+            list.push({
+              label: item.name,
+              value: item.pkgbnd,
+            });
+          }
+        }
+      }
+      return list;
     },
   },
 });
