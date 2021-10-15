@@ -34,11 +34,11 @@
         }
         const avatar = data.relation.avatar ?? '';
         // 头像和姓名合并一个content
-        return h(Row, {}, [
-          h(Col, { span: 12, style: { textAlign: 'center' } }, [
+        return h(Row, {}, () => [
+          h(Col, { span: 12, style: { textAlign: 'center' } }, () =>
             h(Avatar, { src: avatar ? domain.value + avatar : HeaderImg }),
-          ]),
-          h(Col, { span: 12 }, [h('p', {}, data.relation.realname)]),
+          ),
+          h(Col, { span: 12 }, () => h('p', data.relation.realname)),
         ]);
       },
     },

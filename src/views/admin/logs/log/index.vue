@@ -53,6 +53,29 @@
       },
       colProps: { xs: 24, sm: 24, md: 12, lg: 4, xl: 4, xxl: 3 },
     },
+    {
+      field: 'type',
+      label: ' ',
+      component: 'Select',
+      componentProps: {
+        placeholder: '操作类型',
+        options: [
+          { label: '新增', value: 'insert' },
+          { label: '编辑', value: 'update' },
+          { label: '删除', value: 'delete' },
+        ],
+      },
+      colProps: { xs: 24, sm: 24, md: 12, lg: 4, xl: 4, xxl: 3 },
+    },
+    {
+      field: 'content',
+      label: ' ',
+      component: 'Input',
+      componentProps: {
+        placeholder: '关键字',
+      },
+      colProps: { xs: 24, sm: 24, md: 12, lg: 4, xl: 4, xxl: 3 },
+    },
   ];
 
   const columns: BasicColumn[] = [
