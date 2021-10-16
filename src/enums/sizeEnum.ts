@@ -4,6 +4,13 @@ export enum SizeEnum {
   LARGE = 'large',
 }
 
+export enum TableSizeEnum {
+  DEFAULT = 'default',
+  SMALL = 'small',
+  LARGE = 'large',
+  MIDDLE = 'middle',
+}
+
 export enum SizeNumberEnum {
   DEFAULT = 48,
   SMALL = 16,

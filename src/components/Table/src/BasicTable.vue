@@ -64,6 +64,7 @@
 
   import { omit } from 'lodash-es';
   import { basicProps } from './props';
+  import { DEFAULT_SIZE } from './const';
   import { isFunction } from '/@/utils/is';
   import { warn } from '/@/utils/log';
 
@@ -222,7 +223,7 @@
       const getBindValues = computed(() => {
         const dataSource = unref(getDataSourceRef);
         let propsData: Recordable = {
-          size: 'middle',
+          size: DEFAULT_SIZE as SizeType,
           // ...(dataSource.length === 0 ? { getPopupContainer: () => document.body } : {}),
           ...attrs,
           customRow,

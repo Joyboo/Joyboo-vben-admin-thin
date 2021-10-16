@@ -1,6 +1,7 @@
 // Used to configure the general configuration of some components without modifying the components
 
 import type { SorterResult } from '../components/Table';
+import { TableSizeEnum } from '/@/enums/sizeEnum';
 
 export default {
   // basic-table setting
@@ -21,6 +22,8 @@ export default {
     pageSizeOptions: ['20', '50', '100', '200', '500'],
     // Default display quantity on one page
     defaultPageSize: 20,
+    // Table Default Size
+    defaultSize: TableSizeEnum.SMALL,
     // Custom general sort function
     defaultSortFn: (sortInfo: SorterResult) => {
       const { field, order } = sortInfo;
