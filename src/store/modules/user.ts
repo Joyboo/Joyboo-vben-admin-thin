@@ -90,6 +90,15 @@ export const useUserStore = defineStore({
       }
       return list;
     },
+    packageKeyValue() {
+      const list = {};
+      if (this.userInfo !== null) {
+        for (const item of this.userInfo.pkgList) {
+          list[item.pkgbnd] = item.name;
+        }
+      }
+      return list;
+    },
   },
   actions: {
     setToken(info: string | undefined) {

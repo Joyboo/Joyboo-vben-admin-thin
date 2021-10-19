@@ -3,17 +3,18 @@
 </template>
 
 <script lang="ts" setup name="Expense">
-  import { computed, ref } from 'vue';
+  import { computed } from 'vue';
   import { BasicTable, useTable, FormSchema, BasicColumn } from '/@/components/Table';
-  import { expenseIndex } from '/@/api/admin/ad';
+  import { expenseIndex, expenseChange } from '/@/api/admin/ad';
   import { formatDaysAgo, timePikerExtra } from '/@/utils/dateUtil';
   import { useUserStore } from '/@/store/modules/user';
-  import { isFunction, isUnDef } from '/@/utils/is';
+  import { isFunction, isDef } from '/@/utils/is';
 
   const userStore = useUserStore();
   const gameOptions = computed(() => userStore.getGameListOptions);
-  const gameKeyValue = computed(() => useUserStore().gameKeyValue);
-  const packageOptions = ref<OptionsItem[]>([]);
+  const gameKeyValue = computed(() => userStore.gameKeyValue);
+  const packageOptions = computed(() => userStore.getPackageOptions);
+  const packageKeyValue = computed(() => userStore.packageKeyValue);
 
   const searchFormSchema: FormSchema[] = [
     {
@@ -88,9 +89,23 @@
       dataIndex: 'gameid',
       title: '所属游戏',
     },
+    {
+      dataIndex: 'pkgbnd',
+      title: '包',
+    },
+    {
+      dataIndex: 'cost',
+      title: '成本',
+      helpMessage: '美元',
+      edit: true,
+      editComponent: 'InputNumber',
+      editComponentProps: {
+        min: 0,
+      },
+    },
   ];
 
-  const [registerTable, { getForm }] = useTable({
+  const [registerTable, { getForm, setLoading }] = useTable({
     title: '广告消耗列表',
     api: expenseIndex,
     columns,
@@ -103,10 +118,12 @@
       fieldMapToTime: [['time', ['begintime', 'endtime'], 'YYYY-MM-DD']],
     },
     afterFetch(items) {
-      // id替换为name
       items = items.map((item: any) => {
-        if (isUnDef(gameKeyValue.value[item.gameid])) {
+        if (isDef(gameKeyValue.value[item.gameid])) {
           item.gameid = gameKeyValue.value[item.gameid];
+        }
+        if (isDef(packageKeyValue.value[item.pkgbnd])) {
+          item.pkgbnd = packageKeyValue.value[item.pkgbnd] + '(' + item.pkgbnd + ')';
         }
         return item;
       });
@@ -116,6 +133,16 @@
     showTableSetting: true,
     bordered: true,
     showIndexColumn: false,
+    // 单元格编辑提交
+    beforeEditSubmit: ({ record, value }) => {
+      return new Promise((resolve, reject) => {
+        setLoading(true);
+        expenseChange(record.id, 'cost', value)
+          .then(resolve)
+          .catch(reject)
+          .finally(() => setLoading(false));
+      });
+    },
   });
 </script>
 

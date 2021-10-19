@@ -52,9 +52,15 @@
 
   async function handleSubmit() {
     try {
-      const values = await validate();
       changeLoading(true);
       changeOkLoading(true);
+
+      const values = await validate();
+
+      if (values.type === 2) {
+        values.value = JSON.parse(values.value);
+      }
+
       if (unref(isUpdate)) {
         values.id = rowId.value;
         await sysinfoEdit('POST', values);

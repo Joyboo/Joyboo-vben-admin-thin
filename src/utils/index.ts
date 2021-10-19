@@ -2,7 +2,7 @@ import type { RouteLocationNormalized, RouteRecordNormalized } from 'vue-router'
 import type { App, Plugin } from 'vue';
 
 import { unref } from 'vue';
-import { isObject } from '/@/utils/is';
+import { isObject, isArray } from '/@/utils/is';
 
 export const noop = () => {};
 
@@ -30,6 +30,20 @@ export function setObjToUrlParams(baseUrl: string, obj: any): string {
   }
   parameters = parameters.replace(/&$/, '');
   return /\?$/.test(baseUrl) ? baseUrl + parameters : baseUrl.replace(/\/?$/, '?') + parameters;
+}
+
+/**
+ * 将 param[]=123&param[]=456转换为param=123,456
+ * @param params
+ */
+export function bodyArrayJoin(params: any) {
+  for (const i in params) {
+    const item = params[i];
+    if (isArray(item)) {
+      params[i] = item.join(',');
+    }
+  }
+  return params;
 }
 
 export function deepMerge<T = any>(src: any = {}, target: any = {}): T {

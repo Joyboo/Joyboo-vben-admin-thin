@@ -1,10 +1,11 @@
 import { CurdAuth } from '/#/utils';
 import { h } from 'vue';
-import { Switch, Tag } from 'ant-design-vue';
+import { Switch, Tag, InputNumber, Textarea } from 'ant-design-vue';
 import { usePermission } from '/@/hooks/web/usePermission';
 import { BasicColumn, FormSchema } from '/@/components/Table';
 import { sysinfoChange } from '/@/api/admin/system';
 import { useMessage } from '/@/hooks/web/useMessage';
+import { CodeEditor, JsonPreview } from '/@/components/CodeEditor';
 
 export const curdAuth: CurdAuth = {
   add: '/sysinfo/add',
@@ -32,9 +33,15 @@ export const columns: BasicColumn[] = [
   {
     title: '变量值',
     dataIndex: 'value',
-    width: 350,
+    width: '40%',
     align: 'left',
-    slots: { customRender: 'varValue' },
+    customRender: ({ record, text }) => {
+      if (record.type == 2) {
+        return h(JsonPreview, { data: text, deep: 1 });
+      } else {
+        return h('span', record.value);
+      }
+    },
   },
   {
     title: '说明',
@@ -127,8 +134,42 @@ export const formSchema: FormSchema[] = [
     label: '变量值',
     defaultValue: '',
     required: true,
+    helpMessage: ['JSON格式注意点：', '1. 请使用双引号', '2. 最后一个元素请不要加逗号'],
     component: 'InputTextArea',
-    componentProps: { rows: 15 },
+    // componentProps: { rows: 15 },
+    render: ({ model, field }) => {
+      const props = {
+        value: model[field],
+        'onUpdate:value': (val) => (model[field] = val),
+      };
+      if (model.type === 0) {
+        return h(InputNumber, props);
+      } else if (model.type === 1) {
+        return h(Textarea, { ...props, rows: 5 });
+      } else {
+        return h(CodeEditor, props);
+      }
+    },
+    dynamicRules: ({ values }) => {
+      return [
+        {
+          required: true,
+          validator: (_, value) => {
+            if (!value) {
+              return Promise.reject('值不能为空');
+            }
+            if (values.type === 2) {
+              try {
+                JSON.parse(value);
+              } catch (e) {
+                return Promise.reject('JSON格式错误,请检查');
+              }
+            }
+            return Promise.resolve();
+          },
+        },
+      ];
+    },
   },
   {
     field: 'remark',

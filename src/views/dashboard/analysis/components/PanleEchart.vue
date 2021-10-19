@@ -2,60 +2,142 @@
   <div ref="chartRef" :style="{ width, height }"></div>
 </template>
 <script lang="ts" setup>
-  import { onMounted, ref, Ref } from 'vue';
+  import { onMounted, ref, Ref, watch } from 'vue';
   import { useECharts } from '/@/hooks/web/useECharts';
+  import { useRootSetting } from '/@/hooks/setting/useRootSetting';
+  import { useAppInject } from '/@/hooks/web/useAppInject';
   import { basicProps } from './props';
+  import { WeekData } from '../data';
 
-  defineProps({
+  const props = defineProps({
     ...basicProps,
+    key: { type: String },
+    title: { type: String },
+    ystart: { type: String },
+    yend: { type: String },
+    data: {
+      type: Object as PropType<WeekData>,
+      default(): WeekData {
+        return {
+          week: [],
+          last: [],
+        };
+      },
+    },
   });
+
+  const { getIsMobile } = useAppInject();
+  const { getThemeColor } = useRootSetting();
 
   const chartRef = ref<HTMLDivElement | null>(null);
   const { setOptions } = useECharts(chartRef as Ref<HTMLDivElement>);
-  onMounted(() => {
+
+  const doSetOptions = () => {
+    // console.log('doSetOptions', props.data);
     setOptions({
       title: {
-        text: 'Log Axis',
+        top: '-2%',
+        text: props.title,
         left: 'center',
       },
       tooltip: {
-        trigger: 'item',
-        formatter: '{a} <br/>{b} : {c}',
+        trigger: 'axis',
+        /* axisPointer: {
+            type: 'cross',
+            label: {
+              precision: this.precision // 十字准星小数点精度
+            }
+          },*/
+        // padding: [5, 10],
+        // formatter: '{a}' + this.title + ' <br/>星期{b} : ' + ystart + '{c}' + yend
+        // trigger: 'item',
+        formatter(data) {
+          const tip: Array<String> = [];
+          if (data.length) {
+            for (const i in data) {
+              const item = data[i];
+              tip.push(item.seriesName + ': ' + props.ystart + item.value + props.yend);
+            }
+          }
+          return tip.join('<br>');
+        },
       },
+      /* toolbox: {
+          show: true,
+          feature: {
+            // dataView: {readOnly: false}, // 转换为数据视图
+            // magicType: {type: ['line', 'bar']}, // 切换折线图或柱状图
+            // restore: {}, // 还原
+            // saveAsImage: {}  // 保存为图片
+          }
+        },*/
       legend: {
-        left: 'left',
+        bottom: '3px',
+        data: ['上周' + props.title, '本周' + props.title],
       },
       xAxis: {
         type: 'category',
-        name: 'x',
-        splitLine: { show: false },
-        data: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
+        // name: '星期',
+        splitLine: {
+          show: false,
+        },
+        axisLine: {
+          lineStyle: {
+            color: getThemeColor.value,
+          },
+        },
+        data: ['一', '二', '三', '四', '五', '六', '日'],
       },
       grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
+        top: '10%',
+        left: getIsMobile.value ? '6%' : '2%',
+        right: getIsMobile.value ? '15%' : '5%',
+        bottom: '10%',
         containLabel: true,
       },
       yAxis: {
-        type: 'log',
-        name: 'y',
+        type: 'value',
+        // name: 'Y',
+        minorTick: {
+          show: true,
+        },
         minorSplitLine: {
           show: true,
+        },
+        splitNumber: 5, // Y轴刻度数，仅参考，实际会变动
+        axisLabel: {
+          formatter: (data: string) => props.ystart + data + props.yend,
+        },
+        axisLine: {
+          lineStyle: {
+            color: getThemeColor.value,
+          },
         },
       },
       series: [
         {
-          name: 'Log2',
+          name: '上周' + props.title,
           type: 'line',
-          data: [1, 3, 9, 27, 81, 247, 741, 2223, 6669],
+          color: getThemeColor.value,
+          // data: [1, 3, 9, 27, 81, 247, 200],
+          data: props.data.last,
+          // animationDuration: 1000, // 初始动画时长
+          // animationEasing: 'cubicln' // 初始动画类型
         },
         {
-          name: 'Log3',
+          name: '本周' + props.title,
           type: 'line',
-          data: [1, 2, 4, 8, 16, 32, 64, 128, 256],
+          color: '#F56C6C',
+          // data: [1, 2, 4, 25, 16],
+          data: props.data.week,
+          // animationDuration: 1000,
+          // animationEasing: 'cubicln'
         },
       ],
     });
-  });
+  };
+  onMounted(doSetOptions);
+
+  watch(() => props.data, doSetOptions, { immediate: true });
+  watch(() => getThemeColor.value, doSetOptions);
 </script>

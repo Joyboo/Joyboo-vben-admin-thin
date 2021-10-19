@@ -27,11 +27,6 @@
           ]"
         />
       </template>
-
-      <!-- todo jsonEditor -->
-      <template #varValue="{ text }">
-        {{ text }}
-      </template>
     </BasicTable>
     <SysinfoDrawer @register="registerDrawer" @success="handleSuccess" />
   </div>
