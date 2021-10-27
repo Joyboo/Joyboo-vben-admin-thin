@@ -1,5 +1,6 @@
 <template>
   <Table
+    v-if="getDataSource.length"
     :showHeader="false"
     :bordered="false"
     :pagination="false"
