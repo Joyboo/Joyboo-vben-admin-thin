@@ -128,11 +128,25 @@ export interface FetchSetting {
   totalField: string;
 }
 
+export enum ExportEnum {
+  // 默认，不需要导出
+  NOT,
+  // 导出当前页
+  CURR,
+  // 导出全部
+  ALL,
+  // 全部都要
+  AND,
+}
+
 export interface TableSetting {
   redo?: boolean;
   size?: boolean;
   setting?: boolean;
   fullScreen?: boolean;
+  exportType?: ExportEnum;
+  // 导出全部时此回调必传，否则视为无效
+  exportAllFn?: Fn;
 }
 
 export interface BasicTableProps<T = any> {

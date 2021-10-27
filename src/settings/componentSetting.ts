@@ -15,6 +15,8 @@ export default {
       sizeField: 'pageSize',
       // Field name of the form data returned by the interface
       listField: 'items',
+      // 合计字段
+      footerField: 'summer',
       // Total number of tables returned by the interface field name
       totalField: 'total',
     },

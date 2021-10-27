@@ -31,6 +31,8 @@ export default {
     exportModalTitle: 'Export data',
     fileType: 'File type',
     fileName: 'File name',
+    exportCurrentPage: 'Export Current Page Data',
+    exportAllPage: 'Export All Data',
   },
   form: {
     putAway: 'Put away',

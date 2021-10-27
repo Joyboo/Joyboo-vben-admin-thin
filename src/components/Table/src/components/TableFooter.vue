@@ -1,6 +1,5 @@
 <template>
   <Table
-    v-if="summaryFunc || summaryData"
     :showHeader="false"
     :bordered="false"
     :pagination="false"
@@ -16,9 +15,9 @@
   import { defineComponent, unref, computed, toRaw } from 'vue';
   import { Table } from 'ant-design-vue';
   import { cloneDeep } from 'lodash-es';
-  import { isFunction } from '/@/utils/is';
+  import { isFunction, isDef } from '/@/utils/is';
   import type { BasicColumn } from '../types/table';
-  import { INDEX_COLUMN_FLAG } from '../const';
+  import { INDEX_COLUMN_FLAG, FETCH_SETTING } from '../const';
   import { propTypes } from '/@/utils/propTypes';
   import { useTableContext } from '../hooks/useTableContext';
 
@@ -44,19 +43,27 @@
 
       const getDataSource = computed((): Recordable[] => {
         const { summaryFunc, summaryData } = props;
+        // 直传数据
         if (summaryData?.length) {
           summaryData.forEach((item, i) => (item[props.rowKey] = `${i}`));
           return summaryData;
         }
-        if (!isFunction(summaryFunc)) {
-          return [];
+
+        // 传Function
+        if (isFunction(summaryFunc)) {
+          let dataSource = toRaw(unref(table.getDataSource()));
+          dataSource = summaryFunc(dataSource);
+          dataSource.forEach((item, i) => {
+            item[props.rowKey] = `${i}`;
+          });
+          return dataSource;
         }
-        let dataSource = toRaw(unref(table.getDataSource()));
-        dataSource = summaryFunc(dataSource);
-        dataSource.forEach((item, i) => {
-          item[props.rowKey] = `${i}`;
-        });
-        return dataSource;
+
+        // 与服务端约定的默认字段
+        const { footerField } = FETCH_SETTING;
+        const rawData = toRaw(unref(table.getRawDataSource()));
+
+        return isDef(rawData[footerField]) ? rawData[footerField] : [];
       });
 
       const getColumns = computed(() => {

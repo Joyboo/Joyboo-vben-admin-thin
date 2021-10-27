@@ -1,5 +1,10 @@
 <template>
   <div class="table-settings">
+    <ExportData
+      v-if="getSetting.exportType !== ExportEnum.NOT"
+      :setting="getSetting"
+      :getPopupContainer="getTableContainer"
+    />
     <RedoSetting v-if="getSetting.redo" :getPopupContainer="getTableContainer" />
     <SizeSetting v-if="getSetting.size" :getPopupContainer="getTableContainer" />
     <ColumnSetting
@@ -13,6 +18,7 @@
 <script lang="ts">
   import type { PropType } from 'vue';
   import type { TableSetting, ColumnChangeParam } from '../../types/table';
+  import { ExportEnum } from '../../types/table';
   import { defineComponent, computed, unref } from 'vue';
   import ColumnSetting from './ColumnSetting.vue';
   import SizeSetting from './SizeSetting.vue';
@@ -20,6 +26,7 @@
   import FullScreenSetting from './FullScreenSetting.vue';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useTableContext } from '../../hooks/useTableContext';
+  import ExportData from './ExportData.vue';
 
   export default defineComponent({
     name: 'TableSetting',
@@ -28,6 +35,7 @@
       SizeSetting,
       RedoSetting,
       FullScreenSetting,
+      ExportData,
     },
     props: {
       setting: {
@@ -46,6 +54,7 @@
           size: true,
           setting: true,
           fullScreen: false,
+          exportType: ExportEnum.NOT,
           ...props.setting,
         };
       });
@@ -58,7 +67,7 @@
         return table ? unref(table.wrapRef) : document.body;
       }
 
-      return { getSetting, t, handleColumnChange, getTableContainer };
+      return { getSetting, t, handleColumnChange, getTableContainer, ExportEnum };
     },
   });
 </script>

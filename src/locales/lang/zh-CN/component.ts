@@ -31,6 +31,8 @@ export default {
     exportModalTitle: '导出数据',
     fileType: '文件类型',
     fileName: '文件名',
+    exportCurrentPage: '导出当前页',
+    exportAllPage: '导出全部页',
   },
   form: {
     putAway: '收起',
