@@ -17,6 +17,10 @@ export default {
       listField: 'items',
       // 合计字段
       footerField: 'summer',
+      // 导出全部时发送的表头字段
+      exportThField: '_th',
+      // 导出全部时发送的文件名
+      exprotFilename: '_fname',
       // Total number of tables returned by the interface field name
       totalField: 'total',
     },

@@ -15,7 +15,7 @@
           icon: 'excel-export|svg',
           text: t('component.excel.exportAllPage'),
           event: ExportEnum.ALL,
-          onClick: setting.exportAllFn,
+          onClick: exportAllPage,
         },
       ]"
     >
@@ -51,6 +51,7 @@
   import { FETCH_SETTING, ACTION_COLUMN_FLAG } from '../../const';
   import { get } from 'lodash-es';
   import { useRouter } from 'vue-router';
+  import { downloadByData } from '/@/utils/file/download';
 
   const props = defineProps({
     setting: {
@@ -63,7 +64,7 @@
 
   const table = useTableContext();
   const { t } = useI18n();
-  const { footerField, listField } = FETCH_SETTING;
+  const { footerField, listField, exportThField, exprotFilename } = FETCH_SETTING;
   const { currentRoute } = useRouter();
   const title = unref(currentRoute).meta.title;
 
@@ -73,15 +74,43 @@
       case ExportEnum.CURR:
         return exportCurrentPage();
       case ExportEnum.ALL:
-        const fn = props.setting.exportAllFn;
-        if (isFunction(fn)) {
-          return fn();
+        if (isFunction(props.setting.exportAllFn)) {
+          return exportAllPage();
         }
       default:
         console.error('Export All Need Function Type Props: TableSetting.exportAllFn!!!');
         break;
     }
   };
+
+  // 导出全部页
+  async function exportAllPage() {
+    table.setLoading(true);
+    try {
+      // 获取Columns并排除掉操作列
+      const columns = table.getColumns().filter((item) => item.flag !== ACTION_COLUMN_FLAG);
+
+      // 表头 _th=ymd=日期|reg=注册|login=登录
+      let th: string[] = [];
+      columns.forEach((col: BasicColumn) => {
+        th.push(col.dataIndex + '=' + col.title);
+      });
+      const header = {};
+      header[exportThField] = th.join('|');
+
+      const filename = title + '-' + new Date().getTime() + '.xlsx';
+      header[exprotFilename] = filename;
+      // table.setProps({ searchInfo : header});
+      if (isFunction(props.setting.exportAllFn)) {
+        const respose = await props.setting.exportAllFn(header);
+        downloadByData(respose.data, filename, respose.headers['content-type']);
+      }
+    } catch (e) {
+      console.error('导出全部失败 ', e);
+    } finally {
+      table.setLoading(false);
+    }
+  }
 
   // 导出当前页
   function exportCurrentPage() {
