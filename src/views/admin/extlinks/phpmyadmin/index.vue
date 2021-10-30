@@ -27,7 +27,7 @@
 
 <script lang="ts" setup name="PhpMyAdmin">
   import { LoginOutlined, EyeOutlined } from '@ant-design/icons-vue';
-  import { Card, CardMeta, Row, Col, Tooltip } from 'ant-design-vue';
+  import { Card, Row, Col, Tooltip } from 'ant-design-vue';
   import { computed } from 'vue';
   import { PageWrapper } from '/@/components/Page';
   import { SvgIcon } from '/@/components/Icon';
@@ -38,6 +38,8 @@
 
   const { createSuccessModal } = useMessage();
   const userStore = useUserStore();
+
+  const CardMeta = Card.Meta;
 
   const pmaConfig = computed(() => userStore.getUserInfo.config.sysinfo.phpmyadmin ?? []);
 

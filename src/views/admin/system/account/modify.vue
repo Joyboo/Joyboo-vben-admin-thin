@@ -74,7 +74,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { Form, FormItem, Select, TreeSelect, Input, InputPassword } from 'ant-design-vue';
+  import { Form, Select, TreeSelect, Input } from 'ant-design-vue';
   import type { TreeDataItem } from 'ant-design-vue/es/tree/Tree';
   import { reactive, ref, computed, toRaw } from 'vue';
   import { BasicHelp } from '/@/components/Basic';
@@ -89,6 +89,9 @@
   import { PageWrapper } from '/@/components/Page';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { UploadApiResult } from '/@/api/sys/model/uploadModel';
+
+  const FormItem = Form.Item;
+  const InputPassword = Input.Password;
 
   const formState = reactive(FormData);
 

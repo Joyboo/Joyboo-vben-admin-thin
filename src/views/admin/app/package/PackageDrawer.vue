@@ -523,20 +523,15 @@
   import { ref, computed, unref, reactive, toRaw } from 'vue';
   import {
     Tabs,
-    TabPane,
     Form,
-    FormItem,
     Input,
     Select,
-    RadioButton,
-    RadioGroup,
+    Radio,
     Checkbox,
-    CheckboxGroup,
     InputNumber,
     Row,
     Col,
     Tooltip,
-    Textarea,
     Divider,
   } from 'ant-design-vue';
   import { DeploymentUnitOutlined } from '@ant-design/icons-vue';
@@ -559,6 +554,13 @@
   // import type { FormActionType, FormProps} from '/@/components/Form/src/types/form';
 
   const emit = defineEmits(['success', 'register']);
+
+  const FormItem = Form.Item;
+  const TabPane = Tabs.TabPane;
+  const Textarea = Input.TextArea;
+  const RadioButton = Radio.Button;
+  const RadioGroup = Radio.Group;
+  const CheckboxGroup = Checkbox.Group;
 
   const isUpdate = ref(true);
   const saveAdjustButtonLoading = ref(false);

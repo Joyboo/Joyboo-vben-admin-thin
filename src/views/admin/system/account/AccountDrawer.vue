@@ -133,18 +133,14 @@
 <script lang="ts" setup>
   import {
     Tabs,
-    TabPane,
     Form,
-    FormItem,
     Input,
-    InputPassword,
     Select,
     TreeSelect,
     InputNumber,
     Switch,
     Checkbox,
     Divider,
-    CheckboxGroup,
   } from 'ant-design-vue';
   import { ref, computed, unref, reactive, toRaw, nextTick } from 'vue';
   import { StrengthMeter } from '/@/components/StrengthMeter';
@@ -163,6 +159,11 @@
   import { UploadApiResult } from '/@/api/sys/model/uploadModel';
 
   const emit = defineEmits(['success', 'register']);
+
+  const TabPane = Tabs.TabPane;
+  const InputPassword = Input.Password;
+  const FormItem = Form.Item;
+  const CheckboxGroup = Checkbox.Group;
 
   const isUpdate = ref(true);
   const activeKey = ref(1);

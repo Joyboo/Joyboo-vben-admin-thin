@@ -284,21 +284,17 @@
   import { ref, computed, unref, reactive, toRaw } from 'vue';
   import {
     Tabs,
-    TabPane,
     Form,
-    FormItem,
     Input,
     Select,
-    RadioButton,
-    RadioGroup,
+    Radio,
     InputNumber,
-    Textarea,
     Tooltip,
     Row,
     Col,
     Switch,
     Divider,
-    RangePicker,
+    DatePicker,
   } from 'ant-design-vue';
   import { DeploymentUnitOutlined } from '@ant-design/icons-vue';
   import { useMessage } from '/@/hooks/web/useMessage';
@@ -312,6 +308,13 @@
   import { Moment } from 'moment';
 
   const emit = defineEmits(['success', 'register']);
+
+  const FormItem = Form.Item;
+  const RangePicker = DatePicker.RangePicker;
+  const TabPane = Tabs.TabPane;
+  const Textarea = Input.TextArea;
+  const RadioButton = Radio.Button;
+  const RadioGroup = Radio.Group;
 
   const isUpdate = ref(true);
   const activeKey = ref(1);

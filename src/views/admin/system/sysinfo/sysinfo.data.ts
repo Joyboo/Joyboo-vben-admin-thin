@@ -1,6 +1,6 @@
 import { CurdAuth } from '/#/utils';
 import { h } from 'vue';
-import { Switch, Tag, InputNumber, Textarea } from 'ant-design-vue';
+import { Switch, Tag, InputNumber, Input } from 'ant-design-vue';
 import { usePermission } from '/@/hooks/web/usePermission';
 import { BasicColumn, FormSchema } from '/@/components/Table';
 import { sysinfoChange } from '/@/api/admin/system';
@@ -145,7 +145,7 @@ export const formSchema: FormSchema[] = [
       if (model.type === 0) {
         return h(InputNumber, props);
       } else if (model.type === 1) {
-        return h(Textarea, { ...props, rows: 5 });
+        return h(Input.TextArea, { ...props, rows: 5 });
       } else {
         return h(CodeEditor, props);
       }
