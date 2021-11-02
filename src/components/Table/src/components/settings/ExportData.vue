@@ -48,7 +48,7 @@
   import { jsonToSheetXlsx } from '/@/components/Excel';
   import { Dropdown } from '/@/components/Dropdown';
   import { isDef, isFunction, isString, isArray } from '/@/utils/is';
-  import { FETCH_SETTING, ACTION_COLUMN_FLAG } from '../../const';
+  import { FETCH_SETTING, ACTION_COLUMN_FLAG, ROW_KEY } from '../../const';
   import { get } from 'lodash-es';
   import { useRouter } from 'vue-router';
   import { downloadByData } from '/@/utils/file/download';
@@ -138,30 +138,38 @@
     // 需注意的是 customRender 也允许为插槽，暂不支持插槽模式渲染的数据
     const data: any[] = [];
 
-    dataSource.forEach((dataSourceItem: any) => {
+    // 计算单行数据
+    const tableRowRender = (dataItem: any) => {
       const row = {};
       columns.forEach((columnItem: BasicColumn) => {
         if (isDef(columnItem.dataIndex)) {
           const col = isFunction(columnItem.customRender)
             ? columnItem.customRender({
-                text: dataSourceItem[columnItem.dataIndex],
-                record: dataSourceItem,
-                index: dataSourceItem.key,
+                text: dataItem[columnItem.dataIndex],
+                record: dataItem,
+                index: dataItem[ROW_KEY],
               })
-            : dataSourceItem[columnItem.dataIndex] ?? '';
+            : dataItem[columnItem.dataIndex] ?? '';
           row[columnItem.dataIndex] = col;
         }
       });
+      return row;
+    };
+
+    dataSource.forEach((dataSourceItem: any) => {
+      const row = tableRowRender(dataSourceItem);
       row && data.push(row);
     });
 
     if (isArray(summer) && summer.length > 0) {
-      // 合计列暂不执行 customRender 逻辑
-      data.push(...summer);
+      summer.forEach((summerItem) => {
+        const row = tableRowRender(summerItem);
+        row && data.push(row);
+      });
     }
 
     jsonToSheetXlsx({
-      data: data.concat(summer),
+      data: data,
       header: header,
       filename: title + '.xlsx',
       json2sheetOpts: {
