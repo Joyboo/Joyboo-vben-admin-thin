@@ -5,13 +5,14 @@
 </template>
 <script lang="ts" setup>
   import { h, computed } from 'vue';
-  import { Avatar, Row, Col } from 'ant-design-vue';
-  import { BasicModal } from '/@/components/Modal/index';
-  import { Description, useDescription } from '/@/components/Description/index';
+  import { Avatar, Row, Col, Typography } from 'ant-design-vue';
+  import { BasicModal } from '/@/components/Modal';
+  import { Description, useDescription, DescItem } from '/@/components/Description';
   import { useI18n } from '/@/hooks/web/useI18n';
   import HeaderImg from '/@/assets/images/header.jpg';
   import { useUserStore } from '/@/store/modules/user';
 
+  const TypographyText = Typography.Text;
   const userStore = useUserStore();
   const domain = computed(() => userStore.getUserInfo.config.imageDomain);
 
@@ -24,7 +25,7 @@
 
   const { t } = useI18n();
 
-  const schema = [
+  const schema: DescItem[] = [
     {
       field: 'admid',
       label: '玩家名',
@@ -66,6 +67,7 @@
       field: 'content',
       label: 'SQL',
       span: 2,
+      render: (val: any) => h(TypographyText, { copyable: true, type: 'warning' }, () => val),
     },
   ];
 

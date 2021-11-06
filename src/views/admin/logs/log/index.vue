@@ -106,7 +106,7 @@
         },
         {
           title: 'UID',
-          dataIndex: 'uid',
+          dataIndex: 'admid',
         },
         {
           title: '账号',
