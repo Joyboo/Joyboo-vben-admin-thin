@@ -1,4 +1,4 @@
-import { CurdAuth } from '/#/utils';
+import { CurdAuthType, Auth } from '/@/enums/auth';
 import { h } from 'vue';
 import { Switch, Tag, InputNumber, Input } from 'ant-design-vue';
 import { usePermission } from '/@/hooks/web/usePermission';
@@ -7,10 +7,10 @@ import { sysinfoChange } from '/@/api/admin/system';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { CodeEditor, JsonPreview } from '/@/components/CodeEditor';
 
-export const curdAuth: CurdAuth = {
-  add: '/sysinfo/add',
-  edit: '/sysinfo/edit',
-  del: '/sysinfo/del',
+export const curdAuth: CurdAuthType = {
+  add: Auth.SysinfoAdd,
+  edit: Auth.SysinfoEdit,
+  del: Auth.SysinfoDel,
 };
 
 export const columns: BasicColumn[] = [

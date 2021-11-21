@@ -5,18 +5,18 @@ import { Switch } from 'ant-design-vue';
 import { gameChange } from '/@/api/admin/app';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { usePermission } from '/@/hooks/web/usePermission';
-import { CurdAuth } from '/#/utils';
+import { CurdAuthType, Auth } from '/@/enums/auth';
 // import { Moment } from 'moment';
 
-type gameCurdAuth = CurdAuth & {
+type gameCurdAuth = CurdAuthType & {
   give: string;
 };
 
 export const curdAuth: gameCurdAuth = {
-  add: '/game/add',
-  edit: '/game/edit',
-  del: '/game/del',
-  give: '/game/give',
+  add: Auth.GameAdd,
+  edit: Auth.GameEdit,
+  del: Auth.GameDel,
+  give: Auth.GameGive,
 };
 
 export const columns: BasicColumn[] = [

@@ -6,16 +6,16 @@ import { Icon } from '/@/components/Icon';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { changeMenu } from '/@/api/admin/system';
 import { usePermission } from '/@/hooks/web/usePermission';
-import { CurdAuth } from '/#/utils';
+import { CurdAuthType, Auth } from '/@/enums/auth';
 
 const isDir = (type: number) => type === 0;
 const isMenu = (type: number) => type === 1;
 const isButton = (type: number) => type === 2;
 
-export const curdAuth: CurdAuth = {
-  add: '/menu/add',
-  edit: '/menu/edit',
-  del: '/menu/del',
+export const curdAuth: CurdAuthType = {
+  add: Auth.MenuAdd,
+  edit: Auth.MenuEdit,
+  del: Auth.MenuDel,
 };
 
 export const columns: BasicColumn[] = [

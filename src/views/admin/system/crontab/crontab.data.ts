@@ -1,4 +1,4 @@
-import { CurdAuth } from '/#/utils';
+import { CurdAuthType, Auth } from '/@/enums/auth';
 import { h, VNode } from 'vue';
 import { Switch, Tag } from 'ant-design-vue';
 import { usePermission } from '/@/hooks/web/usePermission';
@@ -7,10 +7,10 @@ import { crontabChange } from '/@/api/admin/system';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { JsonPreview } from '/@/components/CodeEditor';
 
-export const curdAuth: CurdAuth = {
-  add: '/crontab/add',
-  edit: '/crontab/edit',
-  del: '/crontab/del',
+export const curdAuth: CurdAuthType = {
+  add: Auth.CrontabAdd,
+  edit: Auth.CrontabEdit,
+  del: Auth.CrontabDel,
 };
 
 export const columns: BasicColumn[] = [

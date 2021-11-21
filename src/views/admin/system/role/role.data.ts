@@ -4,12 +4,12 @@ import { Switch } from 'ant-design-vue';
 import { roleChange } from '/@/api/admin/system';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { usePermission } from '/@/hooks/web/usePermission';
-import { CurdAuth } from '/#/utils';
+import { CurdAuthType, Auth } from '/@/enums/auth';
 
-export const curdAuth: CurdAuth = {
-  add: '/role/add',
-  edit: '/role/edit',
-  del: '/role/del',
+export const curdAuth: CurdAuthType = {
+  add: Auth.RoleAdd,
+  edit: Auth.RoleEdit,
+  del: Auth.RoleDel,
 };
 
 export const columns: BasicColumn[] = [

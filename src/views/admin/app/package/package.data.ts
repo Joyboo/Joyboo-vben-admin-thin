@@ -1,12 +1,12 @@
 import { BasicColumn } from '/@/components/Table';
 import { h } from 'vue';
 import { Tag } from 'ant-design-vue';
-import { CurdAuth } from '/#/utils';
+import { CurdAuthType, Auth } from '/@/enums/auth';
 
-export const curdAuth: CurdAuth = {
-  add: '/package/add',
-  edit: '/package/edit',
-  del: '/package/del',
+export const curdAuth: CurdAuthType = {
+  add: Auth.PackageAdd,
+  edit: Auth.PackageEdit,
+  del: Auth.PackageDel,
 };
 
 export const columns: BasicColumn[] = [

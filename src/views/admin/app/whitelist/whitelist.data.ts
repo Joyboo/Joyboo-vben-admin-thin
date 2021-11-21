@@ -1,4 +1,4 @@
-import { CurdAuth } from '/#/utils';
+import { CurdAuthType, Auth } from '/@/enums/auth';
 import { h } from 'vue';
 import { Switch } from 'ant-design-vue';
 import { usePermission } from '/@/hooks/web/usePermission';
@@ -6,10 +6,10 @@ import { BasicColumn, FormSchema } from '/@/components/Table';
 import { whitelistChange } from '/@/api/admin/app';
 import { useMessage } from '/@/hooks/web/useMessage';
 
-export const curdAuth: CurdAuth = {
-  add: '/whitelist/add',
-  edit: '/whitelist/edit',
-  del: '/whitelist/del',
+export const curdAuth: CurdAuthType = {
+  add: Auth.WhitelistAdd,
+  edit: Auth.WhitelistEdit,
+  del: Auth.WhitelistDel,
 };
 
 export const columns: BasicColumn[] = [

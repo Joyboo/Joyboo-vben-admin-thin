@@ -5,17 +5,17 @@ import { h } from 'vue';
 import { Switch } from 'ant-design-vue';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { usePermission } from '/@/hooks/web/usePermission';
-import { CurdAuth } from '/#/utils';
+import { CurdAuthType, Auth } from '/@/enums/auth';
 
-type AdminCurdAuth = CurdAuth & {
+type AdminCurdAuth = CurdAuthType & {
   getToken: string;
 };
 
 export const curdAuth: AdminCurdAuth = {
-  add: '/admin/add',
-  edit: '/admin/edit',
-  del: '/admin/del',
-  getToken: '/admin/getToken',
+  add: Auth.AdminAdd,
+  edit: Auth.AdminEdit,
+  del: Auth.AdminDel,
+  getToken: Auth.AdminGetToken,
 };
 
 export const columns: BasicColumn[] = [
