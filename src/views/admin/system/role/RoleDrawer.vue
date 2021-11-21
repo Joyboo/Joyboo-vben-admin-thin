@@ -15,6 +15,7 @@
           :replaceFields="{ title: 'title', key: 'id' }"
           checkable
           toolbar
+          checkStrictly
           title="菜单分配"
         />
       </template>
@@ -28,6 +29,7 @@
   import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
   import { BasicTree, TreeItem } from '/@/components/Tree';
   import { getMenuList, roleAdd, roleEdit } from '/@/api/admin/system';
+  import { isDef, isArray } from '/@/utils/is';
 
   const emit = defineEmits(['success', 'register']);
 
@@ -63,6 +65,11 @@
   async function handleSubmit() {
     try {
       const values = await validate();
+      // 受控模式下，不再是数组，而是包含checked（选中）和halfChecked（半选中）的一个对象
+      if (isDef(values.menu.checked) && isArray(values.menu.checked)) {
+        values.menu = values.menu.checked;
+      }
+
       setDrawerProps({ confirmLoading: true });
       if (unref(isUpdate)) {
         values.id = id;

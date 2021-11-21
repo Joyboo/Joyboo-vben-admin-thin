@@ -306,6 +306,7 @@
   import { gameAdd, gameEdit, gameGetKey, gameUploadApi, delGameImg } from '/@/api/admin/app';
   import { deepMerge } from '/@/utils';
   import { Moment } from 'moment';
+  import { omit } from 'lodash-es';
 
   const emit = defineEmits(['success', 'register']);
 
@@ -471,9 +472,9 @@
 
       const post = toRaw(formState);
       if (isUpdate.value) {
-        gameEdit('POST', Object.assign({}, post, { id: rowId.value }));
+        await gameEdit('POST', Object.assign({}, post, { id: rowId.value }));
       } else {
-        gameAdd('POST', post);
+        await gameAdd('POST', omit(post, 'id'));
       }
 
       createMessage.success(getTitle.value + '成功');

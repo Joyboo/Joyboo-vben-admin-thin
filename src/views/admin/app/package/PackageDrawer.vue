@@ -551,6 +551,7 @@
     packageSaveAdjustEvent,
   } from '/@/api/admin/app';
   import { deepMerge } from '/@/utils';
+  import { omit } from 'lodash-es';
   // import type { FormActionType, FormProps} from '/@/components/Form/src/types/form';
 
   const emit = defineEmits(['success', 'register']);
@@ -765,9 +766,9 @@
 
       const post = toRaw(formState);
       if (isUpdate.value) {
-        packageEdit('POST', Object.assign({}, post, { id: rowId.value }));
+        await packageEdit('POST', Object.assign({}, post, { id: rowId.value }));
       } else {
-        packageAdd('POST', post);
+        await packageAdd('POST', omit(post, 'id'));
       }
 
       createMessage.success(getTitle.value + '成功');

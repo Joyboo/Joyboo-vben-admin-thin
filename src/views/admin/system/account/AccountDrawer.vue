@@ -91,6 +91,7 @@
             <BasicTree
               toolbar
               search
+              checkStrictly
               :treeData="treeMenu"
               :checkable="true"
               ref="asyncExpandTreeRef"
@@ -157,6 +158,7 @@
   import PackageTransfer from './packageTransfer.vue';
   import HeaderImg from '/@/assets/images/header.jpg';
   import { UploadApiResult } from '/@/api/sys/model/uploadModel';
+  import { omit } from 'lodash-es';
 
   const emit = defineEmits(['success', 'register']);
 
@@ -297,7 +299,7 @@
       if (isUpdate.value) {
         await adminEdit('POST', Object.assign({}, post, { id: rowId.value }));
       } else {
-        await adminAdd('POST', post);
+        await adminAdd('POST', omit(post, 'id'));
       }
       createMessage.success(getTitle.value + '成功');
       closeDrawer();
