@@ -83,14 +83,18 @@
     }
   };
 
+  function getColumns(): BasicColumn[] {
+    return table
+      .getColumns()
+      .filter((item) => item.flag !== ACTION_COLUMN_FLAG && !item.defaultHidden);
+  }
+
   // 导出全部页
   async function exportAllPage() {
     table.setLoading(true);
     try {
-      // 获取Columns并排除掉操作列
-      const columns = table.getColumns().filter((item) => item.flag !== ACTION_COLUMN_FLAG);
-
-      // 表头 _th=ymd=日期|reg=注册|login=登录
+      const columns = getColumns();
+      // _th=ymd=日期|reg=注册|login=登录
       let th: string[] = [];
       columns.forEach((col: BasicColumn) => {
         th.push(col.dataIndex + '=' + col.title);
@@ -114,8 +118,7 @@
 
   // 导出当前页
   function exportCurrentPage() {
-    // 获取Columns并排除掉操作列
-    const columns = table.getColumns().filter((item) => item.flag !== ACTION_COLUMN_FLAG);
+    const columns = getColumns();
     // getDataSource无法获取到传给BasicTable的Props的合计行
     // const dataSource = table.getDataSource();
     const rawData = table.getRawDataSource();
@@ -148,6 +151,11 @@
                 text: dataItem[columnItem.dataIndex],
                 record: dataItem,
                 index: dataItem[ROW_KEY],
+                /**
+                 * 此量为自定义字段, 用于使用customRender判断是否导出模式
+                 * 为什么要有此量? 因为customRender允许返回 string | VNode | Jsx, 而导出模式只能为string类型
+                 */
+                exportMode: true,
               })
             : dataItem[columnItem.dataIndex] ?? '';
           row[columnItem.dataIndex] = col;
