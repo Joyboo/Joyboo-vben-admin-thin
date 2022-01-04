@@ -78,10 +78,10 @@
           componentProps = componentProps({ schema, tableAction, formModel, formActionType }) ?? {};
         }
         if (schema.component === 'Divider') {
-          componentProps = Object.assign({ type: 'horizontal' }, componentProps, {
-            orientation: 'left',
-            plain: true,
-          });
+          componentProps = Object.assign(
+            { type: 'horizontal', plain: true, orientation: 'left' },
+            componentProps,
+          );
         }
         return componentProps as Recordable;
       });
