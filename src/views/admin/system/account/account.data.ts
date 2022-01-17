@@ -2,7 +2,7 @@ import { adminChange } from '/@/api/admin/system';
 import { BasicColumn } from '/@/components/Table';
 import { FormSchema } from '/@/components/Table';
 import { h } from 'vue';
-import { Switch } from 'ant-design-vue';
+import { Switch, Tag } from 'ant-design-vue';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { usePermission } from '/@/hooks/web/usePermission';
 import { CurdAuthType, Auth } from '/@/enums/auth';
@@ -40,6 +40,15 @@ export const columns: BasicColumn[] = [
   {
     title: '角色',
     dataIndex: 'relation.name',
+  },
+  {
+    title: '是否在线',
+    dataIndex: 'online',
+    customRender: ({ text }) => {
+      return text
+        ? h(Tag, { color: '#87d068' }, () => '在线')
+        : h(Tag, { color: '#f50' }, () => '不在线');
+    },
   },
   {
     title: '排序',

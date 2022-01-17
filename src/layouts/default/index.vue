@@ -27,6 +27,7 @@
   import { useMenuSetting } from '/@/hooks/setting/useMenuSetting';
   import { useDesign } from '/@/hooks/web/useDesign';
   import { useLockPage } from '/@/hooks/web/useLockPage';
+  import { useWebsocket } from '/@/hooks/web/useWebsocket';
 
   import { useAppInject } from '/@/hooks/web/useAppInject';
 
@@ -49,6 +50,8 @@
 
       // Create a lock screen monitor
       const lockEvents = useLockPage();
+
+      useWebsocket();
 
       const layoutClass = computed(() => {
         let cls: string[] = ['ant-layout'];

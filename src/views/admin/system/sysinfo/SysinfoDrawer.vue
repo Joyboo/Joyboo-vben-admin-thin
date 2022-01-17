@@ -24,7 +24,7 @@
   const rowId = ref(0);
   // const { createConfirm, createMessage } = useMessage();
 
-  const [registerForm, { resetFields, setFieldsValue, validate }] = useForm({
+  const [registerForm, { resetFields, setFieldsValue, validate, updateSchema }] = useForm({
     labelWidth: 90,
     schemas: formSchema,
     showActionButtonGroup: false,
@@ -44,6 +44,8 @@
           ...result,
         });
       }
+
+      updateSchema({ field: 'type', componentProps: { disabled: isUpdate.value } });
 
       changeLoading(false);
       changeOkLoading(false);
