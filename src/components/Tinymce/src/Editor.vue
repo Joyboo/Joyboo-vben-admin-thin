@@ -72,6 +72,11 @@
   import { isNumber } from '/@/utils/is';
   import { useLocale } from '/@/locales/useLocale';
   import { useAppStore } from '/@/store/modules/app';
+  import { ResultEnum } from '/@/enums/httpEnum';
+  import { compressImg } from '/@/components/Upload/src/helper';
+  import { dataURLtoFile } from '/@/utils/file/base64Conver';
+  import { useI18n } from '/@/hooks/web/useI18n';
+  import { tinymceUpload } from '/@/api/admin/system';
 
   const tinymceProps = {
     options: {
@@ -116,6 +121,8 @@
     props: tinymceProps,
     emits: ['change', 'update:modelValue', 'inited', 'init-error'],
     setup(props, { emit, attrs }) {
+      const { t } = useI18n();
+
       const editorRef = ref<Nullable<Editor>>(null);
       const fullscreen = ref(false);
       const tinymceId = ref<string>(buildShortUUID('tiny-vue'));
@@ -147,11 +154,46 @@
       const initOptions = computed((): RawEditorSettings => {
         const { height, options, toolbar, plugins } = props;
         const publicPath = import.meta.env.VITE_PUBLIC_PATH || '/';
+        // const preUpload = (_, args) => { console.log('paste_preprocess -- args ', args); };
+
         return {
           selector: `#${unref(tinymceId)}`,
           height,
           toolbar,
           menubar: 'file edit insert view format table',
+          // paste_preprocess: preUpload,
+          // paste_postprocess: preUpload,
+          // http://tinymce.ax-z.cn/plugins/paste.php
+          images_upload_handler: async (blobInfo, success, failure) => {
+            // blob转file, base64非标准格式的data:image，dataURLtoFile会解析失败 data:image/jpeg;base64,/9j/4
+            let file = dataURLtoFile(
+              'data:image/jpeg;base64,' + blobInfo.base64(),
+              blobInfo.filename(),
+            );
+            try {
+              // 如果超宽，等比缩小
+              file = await compressImg(file, 1024, 0.5);
+            } catch (e) {
+              console.log(e);
+            }
+            const size = 10;
+            if (file.size / 1024 / 1024 >= size) {
+              failure(t('component.upload.maxSizeMultiple', [size]));
+              return;
+            }
+
+            try {
+              const { data } = await tinymceUpload({ file });
+              if (data.code !== ResultEnum.SUCCESS) {
+                failure('上传失败: ' + data.message);
+              } else {
+                const fullUrl = props.imageDomain + data.url;
+                success(fullUrl);
+              }
+            } catch (e) {
+              console.log(e);
+            }
+          },
           plugins,
           language_url: publicPath + 'resource/tinymce/langs/' + langName.value + '.js',
           language: langName.value,

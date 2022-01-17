@@ -50,6 +50,8 @@ enum Api {
   CrontabEdit = '/admin/crontab/edit',
   CrontabDel = '/admin/crontab/del',
   CrontabChange = '/admin/crontab/change',
+
+  TinymceUpload = '/admin/xxx', // 示例值
 }
 
 export const getAccountList = (params: AccountParams) =>
@@ -140,3 +142,15 @@ export const crontabAdd = (method: Method, params?: any) =>
   defHttp.request<AccountInfo>({ url: Api.CrontabAdd, method, params });
 
 export const crontabDel = (id: number) => defHttp.get({ url: Api.CrontabDel, params: { id } });
+
+export const tinymceUpload = async (params: UploadFileParams) => {
+  const file = params.file as File;
+  const { uploadUrl } = useGlobSetting();
+  return defHttp.uploadFile<UploadApiResult>(
+    {
+      baseURL: uploadUrl,
+      url: Api.TinymceUpload,
+    },
+    { file, filename: file.name },
+  );
+};

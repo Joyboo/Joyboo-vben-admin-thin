@@ -15,6 +15,14 @@ export function dataURLtoBlob(base64Buf: string): Blob {
 }
 
 /**
+ * @description: base64 to File
+ */
+export function dataURLtoFile(base64Buf: string, filename: string): File {
+  const { u8arr, mime } = readBase64(base64Buf);
+  return new File([u8arr], filename, { type: mime });
+}
+
+/**
  * img url to base64
  * @param url
  */
