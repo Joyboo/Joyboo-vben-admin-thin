@@ -42,10 +42,6 @@
         <Input v-model:value="formState.realname" :maxlength="10" />
       </FormItem>
 
-      <FormItem label="默认游戏">
-        <Select :options="gameOptions" v-model:value="formState.extension.gid" allowClear />
-      </FormItem>
-
       <FormItem label="默认首页">
         <TreeSelect
           :treeData="menuTreeData"
@@ -74,7 +70,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { Form, Select, TreeSelect, Input } from 'ant-design-vue';
+  import { Form, TreeSelect, Input } from 'ant-design-vue';
   import type { TreeDataItem } from 'ant-design-vue/es/tree/Tree';
   import { reactive, ref, computed, toRaw } from 'vue';
   import { BasicHelp } from '/@/components/Basic';
@@ -84,7 +80,6 @@
   import { avatarUploadApi, adminModify } from '/@/api/admin/system';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { deepMerge } from '/@/utils';
-  import { useUserStore } from '/@/store/modules/user';
   import HeaderImg from '/@/assets/images/header.jpg';
   import { PageWrapper } from '/@/components/Page';
   import { useI18n } from '/@/hooks/web/useI18n';
@@ -102,12 +97,12 @@
   // 旧密码
   const oldPassword = ref<string>('');
 
-  const userStore = useUserStore();
+  // todo domain
+  const domain = '';
+
   const { createMessage, createConfirm } = useMessage();
   const { t } = useI18n();
 
-  const gameOptions = computed(() => userStore.getGameListOptions);
-  const domain = computed(() => userStore.getUserInfo.config.imageDomain);
   const menuTreeData = ref<TreeDataItem[]>([]);
 
   RuleData.password = [

@@ -56,10 +56,6 @@
             <InputNumber :min="1" :max="255" v-model:value="formState.sort" />
           </FormItem>
 
-          <FormItem label="默认游戏">
-            <Select :options="gameOptions" v-model:value="formState.extension.gid" allowClear />
-          </FormItem>
-
           <FormItem label="默认首页">
             <TreeSelect
               :treeData="menuTreeData"
@@ -99,50 +95,12 @@
             />
           </FormItem>
         </TabPane>
-
-        <TabPane :key="3" tab="游戏和包" force-render>
-          <FormItem label="分配游戏">
-            <!-- 游戏 checkbox -->
-            <CheckboxGroup
-              v-model:value="formState.extension.gameids"
-              :disabled="formState.rid === 1"
-            >
-              <Checkbox
-                v-for="gameItem in gameOptions"
-                :key="gameItem.value"
-                :value="gameItem.value"
-              >
-                {{ gameItem.label }}
-              </Checkbox>
-            </CheckboxGroup>
-          </FormItem>
-
-          <Divider />
-
-          <FormItem label="分配包">
-            <PackageTransfer
-              :target="transferTarget"
-              :disabled="formState.rid === 1"
-              @change="(val) => (formState.extension.pkgbnd = val)"
-            />
-          </FormItem>
-        </TabPane>
       </Tabs>
     </Form>
   </BasicDrawer>
 </template>
 <script lang="ts" setup>
-  import {
-    Tabs,
-    Form,
-    Input,
-    Select,
-    TreeSelect,
-    InputNumber,
-    Switch,
-    Checkbox,
-    Divider,
-  } from 'ant-design-vue';
+  import { Tabs, Form, Input, Select, TreeSelect, InputNumber, Switch } from 'ant-design-vue';
   import { ref, computed, unref, reactive, toRaw, nextTick } from 'vue';
   import { StrengthMeter } from '/@/components/StrengthMeter';
   import { useMessage } from '/@/hooks/web/useMessage';
@@ -151,11 +109,9 @@
   import { CropperAvatar } from '/@/components/Cropper';
   import { BasicTree, TreeItem, TreeActionType } from '/@/components/Tree';
   import { FormData, RuleData } from './account.data';
-  import { useUserStore } from '/@/store/modules/user';
   import { adminAdd, adminEdit, avatarUploadApi } from '/@/api/admin/system';
   import { deepMerge } from '/@/utils';
   import { isArray } from '/@/utils/is';
-  import PackageTransfer from './packageTransfer.vue';
   import HeaderImg from '/@/assets/images/header.jpg';
   import { UploadApiResult } from '/@/api/sys/model/uploadModel';
   import { omit } from 'lodash-es';
@@ -165,7 +121,6 @@
   const TabPane = Tabs.TabPane;
   const InputPassword = Input.Password;
   const FormItem = Form.Item;
-  const CheckboxGroup = Checkbox.Group;
 
   const isUpdate = ref(true);
   const activeKey = ref(1);
@@ -202,9 +157,6 @@
   const useForm = Form.useForm;
   const { resetFields, validate, validateInfos } = useForm(formState, rulesRef);
 
-  const userStore = useUserStore();
-  const gameOptions = computed(() => userStore.getGameListOptions);
-  const domain = computed(() => userStore.getUserInfo.config.imageDomain);
   const roleOptions = ref<OptionsItem[]>([]);
   // 默认菜单树（不包含按钮级别）
   const menuTreeData = ref<TreeItem[]>([]);

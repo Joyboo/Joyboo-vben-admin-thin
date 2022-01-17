@@ -1,5 +1,5 @@
 export type CurdAuthType = {
-  // 查看的权限标识，一般不需要
+  // 查看的权限标识，一般不需要，由动态路由控制
   index?: string;
   // 新增的权限标识
   add: string;
@@ -31,17 +31,4 @@ export enum Auth {
   SysinfoAdd = '/sysinfo/add',
   SysinfoEdit = '/sysinfo/edit',
   SysinfoDel = '/sysinfo/del',
-
-  GameAdd = '/game/add',
-  GameEdit = '/game/edit',
-  GameDel = '/game/del',
-  GameGive = '/admin/give',
-
-  PackageAdd = '/package/add',
-  PackageEdit = '/package/edit',
-  PackageDel = '/package/del',
-
-  WhitelistAdd = '/whitelist/add',
-  WhitelistEdit = '/whitelist/edit',
-  WhitelistDel = '/whitelist/del',
 }

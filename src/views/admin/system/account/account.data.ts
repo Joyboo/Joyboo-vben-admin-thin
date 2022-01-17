@@ -142,7 +142,7 @@ export const RuleData = {
       required: false,
     },
     {
-      validator(values, value: any) {
+      validator(_, value: any) {
         return new Promise((resolve, reject) => {
           const match = /^\d{11}$/.test(value);
           if (match || value === 'admin') {

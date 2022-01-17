@@ -22,7 +22,7 @@
   </div>
 </template>
 
-<script lang="ts" setup name="MyErrorLog">
+<script lang="ts" setup name="LogError">
   import { ref } from 'vue';
   import type { ErrorLogInfo } from '/#/store';
   import { BasicTable, useTable, TableAction, FormSchema, BasicColumn } from '/@/components/Table';

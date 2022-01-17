@@ -9,44 +9,46 @@
   >
     <BasicForm @register="registerForm">
       <template #crontabArgs="{ model, field }">
-        <Card>
-          <Row :gutter="[20, 10]">
-            <template v-for="(argsItem, idx) in model[field]" :key="idx">
-              <Col :span="9">
-                <Input v-model:value="argsItem.key" placeholder="参数名" />
-              </Col>
-              <Col :span="9">
-                <Input v-model:value="argsItem.value" placeholder="参数值" />
-              </Col>
-              <Col :span="6">
-                <Tooltip title="删除此行" placement="right">
+        <div style="background-color: #eee; padding: 15px">
+          <Card>
+            <Row :gutter="[20, 10]">
+              <template v-for="(argsItem, idx) in model[field]" :key="idx">
+                <Col :span="9">
+                  <Input v-model:value="argsItem.key" placeholder="参数名" />
+                </Col>
+                <Col :span="9">
+                  <Input v-model:value="argsItem.value" placeholder="参数值" />
+                </Col>
+                <Col :span="6">
+                  <Tooltip title="删除此行" placement="right">
+                    <a-button
+                      ghost
+                      color="warning"
+                      preIcon="ant-design:delete-outlined"
+                      @click="delArgs(model, field, argsItem)"
+                    />
+                  </Tooltip>
+                </Col>
+              </template>
+
+              <Col :span="24">
+                <Tooltip title="添加一行">
                   <a-button
                     ghost
-                    color="warning"
-                    preIcon="ant-design:delete-outlined"
-                    @click="delArgs(model, field, argsItem)"
+                    color="success"
+                    preIcon="ant-design:plus-outlined"
+                    @click="
+                      model[field].push({
+                        key: '',
+                        value: '',
+                      })
+                    "
                   />
                 </Tooltip>
               </Col>
-            </template>
-
-            <Col :span="24">
-              <Tooltip title="添加一行">
-                <a-button
-                  ghost
-                  color="success"
-                  preIcon="ant-design:plus-outlined"
-                  @click="
-                    model[field].push({
-                      key: '',
-                      value: '',
-                    })
-                  "
-                />
-              </Tooltip>
-            </Col>
-          </Row>
-        </Card>
+            </Row>
+          </Card>
+        </div>
       </template>
     </BasicForm>
   </BasicDrawer>

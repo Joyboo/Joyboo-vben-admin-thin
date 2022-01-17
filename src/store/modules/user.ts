@@ -14,7 +14,7 @@ import { router } from '/@/router';
 import { usePermissionStore } from '/@/store/modules/permission';
 import { RouteRecordRaw } from 'vue-router';
 import { PAGE_NOT_FOUND_ROUTE } from '/@/router/routes/basic';
-import { isArray, isNumber } from '/@/utils/is';
+import { isArray } from '/@/utils/is';
 import { h } from 'vue';
 
 interface UserState {
@@ -54,50 +54,6 @@ export const useUserStore = defineStore({
     },
     getLastUpdateTime(): number {
       return this.lastUpdateTime;
-    },
-    // [{ label: '', value: ''}]
-    getGameListOptions() {
-      const list: OptionsItem[] = [];
-      if (this.userInfo !== null) {
-        for (const item of this.userInfo.gameList) {
-          list.push({
-            label: item.name + '(id: ' + item.id + ')',
-            value: item.id,
-          });
-        }
-      }
-      return list;
-    },
-    // 键值对
-    gameKeyValue() {
-      const list = {};
-      if (this.userInfo !== null) {
-        for (const item of this.userInfo.gameList) {
-          list[item.id] = item.name;
-        }
-      }
-      return list;
-    },
-    getPackageOptions() {
-      const list: OptionsItem[] = [];
-      if (this.userInfo !== null) {
-        for (const item of this.userInfo.pkgList) {
-          list.push({
-            label: item.name,
-            value: item.pkgbnd,
-          });
-        }
-      }
-      return list;
-    },
-    packageKeyValue() {
-      const list = {};
-      if (this.userInfo !== null) {
-        for (const item of this.userInfo.pkgList) {
-          list[item.pkgbnd] = item.name;
-        }
-      }
-      return list;
     },
   },
   actions: {
@@ -211,24 +167,6 @@ export const useUserStore = defineStore({
           await this.logout(true);
         },
       });
-    },
-    // gameids: number | PkgListModel
-    filterPackageByGameids(gameids: number | Array<number>): OptionsItem[] {
-      const list: OptionsItem[] = [];
-      if (this.userInfo !== null) {
-        for (const item of this.userInfo.pkgList) {
-          if (
-            (isNumber(gameids) && gameids === item.gameid) ||
-            (isArray(gameids) && gameids.indexOf(item.gameid) !== -1)
-          ) {
-            list.push({
-              label: item.name,
-              value: item.pkgbnd,
-            });
-          }
-        }
-      }
-      return list;
     },
   },
 });

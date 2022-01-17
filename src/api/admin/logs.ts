@@ -3,8 +3,8 @@ import { defHttp } from '/@/utils/http/axios';
 enum Api {
   LogIndex = '/admin/log/index',
   LogExport = '/admin/log/export',
-  AdminLogIndex = '/admin/adminLog/index',
-  ErrorLogIndex = '/admin/errorLog/index',
+  AdminLogIndex = '/admin/LogLogin/index',
+  ErrorLogIndex = '/admin/LogError/index',
 }
 
 export const logIndex = (params: any) => defHttp.get({ url: Api.LogIndex, params });

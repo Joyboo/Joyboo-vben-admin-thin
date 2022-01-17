@@ -1,6 +1,6 @@
 import { CurdAuthType, Auth } from '/@/enums/auth';
-import { h, VNode } from 'vue';
-import { Switch, Tag } from 'ant-design-vue';
+import { h } from 'vue';
+import { Switch } from 'ant-design-vue';
 import { usePermission } from '/@/hooks/web/usePermission';
 import { BasicColumn, FormSchema } from '/@/components/Table';
 import { crontabChange } from '/@/api/admin/system';
@@ -71,34 +71,6 @@ export const columns: BasicColumn[] = [
     },
   },
   {
-    title: '运行的系统',
-    dataIndex: 'sys',
-    customRender: ({ text }) => {
-      const eh: VNode[] = [];
-      const color = { 0: 'blue', 1: 'green', 2: 'orange', 3: 'cyan' };
-      const t = { 1: 'report', 2: 'pay', 3: 'sdk', 4: '后台' };
-      text.forEach((item: number) => {
-        eh.push(h(Tag, { color: color[item], style: { margin: '0 5px' } }, () => t[item]));
-      });
-      return h('span', {}, eh);
-    },
-    width: 150,
-  },
-  {
-    title: '运行的服务器',
-    dataIndex: 'server',
-    customRender: ({ text }) => {
-      const eh: VNode[] = [];
-      const color = { 1: 'orange', 2: 'cyan' };
-      const t = { 1: '1服', 2: '2服' };
-      text.forEach((item: number) => {
-        eh.push(h(Tag, { color: color[item], style: { margin: '0 5px' } }, () => t[item]));
-      });
-      return h('span', {}, eh);
-    },
-    width: 150,
-  },
-  {
     dataIndex: 'args',
     title: '参数',
     customRender: ({ text }) => {
@@ -137,36 +109,6 @@ export const searchFormSchema: FormSchema[] = [
         { label: '启用', value: 0 },
         { label: '禁用', value: 1 },
         { label: '运行一次', value: 2 },
-      ],
-    },
-    colProps: { xs: 24, sm: 24, md: 12, lg: 4, xl: 4, xxl: 3 },
-  },
-  {
-    field: 'sys',
-    label: ' ',
-    component: 'Select',
-    componentProps: {
-      allowClear: true,
-      placeholder: '运行的系统',
-      options: [
-        { label: 'report', value: 1 },
-        { label: 'pay', value: 2 },
-        { label: 'sdk', value: 3 },
-        { label: '后台', value: 4 },
-      ],
-    },
-    colProps: { xs: 24, sm: 24, md: 12, lg: 4, xl: 4, xxl: 3 },
-  },
-  {
-    field: 'server',
-    label: ' ',
-    component: 'Select',
-    componentProps: {
-      allowClear: true,
-      placeholder: '运行的服务器',
-      options: [
-        { label: '1服', value: 1 },
-        { label: '2服', value: 2 },
       ],
     },
     colProps: { xs: 24, sm: 24, md: 12, lg: 4, xl: 4, xxl: 3 },
@@ -237,32 +179,6 @@ export const formSchema: FormSchema[] = [
         { label: '启用', value: 0 },
         { label: '禁用', value: 1 },
         { label: '运行一次', value: 2 },
-      ],
-    },
-  },
-  {
-    field: 'sys',
-    label: '运行的系统',
-    component: 'CheckboxGroup',
-    defaultValue: [],
-    componentProps: {
-      options: [
-        { label: 'report', value: 1 },
-        { label: 'pay', value: 2 },
-        { label: 'sdk', value: 3 },
-        { label: '后台', value: 4 },
-      ],
-    },
-  },
-  {
-    field: 'server',
-    label: '运行的服务器id',
-    component: 'CheckboxGroup',
-    defaultValue: [],
-    componentProps: {
-      options: [
-        { label: '1服', value: 1 },
-        { label: '2服', value: 2 },
       ],
     },
   },
