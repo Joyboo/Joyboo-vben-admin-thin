@@ -19,12 +19,20 @@
 <script lang="ts" setup name="LogSql">
   import { Avatar, Tag } from 'ant-design-vue';
   import { computed, h, ref } from 'vue';
-  import { BasicColumn, ExportEnum, FormSchema, useTable } from '/@/components/Table';
+  import {
+    BasicColumn,
+    ExportEnum,
+    FormSchema,
+    useTable,
+    BasicTable,
+    TableAction,
+  } from '/@/components/Table';
   import { logIndex, logExport } from '/@/api/admin/logs';
   import { formatDaysAgo, timePikerExtra } from '/@/utils/dateUtil';
   import HeaderImg from '/@/assets/images/header.jpg';
   import { useUserStore } from '/@/store/modules/user';
   import { useModal } from '/@/components/Modal';
+  import DetailModal from './DetailModal.vue';
 
   const rowInfo = ref();
   const [registerModal, { openModal }] = useModal();

@@ -3,8 +3,9 @@
  */
 import moment from 'moment';
 
-const DATE_TIME_FORMAT = 'YYYY-MM-DD HH:mm';
-const DATE_FORMAT = 'YYYY-MM-DD ';
+export const DATE_TIME_FORMAT_FULL = 'YYYY-MM-DD HH:mm:ss';
+export const DATE_TIME_FORMAT = 'YYYY-MM-DD HH:mm';
+export const DATE_FORMAT = 'YYYY-MM-DD ';
 
 export function formatToDateTime(
   date: moment.MomentInput = undefined,
@@ -23,6 +24,13 @@ export function formatDaysAgo(day?: number) {
   d.setTime(d.getTime() + 3600 * 1000 * 24 * day);
   return d;
   // return moment().startOf('day').subtract(day, 'days').format(format);
+}
+
+export function fmtFullTime(timestamp: number) {
+  if (timestamp.toString().length === 10) {
+    timestamp *= 1000;
+  }
+  return moment(timestamp).format(DATE_TIME_FORMAT_FULL);
 }
 
 export function timePikerExtra() {
