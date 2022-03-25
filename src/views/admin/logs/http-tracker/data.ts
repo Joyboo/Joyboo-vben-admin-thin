@@ -1,40 +1,48 @@
 import { BasicColumn, FormSchema } from '/@/components/Table';
 import { h } from 'vue';
-import { Typography } from 'ant-design-vue';
+import { Typography, Tag } from 'ant-design-vue';
 import { fmtFullTime, formatDaysAgo, timePikerExtra } from '/@/utils/dateUtil';
 import { DescItem } from '/@/components/Description';
 import { JsonPreview } from '/@/components/CodeEditor';
 
+const helpRepeated = ['普通请求： 从常规客户端接收到的请求', '复发请求： 从后台操作复发的请求'];
+
 export const columns: BasicColumn[] = [
-  {
-    dataIndex: 'point_id',
-    title: 'ID',
-    width: 350,
-    align: 'left',
-    // customRender: ({ text }) => h(Typography.Text, { copyable: true }, () => text),
-  },
   {
     dataIndex: 'url',
     title: 'url',
     align: 'left',
-    width: 480,
+    width: 500,
+  },
+  {
+    dataIndex: 'request.method',
+    title: '请求方式',
+    width: 100,
+    customRender: ({ text }) => {
+      if (!text) {
+        return;
+      }
+      const lower = text.toLowerCase();
+      const color = lower === 'get' ? 'green' : lower === 'post' ? 'cyan' : 'orange';
+      return h(Tag, { color }, () => text);
+    },
   },
   {
     dataIndex: 'point_name',
     title: '标识名',
     width: 150,
   },
-  // {
-  //   dataIndex: 'depth',
-  //   title: '第几级',
-  //   width: 80,
-  //   helpMessage: 'depth, 树级深度，0-树根',
-  // },
-  // {
-  //   dataIndex: 'ip',
-  //   title: 'IP',
-  //   width: 100,
-  // },
+  {
+    dataIndex: 'repeated',
+    title: '复发',
+    width: 80,
+    helpMessage: helpRepeated,
+    customRender: ({ text }) => {
+      const c = ['green', 'orange'];
+      const t = ['普通', '复发'];
+      return h(Tag, { color: c[text] ?? 'red' }, () => t[text] ?? text);
+    },
+  },
   {
     dataIndex: 'server_name',
     title: '运行服务器',
@@ -104,10 +112,25 @@ export const searchFormSchema: FormSchema[] = [
     defaultValue: [formatDaysAgo(-14), formatDaysAgo()],
     componentProps: {
       allowClear: false,
-      showTime: false,
+      showTime: true,
       ranges: timePikerExtra(),
     },
-    colProps: { xs: 24, sm: 24, md: 12, lg: 6, xl: 6, xxl: 4 },
+    colProps: { xs: 24, sm: 24, md: 12, lg: 6, xl: 6, xxl: 5 },
+  },
+  {
+    field: 'repeated',
+    label: ' ',
+    helpMessage: helpRepeated,
+    labelWidth: 50,
+    defaultValue: 0,
+    component: 'Select',
+    componentProps: {
+      options: [
+        { label: '普通请求', value: 0 },
+        { label: '复发请求', value: 1 },
+      ] as OptionsItem[],
+    },
+    colProps: { xs: 24, sm: 24, md: 12, lg: 4, xl: 4, xxl: 3 },
   },
   {
     field: 'envkey.one',
@@ -182,7 +205,7 @@ export const searchFormSchema: FormSchema[] = [
     labelWidth: 100,
     component: 'InputNumber',
     componentProps: { style: { width: '100%' } },
-    colProps: { xs: 24, sm: 24, md: 12, lg: 6, xl: 6, xxl: 3 },
+    colProps: { xs: 24, sm: 24, md: 12, lg: 4, xl: 4, xxl: 3 },
   },
 ];
 
