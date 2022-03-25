@@ -3,20 +3,26 @@ import { useWebSocket, WebSocketOptions } from '@vueuse/core';
 import { useGlobSetting } from '/@/hooks/setting';
 import { getToken } from '/@/utils/auth';
 import { useMessage, ModalOptionsEx } from '/@/hooks/web/useMessage';
+import { useUserStore } from '/@/store/modules/user';
 // mitt分发事件
 // import {} from '/@/logics/mitt/websocket';
 import { deepMerge } from '/@/utils';
+import { SessionTimeoutProcessingEnum } from '/@/enums/appEnum';
+import projectSetting from '/@/settings/projectSetting';
 
 export enum WsEvent {
   // 关闭连接
   CLOSE = 'event_1',
   // 客户端版本更新
   SYSTEM_VERSION_UPDATE = 'event_2',
+  // 踢下线
+  KICK = 'event_3',
 }
 
 export function useWebsocket(props?: WebSocketOptions) {
   console.log('start run useWebsocket.ts');
   const { createMessage, createConfirm } = useMessage();
+  const userStore = useUserStore();
 
   const { WebSocketUrl } = useGlobSetting();
 
@@ -55,6 +61,10 @@ export function useWebsocket(props?: WebSocketOptions) {
               const force = res.data.force === 1;
               checkVersionConfirm(!force);
               break;
+            case WsEvent.KICK:
+              close();
+              kick(res.message);
+              break;
             default:
               break;
           }
@@ -84,6 +94,28 @@ export function useWebsocket(props?: WebSocketOptions) {
       },
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       onCancel() {},
+    } as ModalOptionsEx);
+  }
+
+  function kick(msg) {
+    createConfirm({
+      title: () => '提示',
+      content: () => msg,
+      closable: false,
+      keyboard: false,
+      maskClosable: false,
+      okText: () => '确定',
+      cancelButtonProps: { disabled: true },
+      onOk() {
+        userStore.setToken(undefined);
+        if (
+          projectSetting.sessionTimeoutProcessing === SessionTimeoutProcessingEnum.PAGE_COVERAGE
+        ) {
+          userStore.setSessionTimeout(true);
+        } else {
+          userStore.logout(true);
+        }
+      },
     } as ModalOptionsEx);
   }
 
