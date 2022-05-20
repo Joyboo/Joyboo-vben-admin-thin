@@ -3,7 +3,7 @@
     <Description @register="registerDesc" :data="dataSource" />
     <template #centerFooter>
       <Popconfirm title="请确认操作" @confirm="handleRepeat">
-        <a-button type="primary">复发</a-button>
+        <a-button type="primary" color="warning">复发</a-button>
       </Popconfirm>
     </template>
   </BasicDrawer>

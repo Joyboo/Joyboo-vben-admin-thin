@@ -1,79 +1,147 @@
-import { watch } from 'vue';
+import { watch, h } from 'vue';
+import { useRouter } from 'vue-router';
+import { Space, notification } from 'ant-design-vue';
 import { useWebSocket, WebSocketOptions } from '@vueuse/core';
 import { useGlobSetting } from '/@/hooks/setting';
 import { getToken } from '/@/utils/auth';
-import { useMessage, ModalOptionsEx } from '/@/hooks/web/useMessage';
 import { useUserStore } from '/@/store/modules/user';
-// mitt分发事件
-// import {} from '/@/logics/mitt/websocket';
+import { isArray } from '/@/utils/is';
+import { useMessage, ModalOptionsEx } from '/@/hooks/web/useMessage';
 import { deepMerge } from '/@/utils';
-import { SessionTimeoutProcessingEnum } from '/@/enums/appEnum';
-import projectSetting from '/@/settings/projectSetting';
+import { PageEnum } from '/@/enums/pageEnum';
+import { Icon } from '/@/components/Icon';
+import { listenSend } from '/@/logics/mitt/websocket';
 
-export enum WsEvent {
-  // 关闭连接
-  CLOSE = 'event_1',
-  // 客户端版本更新
-  SYSTEM_VERSION_UPDATE = 'event_2',
-  // 踢下线
-  KICK = 'event_3',
+/**
+ * 事件类型，务必与后端对应
+ */
+export enum Event {
+  // 心跳
+  EVENT_0 = 'EVENT_0',
+  // 通知客户端关闭连接
+  EVENT_1 = 'EVENT_1',
+  // 更新版本
+  EVENT_2 = 'EVENT_2',
+  // 设备过多
+  EVENT_3 = 'EVENT_3',
+  // 认证失败
+  EVENT_4 = 'EVENT_4',
+  // 续期token
+  EVENT_5 = 'EVENT_5',
+  // 给用户推送消息
+  EVENT_6 = 'EVENT_6',
 }
 
 export function useWebsocket(props?: WebSocketOptions) {
   console.log('start run useWebsocket.ts');
-  const { createMessage, createConfirm } = useMessage();
+  const router = useRouter();
   const userStore = useUserStore();
+  const { createConfirm } = useMessage();
 
-  const { WebSocketUrl } = useGlobSetting();
+  const { WebSocketUrl = '' } = useGlobSetting();
 
-  const url = `${WebSocketUrl}?authorization=${getToken()}`;
   const options: WebSocketOptions = {
     autoReconnect: true,
-    heartbeat: { interval: 5000, message: 'ping' },
+    heartbeat: {
+      interval: 10000,
+      message: JSON.stringify({ action: 'heartbeat', message: 'ping' }),
+    },
     immediate: true,
     onConnected: (ws) => {
       console.log('onConnected ', ws);
+      // 发送一条认证信息，websocket.url一经传入，无法改变，如果token从url传，则无法自动续期，改为在连接后认证
+      const auth = { action: 'auth', authorization: getToken() };
+      // 断线重连时，如果在客户端断开期间有更新版本，防止客户端又不知道的情况，加上版本号
+      // if (isObject(userConfig.sysinfo) && isObject(userConfig.sysinfo.versions)) {
+      //   Object.assign(auth, { versions: userConfig.sysinfo.versions });
+      // }
+      console.log('send auth: ', auth);
+      send(JSON.stringify(auth));
     },
     onDisconnected: (ws) => {
       console.log('onDisconnected ', ws);
     },
   };
 
-  const { data, send, close, open } = useWebSocket(url, deepMerge(options, props));
+  const { data, send, close, open, status } = useWebSocket(WebSocketUrl, deepMerge(options, props));
 
   watch(
     () => data.value,
     (val) => {
-      if (val) {
-        if (val === 'pong') {
-          // 心跳
-          return;
+      if (!val) {
+        return;
+      }
+      console.log(val, '------ watch data client');
+      try {
+        const res = JSON.parse(val);
+        switch (res.event) {
+          case Event.EVENT_1:
+            close();
+            break;
+          case Event.EVENT_2:
+            checkVersionConfirm(res.data.force === 1);
+            break;
+          case Event.EVENT_3:
+            // 连接过多时，fd服务端无法保存，第一时间断开
+            close();
+            closeTips(res.message);
+            break;
+          case Event.EVENT_4:
+            close();
+            userStore.setToken(undefined);
+            tipsConfirm({ title: '认证失败', content: res.message });
+            break;
+          case Event.EVENT_5:
+            const { token } = res.data;
+            userStore.setToken(token);
+            break;
+          case Event.EVENT_6:
+            const { message, formName = '' } = res.data;
+            if (message) {
+              notification.success({
+                message: '来自 [ ' + formName + ' ] 的消息',
+                description: message,
+                icon: h(Icon, {
+                  icon: 'ant-design:message-outlined',
+                  size: 25,
+                  color: 'rgb(135, 208, 104)',
+                }),
+                duration: null,
+              });
+            }
+            break;
+          default:
+            break;
         }
-        console.log(val, '------ watch data client');
-        try {
-          const res = JSON.parse(val);
-          switch (res.event) {
-            case WsEvent.CLOSE:
-              createMessage.info(res.message);
-              close();
-              break;
-            case WsEvent.SYSTEM_VERSION_UPDATE:
-              const force = res.data.force === 1;
-              checkVersionConfirm(!force);
-              break;
-            case WsEvent.KICK:
-              close();
-              kick(res.message);
-              break;
-            default:
-              break;
-          }
-        } catch (error) {
-          console.log('json error', error);
-        }
+      } catch (error) {
+        console.log('json error', error);
       }
     },
   );
+
+  // 监听发送消息
+  listenSend((val) => {
+    const does = (param: Recordable) => send(JSON.stringify(param));
+    if (isArray(val)) {
+      val.forEach((item) => does(item));
+    } else {
+      does(val);
+    }
+  });
+
+  // 常规通用提示窗
+  function tipsConfirm({ title = '', content = '', isClose = true }) {
+    createConfirm({
+      title: () => title,
+      content: () => content,
+      onOk() {
+        if (isClose && status.value === 'OPEN') {
+          close();
+        }
+        router.replace(PageEnum.BASE_LOGIN);
+      },
+    } as ModalOptionsEx);
+  }
 
   function checkVersionConfirm(force: boolean) {
     // 是否允许其他骚操作来关闭Modal窗口，强制操作的时候禁止
@@ -87,7 +155,7 @@ export function useWebsocket(props?: WebSocketOptions) {
       keyboard: disableClose, // 是否支持键盘 esc 关闭
       maskClosable: disableClose, // 点击蒙层不关闭
       cancelButtonProps: {
-        disabled: disableClose,
+        disabled: !disableClose,
       },
       onOk() {
         window.location.reload();
@@ -97,25 +165,24 @@ export function useWebsocket(props?: WebSocketOptions) {
     } as ModalOptionsEx);
   }
 
-  function kick(msg) {
+  function closeTips(message: string) {
     createConfirm({
-      title: () => '提示',
-      content: () => msg,
+      title: () => '您的账号登录设备过多',
+      content: () =>
+        h(Space, { direction: 'vertical' }, () => [
+          h('div', null, message),
+          h('div', { style: { color: 'red' } }, '同一浏览器不同标签也算不同的设备哦'),
+          h('div', { style: { color: 'red' } }, '请关闭一些后，再点击确定按钮'),
+        ]),
       closable: false,
       keyboard: false,
       maskClosable: false,
-      okText: () => '确定',
       cancelButtonProps: { disabled: true },
+      // okButtonProps: { disabled: true },
       onOk() {
-        userStore.setToken(undefined);
-        if (
-          projectSetting.sessionTimeoutProcessing === SessionTimeoutProcessingEnum.PAGE_COVERAGE
-        ) {
-          userStore.setSessionTimeout(true);
-        } else {
-          userStore.logout(true);
-        }
+        window.location.reload();
       },
+      onCancel() {},
     } as ModalOptionsEx);
   }
 
