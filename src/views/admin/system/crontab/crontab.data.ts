@@ -28,11 +28,13 @@ export const columns: BasicColumn[] = [
   {
     dataIndex: 'rule',
     title: '执行规则',
+    align: 'left',
     width: 120,
   },
   {
     dataIndex: 'eclass',
     title: '类和方法',
+    align: 'left',
     width: 200,
     format: (text: string, record: Recordable) => {
       return text + ' -> ' + record.method;

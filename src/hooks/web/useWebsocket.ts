@@ -1,6 +1,6 @@
-import { watch, h } from 'vue';
+import { watch, h, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { Space, notification } from 'ant-design-vue';
+import { Space, notification, Button, Input } from 'ant-design-vue';
 import { useWebSocket, WebSocketOptions } from '@vueuse/core';
 import { useGlobSetting } from '/@/hooks/setting';
 import { getToken } from '/@/utils/auth';
@@ -10,7 +10,13 @@ import { useMessage, ModalOptionsEx } from '/@/hooks/web/useMessage';
 import { deepMerge } from '/@/utils';
 import { PageEnum } from '/@/enums/pageEnum';
 import { Icon } from '/@/components/Icon';
-import { listenSend } from '/@/logics/mitt/websocket';
+import {
+  listenSend,
+  setSend,
+  UserMessageType,
+  setSendUserMesage,
+  listenSendUserMessage,
+} from '/@/logics/mitt/websocket';
 
 /**
  * 事件类型，务必与后端对应
@@ -36,7 +42,7 @@ export function useWebsocket(props?: WebSocketOptions) {
   console.log('start run useWebsocket.ts');
   const router = useRouter();
   const userStore = useUserStore();
-  const { createConfirm } = useMessage();
+  const { createConfirm, createMessage } = useMessage();
 
   const { WebSocketUrl = '' } = useGlobSetting();
 
@@ -96,8 +102,9 @@ export function useWebsocket(props?: WebSocketOptions) {
             userStore.setToken(token);
             break;
           case Event.EVENT_6:
-            const { message, formName = '' } = res.data;
+            const { message, formId, formName = '' } = res.data as UserMessageType;
             if (message) {
+              const notifyKey = `ws-notify-${Date.now()}`;
               notification.success({
                 message: '来自 [ ' + formName + ' ] 的消息',
                 description: message,
@@ -106,6 +113,23 @@ export function useWebsocket(props?: WebSocketOptions) {
                   size: 25,
                   color: 'rgb(135, 208, 104)',
                 }),
+                btn: h(
+                  Button,
+                  {
+                    type: 'primary',
+                    onClick: () => {
+                      // 关闭
+                      notification.close(notifyKey);
+                      // 回复
+                      setSendUserMesage({
+                        toId: formId,
+                        toName: formName,
+                      });
+                    },
+                  },
+                  () => '回复',
+                ),
+                key: notifyKey,
                 duration: null,
               });
             }
@@ -185,6 +209,45 @@ export function useWebsocket(props?: WebSocketOptions) {
       onCancel() {},
     } as ModalOptionsEx);
   }
+
+  // 监听单独给玩家发送消息
+  listenSendUserMessage((val) => {
+    const review = ref('');
+    createConfirm({
+      width: 500,
+      iconType: 'info',
+      title: () => '发送消息',
+      content: () => {
+        return h(Space, { direction: 'vertical', class: ['w-full', 'pr-4'] }, () => [
+          h('div', { style: { color: 'red' } }, '发送给:  ' + val.toName),
+          h('div', null, '不会保存您的聊天记录，请放心使用'),
+          h(Input.TextArea, {
+            rows: 5,
+            showCount: true,
+            value: review.value,
+            'onUpdate:value': (val) => (review.value = val),
+          }),
+        ]);
+      },
+      onOk() {
+        if (review.value) {
+          setSend({
+            class: 'Admin\\Sysinfo',
+            action: 'sendUserMessage',
+            formId: val.formId || userStore.userInfo?.id,
+            formName: val.formName || userStore.userInfo?.realname,
+            message: review.value,
+            toId: val.toId,
+            toName: val.toName,
+          });
+          createMessage.success('发送成功');
+        }
+      },
+      onCancel() {
+        review.value = '';
+      },
+    });
+  });
 
   return {
     openWebsocket: open,

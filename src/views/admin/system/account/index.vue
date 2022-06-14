@@ -56,8 +56,7 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup name="AccountManagement">
-  import { reactive, ref, unref, h } from 'vue';
-  import { Space, Input } from 'ant-design-vue';
+  import { reactive, ref, unref } from 'vue';
 
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { getAccountList, adminGetToken, adminDel } from '/@/api/admin/system';
@@ -72,12 +71,10 @@
   import { isArray, isNumber } from '/@/utils/is';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useCopyToClipboard } from '/@/hooks/web/useCopyToClipboard';
-  import { setSend } from '/@/logics/mitt/websocket';
-  import { useUserStore } from '/@/store/modules/user';
+  import { setSend, setSendUserMesage } from '/@/logics/mitt/websocket';
 
   const treeData = ref<TreeItem[]>([]);
-  const { createMessage, createConfirm } = useMessage();
-  const userStore = useUserStore();
+  const { createMessage } = useMessage();
   const { clipboardRef, copiedRef } = useCopyToClipboard();
 
   const [registerDrawer, { openDrawer }] = useDrawer();
@@ -156,42 +153,9 @@
    * @param record
    */
   function handleSendUserMessage(record: Recordable) {
-    const message = ref('');
-    createConfirm({
-      width: 500,
-      iconType: 'info',
-      title: () => '发送消息',
-      content: () => {
-        return h(Space, { direction: 'vertical', class: ['w-full', 'pr-4'] }, () => [
-          h('div', null, '发送给:  ' + record.realname),
-          h(Input.TextArea, {
-            rows: 5,
-            showCount: true,
-            value: message.value,
-            'onUpdate:value': (val) => (message.value = val),
-          }),
-        ]);
-      },
-      onOk() {
-        if (message.value) {
-          setSend({
-            class: 'Admin\\Sysinfo',
-            action: 'sendUserMessage',
-            // 我是谁
-            formId: userStore.userInfo?.id,
-            // 我叫啥
-            formName: userStore.userInfo?.realname,
-            // 发给谁
-            toId: record.id,
-            // 发什么
-            message: message.value,
-          });
-          createMessage.success('发送成功');
-        }
-      },
-      onCancel() {
-        message.value = '';
-      },
+    setSendUserMesage({
+      toId: record.id,
+      toName: record.realname,
     });
   }
 

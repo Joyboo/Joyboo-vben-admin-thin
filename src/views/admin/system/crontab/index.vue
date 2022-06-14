@@ -37,6 +37,7 @@
   import { useDrawer } from '/@/components/Drawer';
   import SysinfoDrawer from './CrontabDrawer.vue';
   import { columns, searchFormSchema, curdAuth } from './crontab.data';
+  import { PAGE_SIZE_OPTIONS } from '/@/components/Table/src/const';
 
   const [registerDrawer, { openDrawer }] = useDrawer();
   const [registerTable, { reload }] = useTable({
@@ -53,6 +54,7 @@
     showTableSetting: true,
     bordered: true,
     showIndexColumn: false,
+    pagination: { pageSize: parseInt(PAGE_SIZE_OPTIONS[1]) },
     actionColumn: {
       width: 80,
       title: '操作',
