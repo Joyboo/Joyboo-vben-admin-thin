@@ -269,7 +269,7 @@ const baseFormSchema: FormSchema[] = [
     component: 'ApiTreeSelect',
     componentProps: {
       // todo 仅展示有权限的菜单
-      api: onceStore.getMenuTreeList,
+      api: onceStore.menuTreeDisabledType,
       replaceFields: { value: 'id', label: 'name' },
       allowClear: true,
     },

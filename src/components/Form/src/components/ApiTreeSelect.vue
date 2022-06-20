@@ -20,9 +20,19 @@
     name: 'ApiTreeSelect',
     components: { ATreeSelect: TreeSelect, LoadingOutlined },
     props: {
-      api: { type: Function as PropType<(arg?: Recordable) => Promise<Recordable>> },
-      params: { type: Object },
-      immediate: { type: Boolean, default: true },
+      api: {
+        type: Function as PropType<(arg?: Recordable) => Promise<Recordable>>,
+      },
+      params: {
+        type: Object as PropType<Recordable>,
+        default: () => {
+          return {};
+        },
+      },
+      immediate: {
+        type: Boolean,
+        default: true,
+      },
       resultField: propTypes.string.def(''),
     },
     emits: ['options-change', 'change'],

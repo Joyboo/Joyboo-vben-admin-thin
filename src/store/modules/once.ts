@@ -33,6 +33,17 @@ export const useOnceStore = defineStore({
       }
       return this.menuTreeList;
     },
+    // 禁用非type类型, 0-目录,1-菜单,2-按钮(权限码)
+    async menuTreeDisabledType({ type = 1 }): Promise<TreeItem[]> {
+      const treeData = await this.getMenuTreeList();
+      return treeMap(cloneDeep(treeData), {
+        conversion: (item) => {
+          item.disabled = item.type !== type;
+          return item;
+        },
+      });
+    },
+    // 禁用某一菜单和所有子元素（递归）
     async menuTreeDisabledId({ id }): Promise<TreeItem[]> {
       const disabeldSet = new Set([id]);
       const treeData = await this.getMenuTreeList();
