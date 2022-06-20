@@ -393,6 +393,18 @@ export const modifyFormSchema: FormSchema[] = [
     component: 'Input',
   },
   {
+    field: 'extension.homePath',
+    label: '默认首页',
+    defaultValue: '',
+    subLabel: '打开后台时展示的第一个菜单',
+    component: 'TreeSelect',
+    componentProps: {
+      treeData: [], // 只能看到有权限的,由初始化时传入
+      replaceFields: { value: 'id' },
+      allowClear: true,
+    },
+  },
+  {
     field: 'avatar',
     label: '头像',
     defaultValue: '',
