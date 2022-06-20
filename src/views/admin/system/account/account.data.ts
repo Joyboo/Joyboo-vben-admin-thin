@@ -268,7 +268,6 @@ const baseFormSchema: FormSchema[] = [
     subLabel: '打开后台时展示的第一个菜单',
     component: 'ApiTreeSelect',
     componentProps: {
-      // todo 仅展示有权限的菜单
       api: onceStore.menuTreeDisabledType,
       replaceFields: { value: 'id', label: 'name' },
       allowClear: true,

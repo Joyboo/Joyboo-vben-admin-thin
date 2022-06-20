@@ -349,12 +349,12 @@
       }
 
       return () => {
-        const { colProps = { span: 24 }, colSlot, renderColContent, component } = props.schema;
+        const { colProps = {}, colSlot, renderColContent, component } = props.schema;
         if (!componentMap.has(component)) {
           return null;
         }
 
-        const { baseColProps = {} } = props.formProps;
+        const { baseColProps = { span: 24 } } = props.formProps;
         const realColProps = { ...baseColProps, ...colProps };
         const { isIfShow, isShow } = getShow();
         const values = unref(getValues);

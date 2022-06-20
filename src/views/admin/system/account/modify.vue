@@ -21,6 +21,7 @@
   import { modifyFormSchema } from './account.data';
   import { adminModify } from '/@/api/admin/system';
   import { deepMerge } from '/@/utils';
+  import { treeMap } from '/@/utils/helper/treeHelper';
 
   const loadingRef = ref(false);
   // 源数据（修改的几个字段会合并到源数据中提交）
@@ -41,9 +42,17 @@
     try {
       const { menuList, result } = await adminModify('GET');
       dataSource.value = result;
+
       await updateSchema({
         field: 'extension.homePath',
-        componentProps: { treeData: menuList },
+        componentProps: {
+          treeData: treeMap(menuList, {
+            conversion: (item) => {
+              item.disabled = item.type !== 1;
+              return item;
+            },
+          }),
+        },
       });
       await setFieldsValue({ ...result });
     } catch (e) {
