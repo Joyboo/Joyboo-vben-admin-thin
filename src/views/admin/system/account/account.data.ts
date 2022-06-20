@@ -262,6 +262,20 @@ const baseFormSchema: FormSchema[] = [
     required: true,
   },
   {
+    field: 'extension.homePath',
+    label: '默认首页',
+    defaultValue: '',
+    subLabel: '打开后台时展示的第一个菜单',
+    component: 'ApiTreeSelect',
+    componentProps: {
+      // todo 仅展示有权限的菜单
+      api: onceStore.getMenuTreeList,
+      replaceFields: { value: 'id', label: 'name' },
+      allowClear: true,
+    },
+    colProps: { span: 12 },
+  },
+  {
     field: 'avatar',
     label: '用户头像',
     defaultValue: '',

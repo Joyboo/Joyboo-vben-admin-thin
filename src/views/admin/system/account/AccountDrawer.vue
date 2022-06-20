@@ -26,11 +26,9 @@
   import { deepMerge } from '/@/utils';
   import { adminAdd, adminEdit } from '/@/api/admin/system';
   import { omit, pick } from 'lodash-es';
-  import { useOnceStore } from '/@/store/modules/once';
 
   const TabPane = Tabs.TabPane;
   const emit = defineEmits(['success', 'register']);
-  const onceStore = useOnceStore();
   const { createMessage } = useMessage();
 
   const [baseFormSchems] = dataTabs;
@@ -38,8 +36,6 @@
   const rowId = ref(0);
   const activeKey = ref(baseFormSchems.key);
   const isUpdate = ref(false);
-  // 所有角色组Options
-  const roleOptions = ref<OptionsItem[]>([]);
 
   const [register, { changeOkLoading, changeLoading, closeDrawer }] = useDrawerInner(
     async (data) => {
@@ -47,7 +43,6 @@
       changeOkLoading(true);
       isUpdate.value = !!data.isUpdate;
 
-      roleOptions.value = await onceStore.getRoleOptions();
       // await resetFieldses();
 
       rowId.value = isUpdate.value ? data.record.id : 0;
@@ -69,7 +64,8 @@
         const beforeField = ['rid'];
 
         for (const item of dataTabs) {
-          const { setFieldsValue } = item.Form[1];
+          const { setFieldsValue, resetFields } = item.Form[1];
+          await resetFields();
           // 先set动态校验规则的依赖数据
           await setFieldsValue(pick(result, beforeField));
           await setFieldsValue(omit({ ...result, id: rowId.value }, beforeField));

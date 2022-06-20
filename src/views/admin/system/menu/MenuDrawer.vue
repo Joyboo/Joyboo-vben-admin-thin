@@ -27,10 +27,12 @@
   import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
   import { Tooltip, Input } from 'ant-design-vue';
   import { Icon } from '/@/components/Icon';
-  import { getMenuList, menuAdd, menuEdit } from '/@/api/admin/system';
+  import { menuAdd, menuEdit } from '/@/api/admin/system';
+  import { useOnceStore } from '/@/store/modules/once';
 
   const emit = defineEmits(['success', 'register']);
 
+  const onceStore = useOnceStore();
   const isUpdate = ref(true);
   let id = 0;
 
@@ -38,25 +40,30 @@
     labelWidth: 100,
     schemas: formSchema,
     showActionButtonGroup: false,
-    baseColProps: { lg: 12, md: 24 },
+    // baseColProps: { lg: 12, md: 24 },
   });
 
   const [registerDrawer, { setDrawerProps, closeDrawer }] = useDrawerInner(async (data) => {
-    resetFields();
+    await resetFields();
     setDrawerProps({ confirmLoading: false });
     isUpdate.value = !!data?.isUpdate;
 
     if (unref(isUpdate)) {
-      setFieldsValue({
-        ...data.record,
-      });
       id = data.record.id;
+      updateSchema({
+        field: 'pid',
+        componentProps: { treeData: await onceStore.menuTreeDisabledId({ id }) },
+      });
+
+      await setFieldsValue(
+        Object.assign({}, data.record, { pid: data.record.pid ? data.record.pid : '' }),
+      );
+    } else {
+      updateSchema({
+        field: 'pid',
+        componentProps: { treeData: await onceStore.getMenuTreeList() },
+      });
     }
-    const treeData = await getMenuList();
-    updateSchema({
-      field: 'pid',
-      componentProps: { treeData },
-    });
   });
 
   const getTitle = computed(() => (!unref(isUpdate) ? '新增菜单' : '编辑菜单'));

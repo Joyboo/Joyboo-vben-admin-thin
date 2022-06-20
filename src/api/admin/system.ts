@@ -32,6 +32,7 @@ enum Api {
   MenuEdit = '/admin/menu/edit',
   MenuDel = '/admin/menu/del',
   MenuChange = '/admin/menu/change',
+  MenuTreeList = '/admin/menu/treeList',
 
   RolePageList = '/admin/role/index',
   RoleChange = '/admin/role/change',
@@ -95,11 +96,13 @@ export const avatarUploadApi = (
   );
 };
 
+export const menuTreeList = () => defHttp.get({ url: Api.MenuTreeList });
+
 export const menuAdd = (params: MenuFormParams) => defHttp.post({ url: Api.MenuAdd, params });
 
 export const menuEdit = (params: MenuFormParams) => defHttp.post({ url: Api.MenuEdit, params });
 
-export const menuDel = (id: number) => defHttp.get({ url: Api.MenuDel, params: { id } });
+export const menuDel = (params: any) => defHttp.post({ url: Api.MenuDel, params });
 
 export const changeMenu = (id: number, column: string, status: number) =>
   defHttp.post({ url: Api.MenuChange, params: { id, column, status } });

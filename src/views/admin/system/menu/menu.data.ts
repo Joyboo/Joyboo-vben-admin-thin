@@ -136,7 +136,7 @@ export const formSchema: FormSchema[] = [
         { label: '按钮', value: 2 },
       ],
     },
-    colProps: { lg: 24, md: 24 },
+    // colProps: { lg: 24, md: 24 },
   },
   {
     field: 'title',
@@ -291,5 +291,49 @@ export const formSchema: FormSchema[] = [
       ],
     },
     ifShow: ({ values }) => !isButton(values.type),
+  },
+];
+
+export const delSchemas: FormSchema[] = [
+  {
+    field: 'opt',
+    label: '对子菜单的操作',
+    defaultValue: 'del',
+    component: 'RadioButtonGroup',
+    componentProps: {
+      options: [
+        { label: '删除子菜单', value: 'del' },
+        { label: '转移子菜单到其他菜单下', value: 'change' },
+      ] as OptionsItem[],
+    },
+  },
+  {
+    field: 'changeid',
+    label: '将子菜单转移到此菜单下',
+    show: ({ model }) => model.opt === 'change',
+    defaultValue: '',
+    component: 'TreeSelect',
+    dynamicRules: ({ model }) => {
+      return [
+        {
+          required: true,
+          validator: (_, value) => {
+            if (model.opt === 'change' && value === '') {
+              return Promise.reject('请选择转移到哪个菜单下');
+            } else {
+              return Promise.resolve();
+            }
+          },
+        },
+      ];
+    },
+    componentProps: {
+      replaceFields: {
+        title: 'title',
+        key: 'id',
+        value: 'id',
+      },
+      getPopupContainer: () => document.body,
+    },
   },
 ];

@@ -4,6 +4,20 @@
       <template #toolbar>
         <a-button v-auth="[curdAuth.add]" type="primary" @click="handleCreate"> 新增菜单 </a-button>
       </template>
+      <template #tableTitle>
+        <Button type="primary" @click="expandAll()" preIcon="ant-design:column-height-outlined">
+          展开全部
+        </Button>
+
+        <Button
+          class="ml-2"
+          type="primary"
+          @click="collapseAll()"
+          preIcon="ant-design:vertical-align-middle-outlined"
+        >
+          收起全部
+        </Button>
+      </template>
       <template #action="{ record }">
         <TableAction
           :actions="[
@@ -18,28 +32,30 @@
               auth: curdAuth.del,
               icon: 'ant-design:delete-outlined',
               color: 'error',
-              popConfirm: {
-                placement: 'leftBottom',
-                title: '是否确认删除',
-                confirm: handleDelete.bind(null, record),
-              },
+              onClick: handleDelete.bind(null, record),
             },
           ]"
         />
       </template>
     </BasicTable>
     <MenuDrawer @register="registerDrawer" @success="handleSuccess" />
+    <DelModalVue @register="registerModal" @success="handleSuccess" />
   </div>
 </template>
 <script lang="ts" setup name="MenuManagement">
-  import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getMenuList, menuDel } from '/@/api/admin/system';
+  import { BasicTable, TableAction, useTable } from '/@/components/Table';
+  import { getMenuList } from '/@/api/admin/system';
   import { useDrawer } from '/@/components/Drawer';
   import MenuDrawer from './MenuDrawer.vue';
-  import { columns, searchFormSchema, curdAuth } from './menu.data';
+  import DelModalVue from './DelModal.vue';
+  import { columns, curdAuth, searchFormSchema } from './menu.data';
+  import { Button } from '/@/components/Button';
+  import { useModal } from '/@/components/Modal';
 
+  const [registerModal, { openModal }] = useModal();
   const [registerDrawer, { openDrawer }] = useDrawer();
-  const [registerTable, { reload }] = useTable({
+
+  const [registerTable, { reload, expandAll, collapseAll }] = useTable({
     title: '菜单列表',
     api: getMenuList,
     columns,
@@ -78,7 +94,7 @@
   }
 
   function handleDelete(record: Recordable) {
-    menuDel(record.id).finally(handleSuccess);
+    openModal(true, { ...record });
   }
 
   function handleSuccess() {
