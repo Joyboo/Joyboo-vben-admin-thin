@@ -349,7 +349,7 @@
       }
 
       return () => {
-        const { colProps = {}, colSlot, renderColContent, component } = props.schema;
+        const { colProps = { span: 24 }, colSlot, renderColContent, component } = props.schema;
         if (!componentMap.has(component)) {
           return null;
         }
