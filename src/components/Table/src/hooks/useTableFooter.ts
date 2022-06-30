@@ -3,6 +3,7 @@ import type { BasicTableProps } from '../types/table';
 import { unref, computed, h, nextTick, watchEffect } from 'vue';
 import TableFooter from '../components/TableFooter.vue';
 import { useEventListener } from '/@/hooks/event/useEventListener';
+import { ROW_KEY } from '../const';
 
 export function useTableFooter(
   propsRef: ComputedRef<BasicTableProps>,
@@ -19,9 +20,17 @@ export function useTableFooter(
   });
 
   const getFooterProps = computed((): Recordable | undefined => {
-    const { summaryFunc, showSummary, summaryData } = unref(propsRef);
+    const { summaryFunc, showSummary, summaryData, summaryAttrs, rowKey, autoCreateKey } =
+      unref(propsRef);
     return showSummary && !unref(getIsEmptyData)
-      ? () => h(TableFooter, { summaryFunc, summaryData, scroll: unref(scrollRef) })
+      ? () =>
+          h(TableFooter, {
+            summaryFunc,
+            summaryData,
+            summaryAttrs,
+            scroll: unref(scrollRef),
+            rowKey: !rowKey && autoCreateKey ? ROW_KEY : rowKey,
+          })
       : undefined;
   });
 

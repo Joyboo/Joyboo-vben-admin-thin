@@ -170,6 +170,8 @@ export interface BasicTableProps<T = any> {
   summaryFunc?: (...arg: any) => Recordable[];
   // 自定义合计表格内容
   summaryData?: Recordable[];
+  // 自定义合计行属性, by Joyboo
+  summaryAttrs?: Recordable;
   // 是否显示合计行
   showSummary?: boolean;
   // 是否可拖拽列

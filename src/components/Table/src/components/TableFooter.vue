@@ -9,6 +9,7 @@
     :columns="getColumns"
     tableLayout="fixed"
     :scroll="scroll"
+    v-bind="summaryAttrs"
   />
 </template>
 <script lang="ts">
@@ -16,37 +17,54 @@
   import { defineComponent, unref, computed, toRaw } from 'vue';
   import { Table } from 'ant-design-vue';
   import { cloneDeep } from 'lodash-es';
-  import { isFunction, isDef } from '/@/utils/is';
+  import { isFunction, isArray, isUnDef } from '/@/utils/is';
   import type { BasicColumn } from '../types/table';
   import { INDEX_COLUMN_FLAG, FETCH_SETTING } from '../const';
-  import { propTypes } from '/@/utils/propTypes';
   import { useTableContext } from '../hooks/useTableContext';
 
   const SUMMARY_ROW_KEY = '_row';
   const SUMMARY_INDEX_KEY = '_index';
+  const props = {
+    summaryFunc: {
+      type: [Function, Array] as PropType<Fn>,
+    },
+    summaryData: {
+      type: Array as PropType<Recordable[]>,
+    },
+    summaryAttrs: {
+      type: Object as PropType<Recordable>,
+      default() {
+        return { rowClassName: () => 'summaryRowClass', bordered: true };
+      },
+    },
+    scroll: {
+      type: Object as PropType<Recordable>,
+    },
+    rowKey: {
+      type: String as PropType<string | ((record: Recordable) => string)>,
+      default: 'key',
+    },
+  };
+
   export default defineComponent({
     name: 'BasicTableFooter',
     components: { Table },
-    props: {
-      summaryFunc: {
-        type: Function as PropType<Fn>,
-      },
-      summaryData: {
-        type: Array as PropType<Recordable[]>,
-      },
-      scroll: {
-        type: Object as PropType<Recordable>,
-      },
-      rowKey: propTypes.string.def('key'),
-    },
+    props,
     setup(props) {
       const table = useTableContext();
 
       const getDataSource = computed((): Recordable[] => {
-        const { summaryFunc, summaryData } = props;
+        const { summaryFunc, summaryData, rowKey } = props;
+
         // 直传数据
         if (summaryData?.length) {
-          summaryData.forEach((item, i) => (item[props.rowKey] = `${i}`));
+          summaryData.map((item, i) => {
+            const rk = isFunction(rowKey) ? rowKey(item) : rowKey;
+            if (isUnDef(item[rk])) {
+              item[rk] = i;
+            }
+            return item;
+          });
           return summaryData;
         }
 
@@ -54,8 +72,12 @@
         if (isFunction(summaryFunc)) {
           let dataSource = toRaw(unref(table.getDataSource()));
           dataSource = summaryFunc(dataSource);
-          dataSource.forEach((item, i) => {
-            item[props.rowKey] = `${i}`;
+          dataSource.map((item, i) => {
+            const rk = isFunction(rowKey) ? rowKey(item) : rowKey;
+            if (isUnDef(item[rk])) {
+              item[rk] = i;
+            }
+            return item;
           });
           return dataSource;
         }
@@ -64,7 +86,7 @@
         const { footerField } = FETCH_SETTING;
         const rawData = toRaw(unref(table.getRawDataSource()));
 
-        return isDef(rawData[footerField]) ? rawData[footerField] : [];
+        return isArray(rawData[footerField]) ? rawData[footerField] : [];
       });
 
       const getColumns = computed(() => {
