@@ -5,7 +5,7 @@
     :bordered="false"
     :pagination="false"
     :dataSource="getDataSource"
-    :rowKey="(r) => r[rowKey]"
+    :rowKey="rowKey"
     :columns="getColumns"
     tableLayout="fixed"
     :scroll="scroll"
@@ -17,7 +17,7 @@
   import { defineComponent, unref, computed, toRaw } from 'vue';
   import { Table } from 'ant-design-vue';
   import { cloneDeep } from 'lodash-es';
-  import { isFunction, isArray, isUnDef } from '/@/utils/is';
+  import { isFunction, isArray, isUnDef, isString } from '/@/utils/is';
   import type { BasicColumn } from '../types/table';
   import { INDEX_COLUMN_FLAG, FETCH_SETTING } from '../const';
   import { useTableContext } from '../hooks/useTableContext';
@@ -26,7 +26,7 @@
   const SUMMARY_INDEX_KEY = '_index';
   const props = {
     summaryFunc: {
-      type: [Function, Array] as PropType<Fn>,
+      type: Function as PropType<Fn>,
     },
     summaryData: {
       type: Array as PropType<Recordable[]>,
@@ -41,7 +41,7 @@
       type: Object as PropType<Recordable>,
     },
     rowKey: {
-      type: String as PropType<string | ((record: Recordable) => string)>,
+      type: [Function, String] as PropType<string | ((record: Recordable) => string)>,
       default: 'key',
     },
   };
@@ -59,9 +59,8 @@
         // 直传数据
         if (summaryData?.length) {
           summaryData.map((item, i) => {
-            const rk = isFunction(rowKey) ? rowKey(item) : rowKey;
-            if (isUnDef(item[rk])) {
-              item[rk] = i;
+            if (isString(rowKey) && isUnDef(item[rowKey])) {
+              item[rowKey] = i;
             }
             return item;
           });
@@ -73,9 +72,8 @@
           let dataSource = toRaw(unref(table.getDataSource()));
           dataSource = summaryFunc(dataSource);
           dataSource.map((item, i) => {
-            const rk = isFunction(rowKey) ? rowKey(item) : rowKey;
-            if (isUnDef(item[rk])) {
-              item[rk] = i;
+            if (isString(rowKey) && isUnDef(item[rowKey])) {
+              item[rowKey] = i;
             }
             return item;
           });
