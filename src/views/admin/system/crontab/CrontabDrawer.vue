@@ -88,7 +88,7 @@
           ...result,
         });
       } else {
-        setFieldsValue({ rclass: '\\Linkunyuan\\EsUtility\\Task\\Crontab' });
+        setFieldsValue({ rclass: 'Crontab' });
       }
 
       changeLoading(false);
