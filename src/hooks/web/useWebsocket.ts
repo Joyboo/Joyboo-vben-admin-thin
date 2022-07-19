@@ -1,22 +1,24 @@
 import { watch, h, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { Space, notification, Button, Input } from 'ant-design-vue';
+import { Space, notification, Button, Input, Avatar } from 'ant-design-vue';
+import HeaderImg from '/@/assets/images/header.jpg';
 import { useWebSocket, WebSocketOptions } from '@vueuse/core';
 import { useGlobSetting } from '/@/hooks/setting';
 import { getToken } from '/@/utils/auth';
 import { useUserStore } from '/@/store/modules/user';
 import { isArray } from '/@/utils/is';
 import { useMessage, ModalOptionsEx } from '/@/hooks/web/useMessage';
-import { deepMerge } from '/@/utils';
-import { PageEnum } from '/@/enums/pageEnum';
-import { Icon } from '/@/components/Icon';
 import {
   listenSend,
   setSend,
-  UserMessageType,
-  setSendUserMesage,
   listenSendUserMessage,
+  setSendUserMesage,
+  UserMessageType,
 } from '/@/logics/mitt/websocket';
+import { deepMerge } from '/@/utils';
+import { PageEnum } from '/@/enums/pageEnum';
+import { Icon } from '/@/components/Icon';
+import { AdminMsgType } from '/@/enums/components';
 
 /**
  * 事件类型，务必与后端对应
@@ -36,6 +38,10 @@ export enum Event {
   EVENT_5 = 'EVENT_5',
   // 给用户推送消息
   EVENT_6 = 'EVENT_6',
+  // 更新某些数据
+  EVENT_7 = 'EVENT_7',
+  // 重新登录
+  EVENT_8 = 'EVENT_8',
 }
 
 export function useWebsocket(props?: WebSocketOptions) {
@@ -85,7 +91,28 @@ export function useWebsocket(props?: WebSocketOptions) {
             close();
             break;
           case Event.EVENT_2:
-            checkVersionConfirm(res.data.force === 1);
+            const { refresh = { force: 0, content: '' } } = res.data as UserMessageType;
+            const refreshForce = refresh.force === 1;
+            createConfirm({
+              title: () =>
+                h(Space, {}, () => [
+                  h('div', null, '版本更新提示, 来自'),
+                  h(Avatar, { src: res.data.formAvatar || HeaderImg }),
+                  h('div', null, res.data.formName),
+                ]),
+              content: () => refresh.content,
+              okText: () => '立即刷新',
+              cancelText: () => '稍后刷新',
+              closable: !refreshForce, // 是否显示右上角的关闭按钮
+              keyboard: !refreshForce, // 是否支持键盘 esc 关闭
+              maskClosable: !refreshForce, // 点击蒙层不关闭
+              cancelButtonProps: {
+                disabled: refreshForce,
+              },
+              onOk() {
+                window.location.reload();
+              },
+            } as ModalOptionsEx);
             break;
           case Event.EVENT_3:
             // 连接过多时，fd服务端无法保存，第一时间断开
@@ -102,12 +129,21 @@ export function useWebsocket(props?: WebSocketOptions) {
             userStore.setToken(token);
             break;
           case Event.EVENT_6:
-            const { message, formId, formName = '' } = res.data as UserMessageType;
+            const {
+              message = { content: '' },
+              formId,
+              formName = '',
+              formAvatar = '',
+            } = res.data as UserMessageType;
             if (message) {
               const notifyKey = `ws-notify-${Date.now()}`;
               notification.success({
-                message: '来自 [ ' + formName + ' ] 的消息',
-                description: message,
+                message: h(Space, {}, () => [
+                  // h('div', { style: { color: 'rgb(135, 208, 104)' } }, '新消息 '),
+                  h(Avatar, { src: formAvatar || HeaderImg }),
+                  h('div', null, formName),
+                ]),
+                description: message.content,
                 icon: h(Icon, {
                   icon: 'ant-design:message-outlined',
                   size: 25,
@@ -124,6 +160,7 @@ export function useWebsocket(props?: WebSocketOptions) {
                       setSendUserMesage({
                         toId: formId,
                         toName: formName,
+                        toAvatar: formAvatar,
                       });
                     },
                   },
@@ -133,6 +170,34 @@ export function useWebsocket(props?: WebSocketOptions) {
                 duration: null,
               });
             }
+            break;
+          case Event.EVENT_7:
+            // updateKey(res.data);
+            break;
+          case Event.EVENT_8:
+            const { relogin = { force: 0, content: '' } } = res.data as UserMessageType;
+
+            const reloginForce = relogin.force === 1;
+            createConfirm({
+              title: () =>
+                h(Space, {}, () => [
+                  h('div', null, '版本更新提示, 来自'),
+                  h(Avatar, { src: res.data.formAvatar || HeaderImg }),
+                  h('div', null, res.data.formName),
+                ]),
+              content: () => relogin.content,
+              okText: () => '重新登录',
+              cancelText: () => '稍后重登',
+              closable: !reloginForce,
+              keyboard: !reloginForce,
+              maskClosable: !reloginForce,
+              cancelButtonProps: {
+                disabled: reloginForce,
+              },
+              onOk() {
+                userStore.logout(true);
+              },
+            } as ModalOptionsEx);
             break;
           default:
             break;
@@ -153,6 +218,53 @@ export function useWebsocket(props?: WebSocketOptions) {
     }
   });
 
+  // 监听单独给玩家发送消息
+  listenSendUserMessage((val) => {
+    const review = ref('');
+    createConfirm({
+      width: 500,
+      iconType: 'info',
+      title: () => '发送消息',
+      content: () => {
+        return h(Space, { direction: 'vertical', class: ['w-full', 'pr-4'] }, () => [
+          h(Space, {}, () => [
+            h('div', { style: { color: 'red' } }, '发送给  '),
+            h(Avatar, { src: val.toAvatar }),
+            h('div', null, val.toName),
+          ]),
+          h('div', null, '不会保存您的聊天记录，请放心使用'),
+          h(Input.TextArea, {
+            rows: 5,
+            showCount: true,
+            value: review.value,
+            'onUpdate:value': (val) => (review.value = val),
+          }),
+        ]);
+      },
+      onOk() {
+        if (review.value) {
+          const { id: formId, realname: formName, avatar: formAvatar } = userStore.getUserInfo;
+          setSend({
+            class: 'Admin\\Admin',
+            action: 'message',
+            formId: val.formId || formId,
+            formName: val.formName || formName,
+            formAvatar: val.formAvatar || formAvatar,
+            type: AdminMsgType.Message,
+            message: { content: review.value },
+            toId: val.toId,
+            toName: val.toName,
+            toAvatar: val.toAvatar,
+          });
+          createMessage.success('发送成功');
+        }
+      },
+      onCancel() {
+        review.value = '';
+      },
+    });
+  });
+
   // 常规通用提示窗
   function tipsConfirm({ title = '', content = '', isClose = true }) {
     createConfirm({
@@ -164,28 +276,6 @@ export function useWebsocket(props?: WebSocketOptions) {
         }
         router.replace(PageEnum.BASE_LOGIN);
       },
-    } as ModalOptionsEx);
-  }
-
-  function checkVersionConfirm(force: boolean) {
-    // 是否允许其他骚操作来关闭Modal窗口，强制操作的时候禁止
-    const disableClose = !force;
-    createConfirm({
-      title: () => '版本更新提示',
-      content: () => (force ? '发现新版本，请刷新后继续使用' : '发现新版本，是否现在刷新？'),
-      okText: () => '立即刷新',
-      cancelText: () => '稍后刷新',
-      closable: disableClose, // 是否显示右上角的关闭按钮
-      keyboard: disableClose, // 是否支持键盘 esc 关闭
-      maskClosable: disableClose, // 点击蒙层不关闭
-      cancelButtonProps: {
-        disabled: !disableClose,
-      },
-      onOk() {
-        window.location.reload();
-      },
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      onCancel() {},
     } as ModalOptionsEx);
   }
 
@@ -209,45 +299,6 @@ export function useWebsocket(props?: WebSocketOptions) {
       onCancel() {},
     } as ModalOptionsEx);
   }
-
-  // 监听单独给玩家发送消息
-  listenSendUserMessage((val) => {
-    const review = ref('');
-    createConfirm({
-      width: 500,
-      iconType: 'info',
-      title: () => '发送消息',
-      content: () => {
-        return h(Space, { direction: 'vertical', class: ['w-full', 'pr-4'] }, () => [
-          h('div', { style: { color: 'red' } }, '发送给:  ' + val.toName),
-          h('div', null, '不会保存您的聊天记录，请放心使用'),
-          h(Input.TextArea, {
-            rows: 5,
-            showCount: true,
-            value: review.value,
-            'onUpdate:value': (val) => (review.value = val),
-          }),
-        ]);
-      },
-      onOk() {
-        if (review.value) {
-          setSend({
-            class: 'Admin\\Sysinfo',
-            action: 'sendUserMessage',
-            formId: val.formId || userStore.userInfo?.id,
-            formName: val.formName || userStore.userInfo?.realname,
-            message: review.value,
-            toId: val.toId,
-            toName: val.toName,
-          });
-          createMessage.success('发送成功');
-        }
-      },
-      onCancel() {
-        review.value = '';
-      },
-    });
-  });
 
   return {
     openWebsocket: open,

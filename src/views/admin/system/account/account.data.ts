@@ -9,6 +9,7 @@ import { renderAvatar } from '/@/utils/formRenderHelper';
 import { Rule, useForm, UseFormReturnType } from '/@/components/Form';
 // import { useUserStore } from '/@/store/modules/user';
 import { useOnceStore } from '/@/store/modules/once';
+import { AdminMsgType } from '/@/enums/components';
 
 // const userStore = useUserStore();
 const onceStore = useOnceStore();
@@ -119,6 +120,18 @@ export const searchFormSchema: FormSchema[] = [
       options: [
         { label: '正常', value: 1 },
         { label: '锁定', value: 0 },
+      ] as OptionsItem[],
+    },
+    colProps: { span: 3 },
+  },
+  {
+    field: 'online',
+    label: '在线',
+    component: 'Select',
+    componentProps: {
+      options: [
+        { label: '在线', value: 1 },
+        { label: '离线', value: 0 },
       ] as OptionsItem[],
     },
     colProps: { span: 3 },
@@ -410,5 +423,88 @@ export const modifyFormSchema: FormSchema[] = [
     defaultValue: '',
     component: 'CropperAvatar',
     render: renderAvatar({ uploadApi: avatarUploadApi }),
+  },
+];
+
+export const messageFormSchema: FormSchema[] = [
+  {
+    field: 'type',
+    label: '操作',
+    defaultValue: AdminMsgType.Message,
+    component: 'RadioButtonGroup',
+    componentProps: {
+      options: [
+        { label: '发送消息', value: AdminMsgType.Message },
+        { label: '通知刷新', value: AdminMsgType.Refresh },
+        { label: '重新登录', value: AdminMsgType.Relogin },
+      ] as OptionsItem[],
+    },
+  },
+  {
+    field: 'message.content',
+    label: '消息内容',
+    subLabel: '不会保存您的聊天记录',
+    defaultValue: '',
+    ifShow: ({ model }) => model.type === AdminMsgType.Message,
+    component: 'InputTextArea',
+    componentProps: { rows: 8, showCount: true },
+    dynamicRules: ({ model }) => {
+      return [
+        {
+          validator(_, value: any) {
+            return new Promise((resolve, reject) => {
+              console.log('model ', model);
+              if (model.type === AdminMsgType.Message && value === '') {
+                reject('请输入消息内容');
+              } else {
+                resolve(value);
+              }
+            });
+          },
+        },
+      ];
+    },
+  },
+  {
+    field: 'refresh.force',
+    label: '是否强制刷新',
+    ifShow: ({ model }) => model.type === AdminMsgType.Refresh,
+    defaultValue: 0,
+    component: 'RadioButtonGroup',
+    componentProps: {
+      options: [
+        { label: '强制', value: 1 },
+        { label: '不强制', value: 0 },
+      ] as OptionsItem[],
+    },
+  },
+  {
+    field: 'refresh.content',
+    label: '刷新提示文本',
+    ifShow: ({ model }) => model.type === AdminMsgType.Refresh,
+    defaultValue: '发现新版本，请刷新后继续使用',
+    component: 'InputTextArea',
+    componentProps: { rows: 5, showCount: true },
+  },
+  {
+    field: 'relogin.force',
+    label: '是否强制重新登录',
+    ifShow: ({ model }) => model.type === AdminMsgType.Relogin,
+    defaultValue: 0,
+    component: 'RadioButtonGroup',
+    componentProps: {
+      options: [
+        { label: '强制', value: 1 },
+        { label: '不强制', value: 0 },
+      ] as OptionsItem[],
+    },
+  },
+  {
+    field: 'relogin.content',
+    label: '重新登录提示文本',
+    ifShow: ({ model }) => model.type === AdminMsgType.Relogin,
+    defaultValue: '发现新版本，请重新登录后继续使用',
+    component: 'InputTextArea',
+    componentProps: { rows: 5, showCount: true },
   },
 ];

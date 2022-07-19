@@ -1,4 +1,7 @@
 import mitt from '/@/utils/mitt';
+import { AdminMsgType } from '/@/enums/components';
+
+const emitter = mitt();
 
 export type WebScoketMessage = {
   class: string;
@@ -8,19 +11,28 @@ export type WebScoketMessage = {
 export type UserMessageType = {
   // 我是谁
   formId: number;
-  // 我叫啥
   formName: string;
+  formAvatar?: string;
   // 发给谁
-  toId: number;
-  // 他叫啥
+  toId: number | 'all';
   toName: string;
-  // 发什么
-  message: string;
+  toAvatar: string;
+  // 什么操作
+  type: AdminMsgType;
+  message?: {
+    content: string;
+  };
+  refresh?: {
+    force: 0 | 1;
+    content: string;
+  };
+  relogin?: {
+    force: 0 | 1;
+    content: string;
+  };
 };
 
 type PartialUserMessageType = Partial<UserMessageType>;
-
-const emitter = mitt();
 
 // 监听发送websocket消息
 const messageKey = Symbol('ws-message');
@@ -31,11 +43,11 @@ export function removeMitt() {
   emitter.clear();
 }
 
-export function listenSend(callback: Fn<WebScoketMessage | WebScoketMessage[], any>) {
+export function listenSend(callback: Fn) {
   emitter.on(messageKey, callback);
 }
 
-export function setSend(data: WebScoketMessage | WebScoketMessage[]) {
+export function setSend(data) {
   emitter.emit(messageKey, data);
 }
 
