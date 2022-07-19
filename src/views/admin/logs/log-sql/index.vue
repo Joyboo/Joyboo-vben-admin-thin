@@ -44,7 +44,7 @@
       field: 'time',
       label: ' ',
       component: 'RangePicker',
-      defaultValue: [formatDaysAgo(-14), formatDaysAgo()],
+      defaultValue: [formatDaysAgo(14), formatDaysAgo()],
       componentProps: {
         showTime: false,
         ranges: timePikerExtra(),

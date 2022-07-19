@@ -109,7 +109,7 @@ export const searchFormSchema: FormSchema[] = [
     label: ' ',
     labelWidth: 1,
     component: 'RangePicker',
-    defaultValue: [formatDaysAgo(-14), formatDaysAgo()],
+    defaultValue: [formatDaysAgo(14), formatDaysAgo()],
     componentProps: {
       allowClear: false,
       showTime: true,

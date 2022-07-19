@@ -79,6 +79,7 @@
     bordered: true,
     pagination: { pageSize: 100 },
     showIndexColumn: false,
+    immediate: false,
     // scroll: { x: 1500 },
     actionColumn: {
       width: 80,

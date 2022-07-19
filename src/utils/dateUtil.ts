@@ -19,11 +19,7 @@ export function formatToDate(date: moment.MomentInput = undefined, format = DATE
 }
 
 export function formatDaysAgo(day?: number) {
-  day = day ?? 0;
-  const d = new Date();
-  d.setTime(d.getTime() + 3600 * 1000 * 24 * day);
-  return d;
-  // return moment().startOf('day').subtract(day, 'days').format(format);
+  return moment().startOf('day').subtract(day, 'days');
 }
 
 export function fmtFullTime(timestamp: number) {
@@ -39,6 +35,7 @@ export function timePikerExtra() {
     昨天: [moment().startOf('day').subtract(1, 'days'), moment().endOf('day').subtract(1, 'days')],
     近三天: [moment().startOf('day').subtract(2, 'days'), moment().endOf('day')],
     近一周: [moment().startOf('day').subtract(1, 'weeks'), moment()],
+    近一月: [moment().startOf('day').subtract(1, 'month'), moment().endOf('day')],
     本月: [moment().startOf('month'), moment()],
     上月: [
       moment()

@@ -5,7 +5,7 @@
       <!-- <template #form-range="{ model, field }">
         <RangePicker
           v-model:value="model[field]"
-          :default-picker-value="[formatDaysAgo(-14, dateFmt), formatDaysAgo(0, dateFmt)]"
+          :default-picker-value="[formatDaysAgo(14, dateFmt), formatDaysAgo(0, dateFmt)]"
         />
       </template> -->
       <template #action="{ record }">
@@ -59,7 +59,7 @@
       field: 'time',
       label: ' ',
       component: 'RangePicker',
-      defaultValue: [formatDaysAgo(-14), formatDaysAgo()],
+      defaultValue: [formatDaysAgo(14), formatDaysAgo()],
       componentProps: {
         showTime: false,
         ranges: timePikerExtra(),
@@ -73,7 +73,7 @@
         component: 'DatePicker',
         colProps: searchColSpan,
         render: ({ model, field }) => {
-          model[field] = formatDaysAgo(-14, dateFmt);
+          model[field] = formatDaysAgo(14, dateFmt);
           return h(DatePicker, {
             showTime: false,
             format: dateFmt,
