@@ -2,17 +2,7 @@
   <div>
     <BasicTable @register="registerTable">
       <template #toolbar>
-        <PopConfirmButton
-          title="强制刷新 or 非强制刷新"
-          color="warning"
-          ok-text="强制"
-          cancel-text="非强制"
-          @confirm="handleRefresh(1)"
-          @cancel="handleRefresh(0)"
-        >
-          通知在线用户刷新
-        </PopConfirmButton>
-        <a-button @click="sysinfoShowSwooleTable">查看Swoole Table</a-button>
+        <a-button @click="handleShowSwooleTable">查看Swoole Table</a-button>
         <a-button v-auth="[curdAuth.add]" type="primary" @click="handleCreate"> 新增 </a-button>
       </template>
       <template #action="{ record }">
@@ -43,14 +33,18 @@
   </div>
 </template>
 <script lang="ts" setup name="Sysinfo">
-  import { PopConfirmButton } from '/@/components/Button';
+  import { h, ref } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { sysinfoIndex, sysinfoDel, sysinfoShowSwooleTable } from '/@/api/admin/system';
   import { useDrawer } from '/@/components/Drawer';
   import SysinfoDrawer from './SysinfoDrawer.vue';
   import { columns, searchFormSchema, curdAuth } from './sysinfo.data';
-  import { setSend } from '/@/logics/mitt/websocket';
+  import { useMessage } from '/@/hooks/web/useMessage';
+  import { JsonPreview } from '/@/components/CodeEditor';
 
+  const btnLoading = ref(false);
+
+  const { createConfirm } = useMessage();
   const [registerDrawer, { openDrawer }] = useDrawer();
   const [registerTable, { reload }] = useTable({
     title: '后台配置',
@@ -94,11 +88,22 @@
     reload();
   }
 
-  function handleRefresh(force: 0 | 1) {
-    setSend({
-      class: 'Admin\\Sysinfo',
-      action: 'refresh',
-      force,
-    });
+  async function handleShowSwooleTable() {
+    btnLoading.value = true;
+    try {
+      const data = await sysinfoShowSwooleTable();
+      createConfirm({
+        width: '60%',
+        iconType: 'success',
+        title: () => '查看SwooleTable',
+        content: () => {
+          return h(JsonPreview, { data, deep: 3 });
+        },
+      });
+    } catch (e) {
+      console.log(e);
+    } finally {
+      btnLoading.value = false;
+    }
   }
 </script>
