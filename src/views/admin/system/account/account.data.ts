@@ -1,7 +1,7 @@
 import { adminChange, avatarUploadApi } from '/@/api/admin/system';
 import { BasicColumn, FormProps, FormSchema } from '/@/components/Table';
 import { h } from 'vue';
-import { Switch, Tag } from 'ant-design-vue';
+import { Switch, Tag, Avatar } from 'ant-design-vue';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { usePermission } from '/@/hooks/web/usePermission';
 import { CurdAuthType, Auth } from '/@/enums/auth';
@@ -10,6 +10,7 @@ import { Rule, useForm, UseFormReturnType } from '/@/components/Form';
 // import { useUserStore } from '/@/store/modules/user';
 import { useOnceStore } from '/@/store/modules/once';
 import { AdminMsgType } from '/@/enums/components';
+import HeaderImg from '/@/assets/images/header.jpg';
 
 // const userStore = useUserStore();
 const onceStore = useOnceStore();
@@ -31,6 +32,12 @@ export const columns: BasicColumn[] = [
     dataIndex: 'id',
     width: 60,
     sorter: true,
+  },
+  {
+    title: '头像',
+    dataIndex: 'avatar',
+    width: 60,
+    customRender: ({ text }) => h(Avatar, { src: text ? text : HeaderImg }),
   },
   {
     title: '账号',
@@ -101,20 +108,23 @@ export const columns: BasicColumn[] = [
 
 export const searchFormSchema: FormSchema[] = [
   {
-    field: 'username',
-    label: '账号',
-    component: 'Input',
+    field: 'rid',
+    label: '分组',
+    component: 'ApiSelect',
+    componentProps: { api: onceStore.getRoleOptions },
     colProps: { span: 4 },
   },
   {
-    field: 'realname',
-    label: '用户名',
+    field: 'username',
+    label: '账号 | 姓名',
+    labelWidth: 100,
     component: 'Input',
     colProps: { span: 4 },
   },
   {
     field: 'status',
     label: '状态',
+    defaultValue: 1,
     component: 'Select',
     componentProps: {
       options: [
