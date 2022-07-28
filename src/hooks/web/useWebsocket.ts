@@ -229,7 +229,7 @@ export function useWebsocket(props?: WebSocketOptions) {
         return h(Space, { direction: 'vertical', class: ['w-full', 'pr-4'] }, () => [
           h(Space, {}, () => [
             h('div', { style: { color: 'red' } }, '发送给  '),
-            h(Avatar, { src: val.toAvatar }),
+            h(Avatar, { src: val.toAvatar || HeaderImg }),
             h('div', null, val.toName),
           ]),
           h('div', null, '不会保存您的聊天记录，请放心使用'),
