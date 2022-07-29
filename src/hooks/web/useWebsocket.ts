@@ -195,6 +195,7 @@ export function useWebsocket(props?: WebSocketOptions) {
                 disabled: reloginForce,
               },
               onOk() {
+                close();
                 userStore.logout(true);
               },
             } as ModalOptionsEx);
