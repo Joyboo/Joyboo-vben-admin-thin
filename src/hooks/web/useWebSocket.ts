@@ -64,7 +64,7 @@ export function connectWebSocket(props?: WebSocketOptions) {
       interval: 10000,
       message: JSON.stringify({ action: 'heartbeat', message: 'ping' }),
     },
-    // protocols: ['soap', 'wamp'], todo 自定义
+    // protocols: [],
     immediate: true,
     onConnected,
     onDisconnected,
@@ -93,9 +93,9 @@ export function useWebSocket() {
 
 function onConnected(ws: WebSocket) {
   console.log('[WebSocket] 连接成功 ', ws);
-  // 发送一条认证信息，websocket.url一经传入，无法改变，如果token从url传，则无法自动续期，改为在连接后认证
+  // 发送一条认证信息，websocket.url一经传入，无法改变，如果token从url或protocols子协议中传递，则可能出现无法自动续期或握手失败无法通知客户端的问题，改为在连接后进行认证操作
   const auth = { action: 'auth', authorization: getToken() };
-  // 断线重连时，如果在客户端断开期间有更新版本，防止客户端又不知道的情况，加上版本号
+  // 断线重连时，如果在客户端断开期间有更新版本，为避免客户端又不知道的情况，加上版本号给后端校验
   // if (isObject(userConfig.sysinfo) && isObject(userConfig.sysinfo.versions)) {
   //   Object.assign(auth, { versions: userConfig.sysinfo.versions });
   // }
