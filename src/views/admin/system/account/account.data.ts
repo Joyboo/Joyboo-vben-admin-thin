@@ -463,7 +463,6 @@ export const messageFormSchema: FormSchema[] = [
         {
           validator(_, value: any) {
             return new Promise((resolve, reject) => {
-              console.log('model ', model);
               if (model.type === AdminMsgType.Message && value === '') {
                 reject('请输入消息内容');
               } else {

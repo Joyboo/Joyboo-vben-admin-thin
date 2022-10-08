@@ -19,15 +19,19 @@ export type UserMessageType = {
   toAvatar: string;
   // 什么操作
   type: AdminMsgType;
+  // 消息
   message?: {
     content: string;
   };
+  // 刷新
   refresh?: {
     force: 0 | 1;
     content: string;
   };
+  // 重登
   relogin?: {
     force: 0 | 1;
+    title?: string;
     content: string;
   };
 };
