@@ -55,7 +55,8 @@ const { createConfirm, createMessage } = useMessage();
 export function connectWebSocket(props?: WebSocketOptions) {
   console.log('[WebSocket] 开始运行');
 
-  const { WebSocketUrl = '' } = useGlobSetting();
+  const { apiUrl } = useGlobSetting();
+  const webSocketUrl = apiUrl.replace('https://', 'wss://').replace('http://', 'ws://');
 
   const options: WebSocketOptions = {
     autoReconnect: true,
@@ -71,7 +72,7 @@ export function connectWebSocket(props?: WebSocketOptions) {
     onMessage,
   };
 
-  result = useCoreWebSocket(WebSocketUrl, deepMerge(options, props ?? {}));
+  result = useCoreWebSocket(webSocketUrl, deepMerge(options, props ?? {}));
 }
 
 export function onWebSocket(event: Events, callback: Fn<ResponseType, void>) {
