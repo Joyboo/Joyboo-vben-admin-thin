@@ -1,8 +1,6 @@
 import type { ErrorMessageMode } from '/#/axios';
-import { useMessage, ModalOptionsEx } from '/@/hooks/web/useMessage';
+import { useMessage } from '/@/hooks/web/useMessage';
 import { useI18n } from '/@/hooks/web/useI18n';
-// import router from '/@/router';
-// import { PageEnum } from '/@/enums/pageEnum';
 import { useUserStoreWithOut } from '/@/store/modules/user';
 import projectSetting from '/@/settings/projectSetting';
 import { SessionTimeoutProcessingEnum } from '/@/enums/appEnum';
@@ -29,6 +27,7 @@ export function checkStatus(
     // Return to the current page after successful login. This step needs to be operated on the login page.
     case 401:
       createConfirm({
+        iconType: 'warning',
         title: () => '提示',
         content: () => msg,
         closable: false, // 是否显示右上角的关闭按钮
@@ -47,9 +46,7 @@ export function checkStatus(
             userStore.logout(true);
           }
         },
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        onCancel() {},
-      } as ModalOptionsEx);
+      });
       return;
       // errorMessageMode = 'modal';
       break;
