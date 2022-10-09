@@ -11,7 +11,10 @@
     <BasicForm @register="registerForm">
       <template #where="{ model, field }">
         <div style="background: #ececec; padding: 10px">
-          <Card title="WHERE预览" :bordered="false">
+          <Card title="SQL预览" :bordered="false">
+            <template #extra>
+              <div class="sql-tips">包含 % 则为 LIKE，不包含则为 =</div>
+            </template>
             <div v-if="model[field]">
               <span style="color: red; font-weight: bold">WHERE&nbsp;&nbsp;</span>
               <TypographyText copyable>{{ model[field] }}</TypographyText>
@@ -43,7 +46,7 @@
   import { Card, Descriptions, Typography, Space, Popconfirm } from 'ant-design-vue';
   import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
   import { BasicForm, useForm, FormSchema } from '/@/components/Form';
-  import { timePikerExtra } from '/@/utils/dateUtil';
+  import { timePikerExtra, formatDaysAgo } from '/@/utils/dateUtil';
   import { isDef } from '/@/utils/is';
   import { useMessage } from '/@/hooks/web/useMessage';
   // import { useCopyToClipboard } from '/@/hooks/web/useCopyToClipboard';
@@ -56,8 +59,6 @@
   const TypographyText = Typography.Text;
   const { createConfirm } = useMessage();
   // const { clipboardRef, copiedRef } = useCopyToClipboard();
-
-  const machHelp = '包含%则为 LIKE，没有则为 =';
 
   const schemas: FormSchema[] = [
     {
@@ -78,7 +79,7 @@
         })) as OptionsItem[],
         onChange: changeValue,
       },
-      colProps: { span: 6 },
+      colProps: { span: 8 },
     },
     // {
     //   field: 'timeStamp',
@@ -99,7 +100,7 @@
       label: '时间范围',
       subLabel: '（点击确定按钮触发Change）',
       component: 'RangePicker',
-      defaultValue: [],
+      defaultValue: [formatDaysAgo(3), formatDaysAgo().endOf('day')],
       required: true,
       componentProps: {
         allowClear: false,
@@ -108,12 +109,12 @@
         style: { width: '100%' },
         onOk: changeValue,
       },
-      colProps: { span: 17, offset: 1 },
+      colProps: { span: 15, offset: 1 },
     },
     {
       field: 'repeated',
       label: '复发状态',
-      defaultValue: 0,
+      // defaultValue: 0,
       component: 'Select',
       componentProps: {
         options: [
@@ -122,64 +123,73 @@
         ] as OptionsItem[],
         onChange: changeValue,
       },
-      colProps: { span: 12 },
+      colProps: { span: 8 },
     },
     {
       field: 'depth',
       label: '记录深度',
-      subLabel: '一般不需要改动，因为子级会在运行父级的时候运行',
-      defaultValue: 0,
+      subLabel: '复发请求时，请选择值运行父级',
       component: 'Select',
       componentProps: {
         options: [
-          { label: '只运行父级', value: 0 },
-          { label: '只运行子级', value: 1 },
+          { label: '父级', value: 0 },
+          { label: '子级', value: 1 },
         ] as OptionsItem[],
         onChange: changeValue,
       },
-      colProps: { span: 11, offset: 1 },
+      colProps: { span: 7, offset: 1 },
     },
     {
       field: 'url',
       label: 'URL匹配',
-      subLabel: machHelp,
       component: 'Input',
       componentProps: { onChange: changeValue },
-      colProps: { span: 12 },
+      colProps: { span: 7, offset: 1 },
     },
     {
       field: 'path',
       label: 'path匹配',
-      subLabel: machHelp,
       component: 'Input',
       componentProps: { onChange: changeValue },
-      colProps: { span: 11, offset: 1 },
+      colProps: { span: 8 },
     },
     {
       field: 'server_name',
-      label: '服务器',
-      subLabel: machHelp,
+      label: '服务器匹配',
       component: 'Input',
       componentProps: { onChange: changeValue },
-      colProps: { span: 12 },
+      colProps: { span: 7, offset: 1 },
     },
     {
       field: 'ip',
-      label: 'IP',
-      subLabel: machHelp,
+      label: 'IP匹配',
       component: 'Input',
       componentProps: { onChange: changeValue },
-      colProps: { span: 11, offset: 1 },
+      colProps: { span: 7, offset: 1 },
+    },
+    {
+      field: 'rq_key',
+      label: '请求参数筛选 - Key',
+      component: 'Input',
+      componentProps: { onChange: changeValue },
+      colProps: { span: 8 },
+    },
+    {
+      field: 'rq_value',
+      label: 'Value',
+      component: 'Input',
+      componentProps: { onChange: changeValue },
+      colProps: { span: 15, offset: 1 },
     },
     {
       field: 'sql',
-      label: '自定义',
+      label: '自定义SQL',
       component: 'InputTextArea',
       componentProps: { rows: 3, onChange: changeValue },
     },
     {
       field: 'where',
-      label: 'WHERE预览',
+      label: 'SQL预览',
       labelWidth: 0,
       component: 'InputTextArea',
       componentProps: { rows: 5, disabled: true },
@@ -195,10 +205,8 @@
     fieldMapToTime: [['time', ['begintime', 'endtime'], 'YYYY-MM-DD HH:mm:ss']],
   });
   const [registerDrawer, { changeLoading, changeOkLoading, closeDrawer }] = useDrawerInner(
-    async (data) => {
+    async () => {
       // console.log('open data ', data);
-      const time = [data.begintime, data.endtime];
-      setFieldsValue({ time, repeated: data.repeated });
       changeValue();
     },
   );
@@ -214,36 +222,40 @@
     let where = '';
 
     if (isDef(record.begintime) && isDef(record.endtime) && isDef(record.timeType)) {
-      where +=
-        '`' +
-        record.timeType +
-        '` BETWEEN UNIX_TIMESTAMP("' +
-        record.begintime +
-        '") AND UNIX_TIMESTAMP("' +
-        record.endtime +
-        '")';
+      where += `${record.timeType} BETWEEN UNIX_TIMESTAMP('${record.begintime}') AND UNIX_TIMESTAMP('${record.endtime}')`;
     }
 
     ['repeated', 'server_name', 'url', 'ip', 'depth'].forEach((item) => {
       if (isDef(record[item]) && record[item] !== '') {
-        where += ' AND `' + item + '` ' + getSymbol(record[item]) + " '" + record[item] + "'";
+        const sb = getSymbol(record[item]);
+        where += ` AND ${item} ${sb} '${record[item]}'`;
       }
     });
     // request->key
     ['path'].forEach((item) => {
       if (isDef(record[item]) && record[item] !== '') {
-        where +=
-          " AND json_extract(request,'$." +
-          item +
-          "') " +
-          getSymbol(record[item]) +
-          " '" +
-          record[item] +
-          "'";
+        const sb = getSymbol(record[item]);
+        where += ` AND request->'$.${item}' ${sb} '${record[item]}'`;
       }
     });
-    if (isDef(record.sql)) {
-      where += ' ' + record.sql;
+
+    // 请求参数, GET,POST,JSON
+    if (
+      isDef(record.rq_key) &&
+      isDef(record.rq_value) &&
+      record.rq_key !== '' &&
+      record.rq_value !== ''
+    ) {
+      const sb = getSymbol(record.rq_value);
+      const arr: string[] = [];
+      ['GET', 'POST', 'JSON'].forEach((k) => {
+        arr.push(`request->'$.${k}.${record.rq_key}' ${sb} '${record.rq_value}'`);
+      });
+      where += ` AND ( ${arr.join(' OR ')} )`;
+    }
+
+    if (isDef(record.sql) && record.sql !== '') {
+      where += ' AND ' + record.sql;
     }
 
     setFieldsValue({ where });
@@ -361,4 +373,9 @@
   }
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  .sql-tips {
+    font-size: 0.8rem;
+    color: green;
+  }
+</style>

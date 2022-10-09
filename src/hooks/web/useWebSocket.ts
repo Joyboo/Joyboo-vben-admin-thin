@@ -26,7 +26,7 @@ import { AdminMsgType } from '/@/enums/components';
 export enum Events {
   // 心跳
   EVENT_0 = 'EVENT_0',
-  // 通知客户端关闭连接
+  // 关闭连接
   EVENT_1 = 'EVENT_1',
   // 更新版本
   EVENT_2 = 'EVENT_2',
@@ -36,9 +36,9 @@ export enum Events {
   EVENT_4 = 'EVENT_4',
   // 续期token
   EVENT_5 = 'EVENT_5',
-  // 接收用户推送消息
+  // 接收消息
   EVENT_6 = 'EVENT_6',
-  // 更新某些数据
+  // 更新数据
   EVENT_7 = 'EVENT_7',
   // 重新登录
   EVENT_8 = 'EVENT_8',
