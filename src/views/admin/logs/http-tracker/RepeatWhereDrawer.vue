@@ -255,7 +255,7 @@
     }
 
     if (isDef(record.sql) && record.sql !== '') {
-      where += ' AND ' + record.sql;
+      where += ` AND ${record.sql}`;
     }
 
     setFieldsValue({ where });
