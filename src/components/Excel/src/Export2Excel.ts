@@ -12,6 +12,7 @@ export function jsonToSheetXlsx<T = any>({
   filename = DEF_FILE_NAME,
   json2sheetOpts = {},
   write2excelOpts = { bookType: 'xlsx' },
+  workSheetOpts = {},
 }: JsonToSheet<T>) {
   const arrData = [...data];
   if (header) {
@@ -25,7 +26,7 @@ export function jsonToSheetXlsx<T = any>({
   const workbook: WorkBook = {
     SheetNames: [filename],
     Sheets: {
-      [filename]: worksheet,
+      [filename]: Object.assign(worksheet, workSheetOpts),
     },
   };
   /* output format determined by filename */
