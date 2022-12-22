@@ -119,15 +119,18 @@
   // 导出当前页
   function exportCurrentPage() {
     const columns = getColumns();
-    // getDataSource无法获取到传给BasicTable的Props的合计行
-    // const dataSource = table.getDataSource();
     const rawData = table.getRawDataSource();
 
     // todo 无法获取到afterFetch的Prop , 处理列数据请使用customRender
     // 表格数据
-    const dataSource = Array.isArray(rawData) ? rawData : get(rawData, listField);
+    const dataSource = isArray(rawData)
+      ? rawData
+      : get(rawData, listField) ?? table.getDataSource();
+
     // 合计行数据
-    const summer = Array.isArray(rawData) ? [] : get(rawData, footerField) ?? [];
+    const summer = isArray(rawData)
+      ? []
+      : get(rawData, footerField) ?? table.getBindValues.value.summaryData ?? [];
 
     // 计算表头
     const header = {};

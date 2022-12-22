@@ -31,13 +31,16 @@ export function fmtFullTime(timestamp: number) {
 
 export function timePikerExtra() {
   const ranges = {
-    今天: [moment().startOf('day'), moment()],
-    昨天: [moment().startOf('day').subtract(1, 'days'), moment().endOf('day').subtract(1, 'days')],
-    近三天: [moment().startOf('day').subtract(2, 'days'), moment().endOf('day')],
-    近一周: [moment().startOf('day').subtract(1, 'weeks'), moment()],
-    近一月: [moment().startOf('day').subtract(1, 'month'), moment().endOf('day')],
-    本月: [moment().startOf('month'), moment()],
-    上月: [
+    今天: () => [moment().startOf('day'), moment().endOf('day')],
+    昨天: () => [
+      moment().startOf('day').subtract(1, 'days'),
+      moment().endOf('day').subtract(1, 'days'),
+    ],
+    近三天: () => [moment().startOf('day').subtract(2, 'days'), moment().endOf('day')],
+    近一周: () => [moment().startOf('day').subtract(1, 'weeks'), moment().endOf('day')],
+    近一月: () => [moment().startOf('day').subtract(1, 'month'), moment().endOf('day')],
+    本月: () => [moment().startOf('month'), moment().endOf('month')],
+    上月: () => [
       moment()
         .month(moment().month() - 1)
         .startOf('month'),
@@ -45,7 +48,11 @@ export function timePikerExtra() {
         .month(moment().month() - 1)
         .endOf('month'),
     ],
-    本年: [moment().startOf('year'), moment()],
+    本年: () => [moment().startOf('year'), moment().endOf('year')],
+    去年: () => [
+      moment().startOf('year').subtract(1, 'year'),
+      moment().subtract(1, 'year').endOf('year'),
+    ],
   };
   return ranges;
 }
