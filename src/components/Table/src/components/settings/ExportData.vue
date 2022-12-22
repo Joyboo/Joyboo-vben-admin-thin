@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { unref } from 'vue';
+  import { toRaw, unref } from 'vue';
   import { Tooltip } from 'ant-design-vue';
   import { DownloadOutlined } from '@ant-design/icons-vue';
   import type { TableSetting } from '../../types/table';
@@ -47,24 +47,22 @@
   import { useTableContext } from '../../hooks/useTableContext';
   import { jsonToSheetXlsx } from '/@/components/Excel';
   import { Dropdown } from '/@/components/Dropdown';
-  import { isDef, isFunction, isString, isArray } from '/@/utils/is';
+  import { isDef, isFunction, isString, isArray, isUnDef } from '/@/utils/is';
   import { FETCH_SETTING, ACTION_COLUMN_FLAG, ROW_KEY } from '../../const';
-  import { get } from 'lodash-es';
   import { useRouter } from 'vue-router';
   import { downloadByData } from '/@/utils/file/download';
+  import { dateUtil } from '/@/utils/dateUtil';
 
   const props = defineProps({
     setting: {
       type: Object as PropType<TableSetting>,
-      default() {
-        return { exportType: ExportEnum.NOT };
-      },
+      default: () => ({ exportType: ExportEnum.NOT }),
     },
   });
 
   const table = useTableContext();
   const { t } = useI18n();
-  const { footerField, listField, exportThField, exprotFilename } = FETCH_SETTING;
+  const { footerField, exportThField, exprotFilename } = FETCH_SETTING;
   const { currentRoute } = useRouter();
   const title = unref(currentRoute).meta.title;
 
@@ -89,6 +87,36 @@
       .filter((item) => item.flag !== ACTION_COLUMN_FLAG && !item.defaultHidden);
   }
 
+  // 合计行数据
+  function getSummaryData() {
+    // 直传summaryData
+    const { summaryFunc, summaryData, rowKey } = table.getBindValues.value;
+    if (summaryData?.length) {
+      summaryData.map((item, i) => {
+        if (isString(rowKey) && isUnDef(item[rowKey])) {
+          item[rowKey] = i;
+        }
+        return item;
+      });
+      return summaryData;
+    }
+    // 传Function
+    if (isFunction(summaryFunc)) {
+      let dataSource = toRaw(unref(table.getDataSource()));
+      dataSource = summaryFunc(dataSource);
+      dataSource.map((item, i) => {
+        if (isString(rowKey) && isUnDef(item[rowKey])) {
+          item[rowKey] = i;
+        }
+        return item;
+      });
+      return dataSource;
+    }
+    // 与服务端约定的默认字段
+    const rawData = toRaw(unref(table.getRawDataSource()));
+    return isArray(rawData[footerField]) ? rawData[footerField] : [];
+  }
+
   // 导出全部页
   async function exportAllPage() {
     table.setLoading(true);
@@ -101,13 +129,12 @@
       });
       const header = {};
       header[exportThField] = th.join('|');
-
-      const filename = title + '-' + new Date().getTime() + '.xlsx';
+      const ymd = dateUtil().format('YYYYMMDDHHmmss');
+      const filename = `${title}-${ymd}.xlsx`;
       header[exprotFilename] = filename;
-      // table.setProps({ searchInfo : header});
       if (isFunction(props.setting.exportAllFn)) {
-        const respose = await props.setting.exportAllFn(header);
-        downloadByData(respose.data, filename, respose.headers['content-type']);
+        const { data, headers } = await props.setting.exportAllFn(header);
+        downloadByData(data, filename, headers['content-type']);
       }
     } catch (e) {
       console.error('导出全部失败 ', e);
@@ -119,18 +146,10 @@
   // 导出当前页
   function exportCurrentPage() {
     const columns = getColumns();
-    const rawData = table.getRawDataSource();
-
-    // todo 无法获取到afterFetch的Prop , 处理列数据请使用customRender
     // 表格数据
-    const dataSource = isArray(rawData)
-      ? rawData
-      : get(rawData, listField) ?? table.getDataSource();
-
+    const dataSource = table.getDataSource();
     // 合计行数据
-    const summer = isArray(rawData)
-      ? []
-      : get(rawData, footerField) ?? table.getBindValues.value.summaryData ?? [];
+    const summer = getSummaryData();
 
     // 计算表头
     const header = {};
@@ -182,7 +201,7 @@
     jsonToSheetXlsx({
       data: data,
       header: header,
-      filename: title + '.xlsx',
+      filename: `${title}.xlsx`,
       json2sheetOpts: {
         // 指定顺序
         header: Object.keys(header),
