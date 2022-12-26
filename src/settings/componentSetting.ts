@@ -51,4 +51,9 @@ export default {
     // After opening, the menu, modal, drawer will change the pop-up scroll bar to native
     native: false,
   },
+
+  axios: {
+    // 根据请求参数动态的去修改url前缀，实现请求不同的域名，见 beforeRequestHook
+    proxyParamName: 'ProxyRegion',
+  },
 };

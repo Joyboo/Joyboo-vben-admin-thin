@@ -17,6 +17,7 @@ import { useI18n } from '/@/hooks/web/useI18n';
 import { joinTimestamp, formatRequestDate } from './helper';
 import { useLocaleStoreWithOut } from '/@/store/modules/locale';
 import { localeSetting } from '/@/settings/localeSetting';
+import componentSetting from '/@/settings/componentSetting';
 
 const globSetting = useGlobSetting();
 const urlPrefix = globSetting.urlPrefix;
@@ -81,6 +82,9 @@ const transform: AxiosTransform = {
       if (!isString(params)) {
         // 给 get 请求加上时间戳参数，避免从缓存中拿数据。
         config.params = Object.assign(params || {}, joinTimestamp(joinTime, false));
+        if (config.url) {
+          config.url = proxyRegionUrl(config.url, params);
+        }
       } else {
         // 兼容restful风格
         config.url = config.url + params + `${joinTimestamp(joinTime, true)}`;
@@ -97,6 +101,14 @@ const transform: AxiosTransform = {
           config.data = params;
           config.params = undefined;
         }
+
+        if (config.url) {
+          config.url = proxyRegionUrl(
+            config.url,
+            Object.assign({}, config.params || {}, config.data || {}),
+          );
+        }
+
         if (joinParamsToUrl) {
           config.url = setObjToUrlParams(
             config.url as string,
@@ -224,6 +236,37 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
     ),
   );
 }
+
+/**
+ * 根据请求参数转发至不同域名
+ * @param url
+ * @param params
+ */
+function proxyRegionUrl(url: string, params: Recordable) {
+  const { proxyParamName: name = '' } = componentSetting.axios ?? {};
+  if (name && isString(params[name]) && params[name] !== '') {
+    const delimiter = '/';
+    const urlSplit = url.split(delimiter);
+    const isProtocol = url.startsWith('http');
+
+    // vue3-easyswoole.joyboo.cn
+    const domain = isProtocol ? urlSplit[2] : urlSplit[0];
+    // 第一个 - 分割
+    const [prefix] = domain.split('-', 2);
+
+    if (prefix !== params[name]) {
+      const proxy = `${params[name]}-${domain}`;
+      if (isProtocol) {
+        urlSplit[2] = proxy;
+      } else {
+        urlSplit[0] = proxy;
+      }
+      url = urlSplit.join(delimiter);
+    }
+  }
+  return url;
+}
+
 export const defHttp = createAxios();
 
 // other api url
