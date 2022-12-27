@@ -46,7 +46,7 @@
   import { Card, Descriptions, Typography, Space, Popconfirm } from 'ant-design-vue';
   import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
   import { BasicForm, useForm, FormSchema } from '/@/components/Form';
-  import { timePikerExtra, formatDaysAgo } from '/@/utils/dateUtil';
+  import { timePikerExtra, dateRangeArray } from '/@/utils/dateUtil';
   import { isDef } from '/@/utils/is';
   import { useMessage } from '/@/hooks/web/useMessage';
   // import { useCopyToClipboard } from '/@/hooks/web/useCopyToClipboard';
@@ -100,7 +100,7 @@
       label: '时间范围',
       subLabel: '（点击确定按钮触发Change）',
       component: 'RangePicker',
-      defaultValue: [formatDaysAgo(3), formatDaysAgo().endOf('day')],
+      defaultValue: dateRangeArray(3),
       required: true,
       componentProps: {
         allowClear: false,

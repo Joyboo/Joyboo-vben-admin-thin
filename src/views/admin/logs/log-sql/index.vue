@@ -17,34 +17,24 @@
 </template>
 
 <script lang="ts" setup name="LogSql">
-  import { Avatar, Tag } from 'ant-design-vue';
-  import { computed, h, ref } from 'vue';
-  import {
-    BasicColumn,
-    ExportEnum,
-    FormSchema,
-    useTable,
-    BasicTable,
-    TableAction,
-  } from '/@/components/Table';
-  import { logIndex, logExport } from '/@/api/admin/logs';
-  import { formatDaysAgo, timePikerExtra } from '/@/utils/dateUtil';
+  import { Tag, Avatar } from 'ant-design-vue';
+  import { h, ref } from 'vue';
+  import { BasicTable, useTable, BasicColumn, TableAction, FormSchema } from '/@/components/Table';
+  import { logIndex } from '/@/api/admin/logs';
   import HeaderImg from '/@/assets/images/header.jpg';
-  import { useUserStore } from '/@/store/modules/user';
   import { useModal } from '/@/components/Modal';
   import DetailModal from './DetailModal.vue';
+  import { timePikerExtra, fmtFullTime, dateRangeArray } from '/@/utils/dateUtil';
 
   const rowInfo = ref();
   const [registerModal, { openModal }] = useModal();
-  const userStore = useUserStore();
-  const domain = computed(() => userStore.getUserInfo.config.imageDomain);
 
   const searchFormSchema: FormSchema[] = [
     {
       field: 'time',
       label: ' ',
       component: 'RangePicker',
-      defaultValue: [formatDaysAgo(14), formatDaysAgo()],
+      defaultValue: dateRangeArray(),
       componentProps: {
         showTime: false,
         ranges: timePikerExtra(),
@@ -104,7 +94,7 @@
             }
             const avatar = record.relation.avatar ?? '';
             return h(Avatar, {
-              src: avatar ? domain.value + avatar : HeaderImg,
+              src: avatar ? avatar : HeaderImg,
             });
           },
         },
@@ -141,7 +131,8 @@
         },
         {
           title: '操作时间',
-          dataIndex: 'itime',
+          dataIndex: 'instime',
+          customRender: ({ text }) => fmtFullTime(text),
         },
         {
           title: 'IP',
@@ -151,7 +142,7 @@
     },
   ];
 
-  const [registerTable, { getForm }] = useTable({
+  const [registerTable] = useTable({
     title: '操作日志',
     api: logIndex,
     columns,
@@ -162,13 +153,6 @@
       autoAdvancedLine: 1,
       showAdvancedButton: true,
       fieldMapToTime: [['time', ['begintime', 'endtime'], 'YYYY-MM-DD']],
-    },
-    tableSetting: {
-      exportType: ExportEnum.AND,
-      exportAllFn: (header) => {
-        const query = getForm().getFieldsValue();
-        return logExport(Object.assign({}, query, header));
-      },
     },
     useSearchForm: true,
     showTableSetting: true,

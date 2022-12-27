@@ -4,22 +4,18 @@
 
 <script lang="ts" setup name="LogLogin">
   import { Tag, Avatar } from 'ant-design-vue';
-  import { h, computed } from 'vue';
+  import { h } from 'vue';
   import { BasicTable, useTable, FormSchema, BasicColumn } from '/@/components/Table';
   import { adminLogIndex } from '/@/api/admin/logs';
-  import { formatDaysAgo, timePikerExtra } from '/@/utils/dateUtil';
   import HeaderImg from '/@/assets/images/header.jpg';
-  import { useUserStore } from '/@/store/modules/user';
-
-  const userStore = useUserStore();
-  const domain = computed(() => userStore.getUserInfo.config.imageDomain);
+  import { dateRangeArray, fmtFullTime, timePikerExtra } from '/@/utils/dateUtil';
 
   const searchFormSchema: FormSchema[] = [
     {
       field: 'time',
       label: ' ',
       component: 'RangePicker',
-      defaultValue: [formatDaysAgo(14), formatDaysAgo()],
+      defaultValue: dateRangeArray(),
       componentProps: {
         showTime: false,
         ranges: timePikerExtra(),
@@ -53,7 +49,7 @@
           customRender: ({ record }) => {
             const avatar = record.relation.avatar ?? '';
             return h(Avatar, {
-              src: avatar ? domain.value + avatar : HeaderImg,
+              src: avatar ? avatar : HeaderImg,
             });
           },
         },
@@ -86,11 +82,13 @@
       children: [
         {
           title: '登入时间',
-          dataIndex: 'itime',
+          dataIndex: 'instime',
+          customRender: ({ text }) => fmtFullTime(text),
         },
         {
           title: '最后更新时间',
-          dataIndex: 'utime',
+          dataIndex: 'updtime',
+          customRender: ({ text }) => fmtFullTime(text),
         },
         {
           title: 'IP',

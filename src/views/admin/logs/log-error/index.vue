@@ -31,7 +31,7 @@
   import { getColumns } from '/@/views/sys/error-log/data';
   import { errorLogIndex } from '/@/api/admin/logs';
   import { ErrorTypeEnum } from '/@/enums/exceptionEnum';
-  import { formatDaysAgo, timePikerExtra } from '/@/utils/dateUtil';
+  import { dateRangeArray, timePikerExtra } from '/@/utils/dateUtil';
 
   const [registerModal, { openModal }] = useModal();
   const rowInfo = ref<ErrorLogInfo>();
@@ -59,56 +59,13 @@
       field: 'time',
       label: ' ',
       component: 'RangePicker',
-      defaultValue: [formatDaysAgo(14), formatDaysAgo()],
+      defaultValue: dateRangeArray(),
       componentProps: {
         showTime: false,
         ranges: timePikerExtra(),
       },
       colProps: { xs: 24, sm: 24, md: 12, lg: 6, xl: 6, xxl: 4 },
-      // slot: 'range',
     },
-    /* {
-        field: 'begintime',
-        label: ' ',
-        component: 'DatePicker',
-        colProps: searchColSpan,
-        render: ({ model, field }) => {
-          model[field] = formatDaysAgo(14, dateFmt);
-          return h(DatePicker, {
-            showTime: false,
-            format: dateFmt,
-            valueFormat: dateFmt,
-            value: model[field],
-            style: { width: '100%' },
-            placeholder: '开始时间',
-            onOpenChange: (open: boolean) => {
-              if (!open) {
-                endOpen.value = true;
-              }
-            },
-            onChange: (_, dateString: string) => (model[field] = dateString),
-          });
-        },
-      },
-      {
-        field: 'endtime',
-        label: ' ',
-        component: 'DatePicker',
-        colProps: searchColSpan,
-        render: ({ model, field }) => {
-          model[field] = formatDaysAgo(0, dateFmt);
-          return h(DatePicker, {
-            showTime: false,
-            format: dateFmt,
-            valueFormat: dateFmt,
-            value: model[field],
-            style: { width: '100%' },
-            placeholder: '结束时间',
-            onOpenChange: (open: boolean) => (endOpen.value = open),
-            onChange: (_, dateString: string) => (model[field] = dateString),
-          });
-        },
-      },*/
   ];
 
   const idColumn: BasicColumn[] = [

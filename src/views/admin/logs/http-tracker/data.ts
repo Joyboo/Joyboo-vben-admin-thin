@@ -1,7 +1,7 @@
 import { BasicColumn, FormSchema } from '/@/components/Table';
 import { h } from 'vue';
 import { Typography, Tag } from 'ant-design-vue';
-import { fmtFullTime, formatDaysAgo, timePikerExtra } from '/@/utils/dateUtil';
+import { fmtFullTime, timePikerExtra, dateRangeArray } from '/@/utils/dateUtil';
 import { DescItem } from '/@/components/Description';
 import { JsonPreview } from '/@/components/CodeEditor';
 
@@ -109,7 +109,7 @@ export const searchFormSchema: FormSchema[] = [
     label: ' ',
     labelWidth: 1,
     component: 'RangePicker',
-    defaultValue: [formatDaysAgo(14), formatDaysAgo()],
+    defaultValue: dateRangeArray(3),
     componentProps: {
       allowClear: false,
       showTime: true,

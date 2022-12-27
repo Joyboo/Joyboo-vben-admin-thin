@@ -7,6 +7,9 @@ export const DATE_TIME_FORMAT_FULL = 'YYYY-MM-DD HH:mm:ss';
 export const DATE_TIME_FORMAT = 'YYYY-MM-DD HH:mm';
 export const DATE_FORMAT = 'YYYY-MM-DD ';
 
+// 日期范围默认展示天数
+export const DATE_RANGE_DAYS = 14;
+
 export function formatToDateTime(
   date: moment.MomentInput = undefined,
   format = DATE_TIME_FORMAT,
@@ -18,15 +21,19 @@ export function formatToDate(date: moment.MomentInput = undefined, format = DATE
   return moment(date).format(format);
 }
 
-export function formatDaysAgo(day?: number) {
-  return moment().startOf('day').subtract(day, 'days');
-}
-
-export function fmtFullTime(timestamp: number) {
+export function fmtFullTime(timestamp: number, format = DATE_TIME_FORMAT_FULL) {
   if (timestamp.toString().length === 10) {
     timestamp *= 1000;
   }
-  return moment(timestamp).format(DATE_TIME_FORMAT_FULL);
+  return moment(timestamp).format(format);
+}
+
+export function formatDaysAgo(day?: number) {
+  return moment().subtract(day, 'days');
+}
+
+export function dateRangeArray(day = DATE_RANGE_DAYS) {
+  return [formatDaysAgo(day).startOf('day'), formatDaysAgo().endOf('day')];
 }
 
 export function timePikerExtra() {
