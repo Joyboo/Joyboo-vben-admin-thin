@@ -1,5 +1,5 @@
 import { h, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { router } from '/@/router';
 import { Space, notification, Button, Input, Avatar } from 'ant-design-vue';
 import HeaderImg from '/@/assets/images/header.jpg';
 import { useWebSocket as useCoreWebSocket, WebSocketOptions, WebSocketResult } from '@vueuse/core';
@@ -227,7 +227,6 @@ onWebSocket(Events.EVENT_2, (res: ResponseType<UserMessageType>) => {
 });
 
 onWebSocket(Events.EVENT_4, (res) => {
-  const router = useRouter();
   result.close();
   userStore.setToken(undefined);
   createConfirm({
@@ -235,7 +234,6 @@ onWebSocket(Events.EVENT_4, (res) => {
     title: () => '认证失败',
     content: () => res.msg,
     onOk() {
-      result.close();
       router.replace(PageEnum.BASE_LOGIN);
     },
   });
