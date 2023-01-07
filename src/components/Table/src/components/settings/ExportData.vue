@@ -1,5 +1,5 @@
 <template>
-  <template v-if="setting.exportType === ExportEnum.AND && isFunction(setting.exportAllFn)">
+  <template v-if="isShowAll">
     <Dropdown
       placement="bottomLeft"
       :trigger="['click']"
@@ -27,7 +27,7 @@
       </Tooltip>
     </Dropdown>
   </template>
-  <template v-else>
+  <template v-else-if="isAuth">
     <Tooltip placement="top">
       <template #title>
         <span>{{ t('component.excel.exportModalTitle') }}</span>
@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { toRaw, unref } from 'vue';
+  import { toRaw, unref, computed } from 'vue';
   import { Tooltip } from 'ant-design-vue';
   import { DownloadOutlined } from '@ant-design/icons-vue';
   import type { TableSetting } from '../../types/table';
@@ -52,6 +52,7 @@
   import { useRouter } from 'vue-router';
   import { downloadByData } from '/@/utils/file/download';
   import { dateUtil } from '/@/utils/dateUtil';
+  import { usePermission } from '/@/hooks/web/usePermission';
 
   const props = defineProps({
     setting: {
@@ -60,23 +61,40 @@
     },
   });
 
+  const { hasPermission } = usePermission();
   const table = useTableContext();
   const { t } = useI18n();
   const { footerField, exportThField, exprotFilename } = FETCH_SETTING;
   const { currentRoute } = useRouter();
   const title = unref(currentRoute).meta.title;
 
-  // 处理非ALL操作
+  // 权限认证
+  const isAuth = computed<boolean>(() => {
+    const { exportAuth = false } = props.setting;
+    return (exportAuth && hasPermission(exportAuth)) || !exportAuth;
+  });
+
+  // 显示下拉框，同时展示导出当前页 和 导出全部页
+  const isShowAll = computed<boolean>(() => {
+    const { exportType, exportAllFn } = props.setting;
+    return isAuth.value && exportType === ExportEnum.AND && isFunction(exportAllFn);
+  });
+
+  // 单选操作，导出当前页 或 导出全部页
   const doExport = () => {
-    switch (props.setting.exportType) {
+    const { exportType, exportAllFn } = props.setting;
+    switch (exportType) {
       case ExportEnum.CURR:
         return exportCurrentPage();
       case ExportEnum.ALL:
-        if (isFunction(props.setting.exportAllFn)) {
-          return exportAllPage();
+        if (isFunction(exportAllFn)) {
+          exportAllPage();
+        } else {
+          console.error('导出全部需要传递function: TableSetting.exportAllFn');
         }
+        break;
       default:
-        console.error('Export All Need Function Type Props: TableSetting.exportAllFn!!!');
+        console.error(`Unknown exportType: ${exportType}`);
         break;
     }
   };
@@ -132,8 +150,10 @@
       const ymd = dateUtil().format('YYYYMMDDHHmmss');
       const filename = `${title}-${ymd}.xlsx`;
       header[exprotFilename] = filename;
-      if (isFunction(props.setting.exportAllFn)) {
-        const { data, headers } = await props.setting.exportAllFn(header);
+
+      const { exportAllFn } = props.setting;
+      if (isFunction(exportAllFn)) {
+        const { data, headers } = await exportAllFn(header);
         downloadByData(data, filename, headers['content-type']);
       }
     } catch (e) {
@@ -174,7 +194,7 @@
                 record: dataItem,
                 index: dataItem[ROW_KEY],
                 /**
-                 * 此量为自定义字段, 用于使用customRender判断是否导出模式
+                 * 此量为自定义字段, 用于在customRender中判断是否导出模式，以返回不同类型值
                  * 为什么要有此量? 因为customRender允许返回 string | VNode | Jsx, 而导出模式只能为string类型
                  */
                 exportMode: true,
@@ -199,8 +219,8 @@
     }
 
     jsonToSheetXlsx({
-      data: data,
-      header: header,
+      data,
+      header,
       filename: `${title}.xlsx`,
       json2sheetOpts: {
         // 指定顺序

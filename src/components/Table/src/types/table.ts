@@ -147,6 +147,8 @@ export interface TableSetting {
   exportType?: ExportEnum;
   // 导出全部时此回调必传，否则视为无效
   exportAllFn?: Fn;
+  // 导出权限，若设置，则需要添加对应权限码
+  exportAuth?: string | string[];
 }
 
 export interface BasicTableProps<T = any> {
