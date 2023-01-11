@@ -42,36 +42,17 @@
   import HttpTrackerDrawerVue from './Drawer.vue';
   import RepeatWhereDrawerVue from './RepeatWhereDrawer.vue';
   import { columns } from './data';
-  import { listToTree } from '/@/utils/helper/treeHelper';
-  import { isArray } from '/@/utils/is';
-  import { omit } from 'lodash-es';
   import { JsonPreview } from '/@/components/CodeEditor';
 
   const DescriptionsItem = Descriptions.Item;
   const { createConfirm } = useMessage();
 
-  const checkEmptyChildren = (data: Recordable[]) => {
-    for (const i in data) {
-      if (isArray(data[i].children) && data[i].children.length === 0) {
-        data[i] = omit(data[i], 'children');
-      } else {
-        data[i].children = checkEmptyChildren(data[i].children);
-      }
-    }
-    return data;
-  };
-
   const [registerDrawer, { openDrawer }] = useDrawer();
   const [registerRepeatWhere, { openDrawer: openWhereDrawer }] = useDrawer();
   const [registerTable, { expandAll, reload }] = useTable({
     title: 'Api链路追踪',
-    titleHelpMessage: '此页为先查询出数据，再用数据构造为树级结构',
     api: httpTracker,
     columns,
-    afterFetch: (items) => {
-      const data = listToTree(items, { id: 'point_id', pid: 'parent_id' });
-      return checkEmptyChildren(data);
-    },
     isTreeTable: true,
     striped: false,
     useSearchForm: false,
