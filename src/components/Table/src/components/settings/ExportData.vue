@@ -47,12 +47,13 @@
   import { useTableContext } from '../../hooks/useTableContext';
   import { jsonToSheetXlsx } from '/@/components/Excel';
   import { Dropdown } from '/@/components/Dropdown';
-  import { isDef, isFunction, isString, isArray, isUnDef } from '/@/utils/is';
+  import { isFunction, isString, isArray, isUnDef, isTime, isNumeric } from '/@/utils/is';
   import { FETCH_SETTING, ACTION_COLUMN_FLAG, ROW_KEY } from '../../const';
   import { useRouter } from 'vue-router';
   import { downloadByData } from '/@/utils/file/download';
   import { dateUtil } from '/@/utils/dateUtil';
   import { usePermission } from '/@/hooks/web/usePermission';
+  import type { ExcelDataType } from 'xlsx';
 
   const props = defineProps({
     setting: {
@@ -173,9 +174,11 @@
 
     // 计算表头
     const header = {};
-    columns.forEach((item) => {
-      if (isString(item.dataIndex)) {
-        header[item.dataIndex] = item.title;
+    const workSheetOpts: { [x: string]: { [cell: string]: ExcelDataType } } = {};
+
+    columns.forEach(({ dataIndex, title }) => {
+      if (isString(dataIndex)) {
+        header[dataIndex] = title;
       }
     });
 
@@ -184,36 +187,47 @@
     const data: any[] = [];
 
     // 计算单行数据
-    const tableRowRender = (dataItem: any) => {
+    const tableRowRender = (itemData: any, itemIndex: number) => {
       const row = {};
-      columns.forEach((columnItem: BasicColumn) => {
-        if (isDef(columnItem.dataIndex)) {
-          const col = isFunction(columnItem.customRender)
-            ? columnItem.customRender({
-                text: dataItem[columnItem.dataIndex],
-                record: dataItem,
-                index: dataItem[ROW_KEY],
+      columns.forEach(({ dataIndex, customRender }, index) => {
+        if (isString(dataIndex)) {
+          const col = isFunction(customRender)
+            ? customRender({
+                text: itemData[dataIndex],
+                record: itemData,
+                index: itemData[ROW_KEY],
                 /**
                  * 此量为自定义字段, 用于在customRender中判断是否导出模式，以返回不同类型值
                  * 为什么要有此量? 因为customRender允许返回 string | VNode | Jsx, 而导出模式只能为string类型
                  */
                 exportMode: true,
               })
-            : dataItem[columnItem.dataIndex] ?? '';
-          row[columnItem.dataIndex] = col;
+            : itemData[dataIndex] ?? '';
+
+          row[dataIndex] = col;
+
+          // 计算每一列的ascii
+          const ascii = String.fromCharCode(65 + index);
+          workSheetOpts[`${ascii}${itemIndex}`] = {
+            t: isTime(col) ? 'd' : isNumeric(col) ? 'n' : 's',
+          };
         }
       });
       return row;
     };
 
-    dataSource.forEach((dataSourceItem: any) => {
-      const row = tableRowRender(dataSourceItem);
+    // 行索引，常规数据与合计数据累计, 表头不计入
+    let idx = 1;
+    dataSource.forEach((item: any) => {
+      idx++;
+      const row = tableRowRender(item, idx);
       row && data.push(row);
     });
 
     if (isArray(summer) && summer.length > 0) {
-      summer.forEach((summerItem) => {
-        const row = tableRowRender(summerItem);
+      idx++;
+      summer.forEach((item) => {
+        const row = tableRowRender(item, idx);
         row && data.push(row);
       });
     }
@@ -226,6 +240,7 @@
         // 指定顺序
         header: Object.keys(header),
       },
+      workSheetOpts,
     });
   }
 </script>

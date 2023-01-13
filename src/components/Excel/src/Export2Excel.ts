@@ -1,6 +1,7 @@
 import xlsx from 'xlsx';
 import type { WorkBook } from 'xlsx';
 import type { JsonToSheet, AoAToSheet } from './typing';
+import { deepMerge } from '/@/utils';
 
 const { utils, writeFile } = xlsx;
 
@@ -21,6 +22,7 @@ export function jsonToSheetXlsx<T = any>({
   }
 
   const worksheet = utils.json_to_sheet(arrData, json2sheetOpts);
+  deepMerge(worksheet, workSheetOpts);
 
   /* add worksheet to workbook */
   const workbook: WorkBook = {

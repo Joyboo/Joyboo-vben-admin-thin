@@ -97,3 +97,24 @@ export function isUrl(path: string): boolean {
     /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(?::\d+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)$/;
   return reg.test(path);
 }
+
+export function isTime(val): boolean {
+  return [
+    // Y-m-d H:i:s
+    new RegExp(
+      /^20\d{2}[\/-](0?[1-9]|1[012])[\/-](0?[1-9]|[12]\d|3[01])\s[012]?\d\:[0-5]?\d:[0-5]?\d$/,
+    ),
+    // Y-m-d
+    new RegExp(/^20\d{2}[\/-](0?[1-9]|1[012])[\/-](0?[1-9]|[12]\d|3[01])$/),
+    // H:i:s
+    new RegExp(/^[012]?\d\:[0-5]?\d:[0-5]?\d$/),
+  ].some((reg) => reg.test(val));
+}
+
+export function isNumeric(val: string | number): boolean {
+  if (isNumber(val)) {
+    return true;
+  }
+  const reg = new RegExp(/^(-?\d+)(\.\d+)?$/);
+  return reg.test(val);
+}
