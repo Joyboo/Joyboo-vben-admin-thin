@@ -53,7 +53,7 @@
   import { downloadByData } from '/@/utils/file/download';
   import { dateUtil } from '/@/utils/dateUtil';
   import { usePermission } from '/@/hooks/web/usePermission';
-  import type { ExcelDataType } from 'xlsx';
+  import type { WorkSheet, CellObject } from 'xlsx';
 
   const props = defineProps({
     setting: {
@@ -174,7 +174,7 @@
 
     // 计算表头
     const header = {};
-    const workSheetOpts: { [x: string]: { [cell: string]: ExcelDataType } } = {};
+    const workSheetOpts: WorkSheet = {};
 
     columns.forEach(({ dataIndex, title }) => {
       if (isString(dataIndex)) {
@@ -191,7 +191,7 @@
       const row = {};
       columns.forEach(({ dataIndex, customRender }, index) => {
         if (isString(dataIndex)) {
-          const col = isFunction(customRender)
+          const col: string = isFunction(customRender)
             ? customRender({
                 text: itemData[dataIndex],
                 record: itemData,
@@ -208,9 +208,9 @@
 
           // 计算每一列的ascii
           const ascii = String.fromCharCode(65 + index);
-          workSheetOpts[`${ascii}${itemIndex}`] = {
-            t: isTime(col) ? 'd' : isNumeric(col) ? 'n' : 's',
-          };
+
+          const option: CellObject = { t: isTime(col) ? 'd' : isNumeric(col) ? 'n' : 's' };
+          workSheetOpts[`${ascii}${itemIndex}`] = option;
         }
       });
       return row;
