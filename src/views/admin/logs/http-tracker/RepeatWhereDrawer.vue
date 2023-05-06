@@ -100,7 +100,7 @@
       label: '时间范围',
       subLabel: '（点击确定按钮触发Change）',
       component: 'RangePicker',
-      defaultValue: dateRangeArray(3),
+      defaultValue: dateRangeArray(0),
       required: true,
       componentProps: {
         allowClear: false,

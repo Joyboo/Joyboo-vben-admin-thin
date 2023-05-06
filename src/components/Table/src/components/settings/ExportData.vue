@@ -101,9 +101,9 @@
   };
 
   function getColumns(): BasicColumn[] {
-    return table
-      .getColumns()
-      .filter((item) => item.flag !== ACTION_COLUMN_FLAG && !item.defaultHidden);
+    return table.getColumns().filter(({ flag, defaultHidden = false, ifShow = true }) => {
+      return flag !== ACTION_COLUMN_FLAG && !defaultHidden && ifShow;
+    });
   }
 
   // 合计行数据

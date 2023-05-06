@@ -89,7 +89,9 @@
 
       const getColumns = computed(() => {
         const dataSource = unref(getDataSource);
-        const columns: BasicColumn[] = cloneDeep(table.getColumns());
+        const columns: BasicColumn[] = cloneDeep(table.getColumns()).filter(
+          (item) => isUnDef(item.ifShow) || !!item.ifShow,
+        );
         const index = columns.findIndex((item) => item.flag === INDEX_COLUMN_FLAG);
         const hasRowSummary = dataSource.some((item) => Reflect.has(item, SUMMARY_ROW_KEY));
         const hasIndexSummary = dataSource.some((item) => Reflect.has(item, SUMMARY_INDEX_KEY));

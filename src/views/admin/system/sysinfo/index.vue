@@ -97,7 +97,7 @@
         iconType: 'success',
         title: () => '查看SwooleTable',
         content: () => {
-          return h(JsonPreview, { data, deep: 3 });
+          return h(JsonPreview, { data, deep: 3, style: { overflowY: 'scroll', height: '50vh' } });
         },
       });
     } catch (e) {
@@ -107,3 +107,5 @@
     }
   }
 </script>
+
+<style lang="less" scoped></style>
