@@ -21,6 +21,7 @@
   import type { BasicColumn } from '../types/table';
   import { INDEX_COLUMN_FLAG, FETCH_SETTING } from '../const';
   import { useTableContext } from '../hooks/useTableContext';
+  import { usePermission } from '/@/hooks/web/usePermission';
 
   const SUMMARY_ROW_KEY = '_row';
   const SUMMARY_INDEX_KEY = '_index';
@@ -52,6 +53,7 @@
     props,
     setup(props) {
       const table = useTableContext();
+      const { hasPermission } = usePermission();
 
       const getDataSource = computed((): Recordable[] => {
         const { summaryFunc, summaryData, rowKey } = props;
@@ -90,7 +92,10 @@
       const getColumns = computed(() => {
         const dataSource = unref(getDataSource);
         const columns: BasicColumn[] = cloneDeep(table.getColumns()).filter(
-          (item) => isUnDef(item.ifShow) || !!item.ifShow,
+          (item) =>
+            (isUnDef(item.auth) || hasPermission(item.auth)) &&
+            (isUnDef(item.ifShow) || !!item.ifShow) &&
+            (isUnDef(item.defaultHidden) || !item.defaultHidden),
         );
         const index = columns.findIndex((item) => item.flag === INDEX_COLUMN_FLAG);
         const hasRowSummary = dataSource.some((item) => Reflect.has(item, SUMMARY_ROW_KEY));
