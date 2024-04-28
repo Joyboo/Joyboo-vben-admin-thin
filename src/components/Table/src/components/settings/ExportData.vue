@@ -54,6 +54,7 @@
   import { dateUtil } from '/@/utils/dateUtil';
   import { usePermission } from '/@/hooks/web/usePermission';
   import type { WorkSheet, CellObject } from 'xlsx';
+  import { omit } from 'lodash-es';
 
   const props = defineProps({
     setting: {
@@ -164,9 +165,30 @@
     }
   }
 
+  // 将BasicColumn的无限级children拍平为二级结构
+  function flattenColumn(data: BasicColumn[]): BasicColumn[] {
+    let flattened: BasicColumn[] = [];
+
+    for (const item of data) {
+      // 先判断children
+      if (item.children && item.children.length > 0) {
+        const children = flattenColumn(item.children);
+        children.map((chitem) => {
+          chitem.title = `${item.title}-${chitem.title}`;
+        });
+
+        flattened = flattened.concat(children);
+      } else {
+        flattened.push(omit(item, 'children'));
+      }
+    }
+    return flattened;
+  }
+
   // 导出当前页
   function exportCurrentPage() {
-    const columns = getColumns();
+    const columns = flattenColumn(getColumns());
+
     // 表格数据
     const dataSource = table.getDataSource();
     // 合计行数据
@@ -187,28 +209,31 @@
     const data: any[] = [];
 
     // 计算单行数据
-    const tableRowRender = (itemData: any, itemIndex: number) => {
+    const tableRowRender = (itemRecord: any, itemIndex: number) => {
       const row = {};
-      columns.forEach(({ dataIndex, customRender }, index) => {
+      columns.forEach(({ dataIndex = '', customRender }, index) => {
         if (isString(dataIndex)) {
-          const col: string = isFunction(customRender)
+          // 支持a.b.c语法,并向上兼容未来的antdv数组格式的dataIndex
+          const didx: string[] = isString(dataIndex) ? dataIndex.split('.') : dataIndex;
+          const itemValue = didx.reduce((out, item) => out[item], itemRecord);
+
+          const col = isFunction(customRender)
             ? customRender({
-                text: itemData[dataIndex],
-                record: itemData,
-                index: itemData[ROW_KEY],
+                text: itemValue,
+                record: itemRecord,
+                index: itemRecord[ROW_KEY],
                 /**
                  * 此量为自定义字段, 用于在customRender中判断是否导出模式，以返回不同类型值
                  * 为什么要有此量? 因为customRender允许返回 string | VNode | Jsx, 而导出模式只能为string类型
                  */
                 exportMode: true,
               })
-            : itemData[dataIndex] ?? '';
+            : itemValue;
 
           row[dataIndex] = col;
 
           // 计算每一列的ascii
           const ascii = String.fromCharCode(65 + index);
-
           const option: CellObject = { t: isTime(col) ? 'd' : isNumeric(col) ? 'n' : 's' };
           workSheetOpts[`${ascii}${itemIndex}`] = option;
         }
