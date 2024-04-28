@@ -53,7 +53,7 @@
   import { downloadByData } from '/@/utils/file/download';
   import { dateUtil } from '/@/utils/dateUtil';
   import { usePermission } from '/@/hooks/web/usePermission';
-  import type { WorkSheet, CellObject } from 'xlsx';
+  import type { WorkSheet, CellObject, ColInfo } from 'xlsx';
   import { omit } from 'lodash-es';
 
   const props = defineProps({
@@ -196,13 +196,19 @@
 
     // 计算表头
     const header = {};
+    // 列属性
+    const colOption: ColInfo[] = [];
     const workSheetOpts: WorkSheet = {};
 
-    columns.forEach(({ dataIndex, title }) => {
+    columns.forEach(({ dataIndex, title, width = 100 }) => {
       if (isString(dataIndex)) {
         header[dataIndex] = title;
+        colOption.push({ wpx: parseInt(width) });
       }
     });
+    if (colOption.length > 0) {
+      workSheetOpts['!cols'] = colOption;
+    }
 
     // 有些Table数据是通过customRender渲染的，运行它获取最终表格数据
     // 需注意的是 customRender 也允许为插槽，暂不支持插槽模式渲染的数据
@@ -215,7 +221,7 @@
         if (isString(dataIndex)) {
           // 支持a.b.c语法,并向上兼容未来的antdv数组格式的dataIndex
           const didx: string[] = isString(dataIndex) ? dataIndex.split('.') : dataIndex;
-          const itemValue = didx.reduce((out, item) => out[item], itemRecord);
+          const itemValue = didx.reduce((out, item) => out[item], itemRecord) ?? '';
 
           const col = isFunction(customRender)
             ? customRender({
